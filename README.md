@@ -1,6 +1,7 @@
 # The Polling Client
-The Polling Client can serve as an interface between a Camunda process engine and a Kafka Streaming Platform, where the former is the data source and the later acts as a data store.
-Twwo polling modes are supported: Polling via JDBC access from a Camunda database using an embedded Camunda engine and polling via the Camunda engines own REST API from an existing Camunda instance.
+The Polling Client is a useful tool for the extraction of Camunda process data and their permanent storage in Apache Kafka. As such it is used in the project [bpmn.ai](https://github.com/viadee/bpmn.ai), that aims to use standard process data for data mining.
+This Polling Client can serve as an interface between a Camunda process engine and a Kafka Streaming Platform, where the former is the data source and the later acts as a data store.
+Two different polling modes are supported: Polling via JDBC access from a Camunda database using an embedded Camunda engine and polling via the Camunda engines own REST API from an existing Camunda instance.
 
 ## Polling Client Configuration
 The polling mode selection is done by using profiles.
