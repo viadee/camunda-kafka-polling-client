@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" id="Definitions_0payfsz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.16.2">
+  <bpmn:process id="activityTestProcess" isExecutable="true">
+    <bpmn:startEvent id="StartEvent" name="Process started">
+      <bpmn:outgoing>SequenceFlow_12ff9js</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_12ff9js" sourceRef="StartEvent" targetRef="pause1" />
+    <bpmn:endEvent id="EndEvent" name="Process ended">
+      <bpmn:incoming>SequenceFlow_0ein7ff</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1wbse2j" sourceRef="pause1" targetRef="pause2" />
+    <bpmn:intermediateCatchEvent id="pause1" name="Pause 1">
+      <bpmn:incoming>SequenceFlow_12ff9js</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1wbse2j</bpmn:outgoing>
+      <bpmn:messageEventDefinition messageRef="Message_1sju5i0" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0ayreum" sourceRef="pause2" targetRef="pause3" />
+    <bpmn:intermediateCatchEvent id="pause2" name="Pause 2">
+      <bpmn:incoming>SequenceFlow_1wbse2j</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0ayreum</bpmn:outgoing>
+      <bpmn:messageEventDefinition messageRef="Message_0up6zj4" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0ein7ff" sourceRef="pause3" targetRef="EndEvent" />
+    <bpmn:intermediateCatchEvent id="pause3" name="Pause 3">
+      <bpmn:incoming>SequenceFlow_0ayreum</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0ein7ff</bpmn:outgoing>
+      <bpmn:messageEventDefinition messageRef="Message_17jgryl" />
+    </bpmn:intermediateCatchEvent>
+  </bpmn:process>
+  <bpmn:message id="Message_1nctj9f" name="pauseMessage" />
+  <bpmn:message id="Message_1sju5i0" name="pause1" />
+  <bpmn:message id="Message_0up6zj4" name="pause2" />
+  <bpmn:message id="Message_17jgryl" name="pause3" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="activityTestProcess">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent">
+        <dc:Bounds x="165" y="137" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="145" y="180" width="77" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_12ff9js_di" bpmnElement="SequenceFlow_12ff9js">
+        <di:waypoint x="201" y="155" />
+        <di:waypoint x="293" y="155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_1uzw8qn_di" bpmnElement="EndEvent">
+        <dc:Bounds x="664" y="137" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="645" y="180" width="74" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1wbse2j_di" bpmnElement="SequenceFlow_1wbse2j">
+        <di:waypoint x="329" y="155" />
+        <di:waypoint x="404" y="155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="IntermediateCatchEvent_0gv956s_di" bpmnElement="pause1">
+        <dc:Bounds x="293" y="137" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="291" y="180" width="41" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0ayreum_di" bpmnElement="SequenceFlow_0ayreum">
+        <di:waypoint x="440" y="155" />
+        <di:waypoint x="514" y="155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="IntermediateCatchEvent_1bmqgdf_di" bpmnElement="pause2">
+        <dc:Bounds x="404" y="137" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="402" y="180" width="41" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0ein7ff_di" bpmnElement="SequenceFlow_0ein7ff">
+        <di:waypoint x="550" y="155" />
+        <di:waypoint x="664" y="155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="IntermediateCatchEvent_1itokdv_di" bpmnElement="pause3">
+        <dc:Bounds x="514" y="137" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="512" y="180" width="41" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>de.viadee.camunda</groupId>
+		<artifactId>camunda-kafka-polling-client-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<artifactId>camunda-kafka-model</artifactId>
+
+	<organization>
+		<name>viadee Unternehmensberatung AG</name>
+		<url>www.viadee.de</url>
+	</organization>
+
+	<name>camunda-kafka-polling-client</name>
+	<description>Client that enables to load data from camunda and store it on a kafka server.</description>
+	<inceptionYear>2018</inceptionYear>
+
+	<developers>
+		<developer>
+			<name>Mario Micudaj</name>
+			<email>Mario.Micudaj@viadee.de</email>
+			<organization>viadee Unternehmensberatung AG</organization>
+			<organizationUrl>http://www.viadee.de</organizationUrl>
+		</developer>
+		<developer>
+			<name>Thorben Hellweg</name>
+			<email>Thorben.Hellweg@viadee.de</email>
+			<organization>viadee Unternehmensberatung AG</organization>
+			<organizationUrl>http://www.viadee.de</organizationUrl>
+		</developer>
+		<developer>
+			<name>Caroline Methner</name>
+			<email>Caroline.Methner@viadee.de</email>
+			<organization>viadee Unternehmensberatung AG</organization>
+			<organizationUrl>http://www.viadee.de</organizationUrl>
+		</developer>
+		<developer>
+			<name>Frank Koehne</name>
+			<email>Frank.Koehne@viadee.de</email>
+			<organization>viadee Unternehmensberatung AG</organization>
+			<organizationUrl>http://www.viadee.de</organizationUrl>
+		</developer>
+	</developers>
+
+	<dependencies>
+		<!-- JSON -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+	</dependencies>
+
+</project>

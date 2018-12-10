@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>de.viadee.camunda</groupId>
+	<artifactId>camunda-kafka-polling-client-parent</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>camunda-kafka-model</module>
+		<module>camunda-kafka-polling-client</module>
+	</modules>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+
+		<spring-boot.version>2.0.0.RELEASE</spring-boot.version>
+		<camunda.version>7.8.0</camunda.version>
+		<kafka.version>1.0.0</kafka.version>
+		<jackson.version>2.9.4</jackson.version>
+		<postgresql.version>42.2.1</postgresql.version>
+		<h2.version>1.4.196</h2.version>
+		<lombok.version>1.18.4</lombok.version>
+	</properties>
+
+	<organization>
+		<name>viadee Unternehmensberatung AG</name>
+		<url>www.viadee.de</url>
+	</organization>
+
+	<name>camunda-kafka-polling-client-parent</name>
+	<description>Repository that contans the camunda-kafka-polling-client and the camunda-kafka-model.</description>
+	<inceptionYear>2018</inceptionYear>
+
+	<developers>
+		<developer>
+			<name>Mario Micudaj</name>
+			<email>Mario.Micudaj@viadee.de</email>
+			<organization>viadee Unternehmensberatung AG</organization>
+			<organizationUrl>http://www.viadee.de</organizationUrl>
+		</developer>
+		<developer>
+			<name>Thorben Hellweg</name>
+			<email>Thorben.Hellweg@viadee.de</email>
+			<organization>viadee Unternehmensberatung AG</organization>
+			<organizationUrl>http://www.viadee.de</organizationUrl>
+		</developer>
+		<developer>
+			<name>Caroline Methner</name>
+			<email>Caroline.Methner@viadee.de</email>
+			<organization>viadee Unternehmensberatung AG</organization>
+			<organizationUrl>http://www.viadee.de</organizationUrl>
+		</developer>
+		<developer>
+			<name>Frank Koehne</name>
+			<email>Frank.Koehne@viadee.de</email>
+			<organization>viadee Unternehmensberatung AG</organization>
+			<organizationUrl>http://www.viadee.de</organizationUrl>
+		</developer>
+	</developers>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>${spring-boot.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.camunda.bpm</groupId>
+				<artifactId>camunda-bom</artifactId>
+				<version>${camunda.version}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-annotations</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.kafka</groupId>
+				<artifactId>kafka-clients</artifactId>
+				<version>${kafka.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.postgresql</groupId>
+				<artifactId>postgresql</artifactId>
+				<version>${postgresql.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.h2database</groupId>
+				<artifactId>h2</artifactId>
+				<version>${h2.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<finalName>${project.artifactId}</finalName>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-maven-plugin</artifactId>
+					<version>${spring-boot.version}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>repackage</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>
