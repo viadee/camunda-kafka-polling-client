@@ -23,7 +23,7 @@
 		<spring-boot.version>2.0.0.RELEASE</spring-boot.version>
 		<camunda.version>7.8.0</camunda.version>
 		<kafka.version>1.0.0</kafka.version>
-		<jackson.version>2.9.4</jackson.version>
+		<jackson.version>2.9.7</jackson.version>
 		<postgresql.version>42.2.1</postgresql.version>
 		<h2.version>1.4.196</h2.version>
 		<lombok.version>1.18.4</lombok.version>
