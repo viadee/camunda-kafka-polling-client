@@ -1,9 +1,11 @@
-# The Polling Client
-The Polling Client is a useful tool for the extraction of Camunda process data and their permanent storage in Apache Kafka. As such it is used in the project [bpmn.ai](https://github.com/viadee/bpmn.ai), that aims to use standard process data for data mining.
-This Polling Client can serve as an interface between a Camunda process engine and a Kafka Streaming Platform, where the former is the data source and the later acts as a data store.
+# The Camunda-Kafka Polling Client
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+
+The Polling Client is a useful tool for the extraction of Camunda process data and their permanent storage in Apache Kafka. As such it is used in the project [bpmn.ai](https://github.com/viadee/bpmn.ai), that aims to open up standard process data for data mining.
+
 Two different polling modes are supported: Polling via JDBC access from a Camunda database using an embedded Camunda engine and polling via the Camunda engines own REST API from an existing Camunda instance.
 
-## Polling Client Configuration
+## Configuration
 The polling mode selection is done by using profiles.
 The polling client can be configured on several levels, i.e. directly via the applications properties files or by setting environment variables.
 
@@ -34,3 +36,13 @@ The polling client can be configured on several levels, i.e. directly via the ap
 #### Further configurations
 
 Further configurations can be made via the application.properties file, e.g. setting the polling interval (default: every 30000 ms).
+
+## Collaboration
+
+The project is operated and further developed by the viadee Consulting AG in Münster, Westphalia.
+* Community contributions to the project are welcome: Please open Github-Issues with suggestions (or PR), which we can then edit in the team.
+* We are also looking for further partners who have interesting process data to refine our tooling as well as partners that are simply interested in a discussion about AI and data warehouses in the context of business process automation.
+
+## Roadmap
+This software component is considered to be stable and ready for production use.
+However, we plan to extend on it if there is demand or if the Camunda APIs change.

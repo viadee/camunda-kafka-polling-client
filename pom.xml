@@ -35,10 +35,32 @@
 	</organization>
 
 	<name>camunda-kafka-polling-client-parent</name>
-	<description>Repository that contans the camunda-kafka-polling-client and the camunda-kafka-model.</description>
+	<description>
+		A small java-based toolset to gather event data from a Camunda bpm engine and store it in Apache Kafka.
+		Repository contains the camunda-kafka-polling-client and the camunda-kafka-model, to make reuse of the data structures easy.
+		This tooling is meant to be used as a part of the viadee Process Warehouse or the bpmn.ai concepts.
+	</description>
 	<inceptionYear>2018</inceptionYear>
 
 	<developers>
+		<developer>
+			<name>Michael Twelkemeier</name>
+			<email>Michael.Twelkemeier@viadee.de</email>
+			<organization>viadee Unternehmensberatung AG</organization>
+			<organizationUrl>http://www.viadee.de</organizationUrl>
+		</developer>
+		<developer>
+			<name>Jan-Philipp Friedenstab</name>
+			<email>Jan-Philipp.Friedenstab@viadee.de</email>
+			<organization>viadee Unternehmensberatung AG</organization>
+			<organizationUrl>http://www.viadee.de</organizationUrl>
+		</developer>
+		<developer>
+			<name>Sebastian Sirch</name>
+			<email>Sebastian.Sirch@viadee.de</email>
+			<organization>viadee Unternehmensberatung AG</organization>
+			<organizationUrl>http://www.viadee.de</organizationUrl>
+		</developer>
 		<developer>
 			<name>Mario Micudaj</name>
 			<email>Mario.Micudaj@viadee.de</email>
