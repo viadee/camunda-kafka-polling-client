@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -22,7 +22,8 @@
 	<name>camunda-kafka-polling-client</name>
 	<description>
 		A small java-based toolset to gather event data from a Camunda bpm engine and store it in Apache Kafka.
-		Repository contains the camunda-kafka-polling-client and the camunda-kafka-model, to make reuse of the data structures easy.
+		Repository contains the camunda-kafka-polling-client and the camunda-kafka-model, to make reuse of the data
+		structures easy.
 		This tooling is meant to be used as a part of the viadee Process Warehouse or the bpmn.ai concepts.
 
 		This is the model module, i.e. it contains the data model classes for reuse by java based,
@@ -30,26 +31,26 @@
 	</description>
 	<inceptionYear>2018</inceptionYear>
 	<licenses>
-			<license>
-				<name>BSD-3 Clause</name>
-				<url>https://opensource.org/licenses/BSD-3-Clause</url>
-			</license>
+		<license>
+			<name>BSD-3 Clause</name>
+			<url>https://opensource.org/licenses/BSD-3-Clause</url>
+		</license>
 	</licenses>
 
 	<ciManagement>
-			<url>https://travis-ci.org/viadee/camunda-kafka-polling-client</url>
-			<system>Travis</system>
-		</ciManagement>
+		<url>https://travis-ci.org/viadee/camunda-kafka-polling-client</url>
+		<system>Travis</system>
+	</ciManagement>
 
-		<issueManagement>
-			<url>https://github.com/viadee/camunda-kafka-polling-client/issues</url>
-			<system>GitHub</system>
-		</issueManagement>
+	<issueManagement>
+		<url>https://github.com/viadee/camunda-kafka-polling-client/issues</url>
+		<system>GitHub</system>
+	</issueManagement>
 
-		<scm>
-			<connection>https://github.com/viadee/camunda-kafka-polling-client</connection>
-			<url>GitHub</url>
-		</scm>
+	<scm>
+		<connection>https://github.com/viadee/camunda-kafka-polling-client</connection>
+		<url>GitHub</url>
+	</scm>
 
 	<developers>
 		<developer>
@@ -97,48 +98,48 @@
 	</developers>
 
 	<profiles>
-				<profile>
-					<id>release-sign-artifacts</id>
-					<activation>
-						<property>
-							<name>performRelease</name>
-							<value>true</value>
-						</property>
-					</activation>
-					<build>
-						<plugins>
-							<plugin>
-								<groupId>org.apache.maven.plugins</groupId>
-								<artifactId>maven-gpg-plugin</artifactId>
-								<version>1.6</version>
-								<executions>
-									<execution>
-										<id>sign-artifacts</id>
-										<phase>verify</phase>
-										<goals>
-											<goal>sign</goal>
-										</goals>
-									</execution>
-								</executions>
-							</plugin>
-						</plugins>
-					</build>
-				</profile>
-		</profiles>
+		<profile>
+			<id>release-sign-artifacts</id>
+			<activation>
+				<property>
+					<name>performRelease</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
-		<distributionManagement>
-			<site>
-				<id>website</id>
-				<url>file://${basedir}/docs/MavenSite</url>
-			</site>
-			<snapshotRepository>
-				<id>ossrh</id>
-				<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-			</snapshotRepository>
-			<repository>
-				<id>ossrh</id>
-				<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-			</repository>
+	<distributionManagement>
+		<site>
+			<id>website</id>
+			<url>file://${basedir}/docs/MavenSite</url>
+		</site>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+		</repository>
 	</distributionManagement>
 
 	<dependencies>
@@ -187,14 +188,13 @@
 				</executions>
 			</plugin>
 
-
 			<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-deploy-plugin</artifactId>
-					<version>2.4</version>
-					<configuration>
-							<skip>false</skip> <!-- reused product, deployment in a repo -->
-					</configuration>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<skip>false</skip> <!-- reused product, deployment in a repo -->
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

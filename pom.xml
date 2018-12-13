@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>de.viadee.camunda</groupId>
@@ -37,7 +37,8 @@
 	<name>camunda-kafka-polling-client-parent</name>
 	<description>
 		A small java-based toolset to gather event data from a Camunda bpm engine and store it in Apache Kafka.
-		Repository contains the camunda-kafka-polling-client and the camunda-kafka-model, to make reuse of the data structures easy.
+		Repository contains the camunda-kafka-polling-client and the camunda-kafka-model, to make reuse of the data
+		structures easy.
 		This tooling is meant to be used as a part of the viadee Process Warehouse or the bpmn.ai concepts.
 	</description>
 	<inceptionYear>2018</inceptionYear>
@@ -158,12 +159,12 @@
 				</plugin>
 
 				<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-deploy-plugin</artifactId>
-						<version>2.4</version>
-						<configuration>
-								<skip>true</skip> <!-- end-product, no need for deployment in a repo -->
-						</configuration>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>2.4</version>
+					<configuration>
+						<skip>true</skip> <!-- end-product, no need for deployment in a repo -->
+					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
