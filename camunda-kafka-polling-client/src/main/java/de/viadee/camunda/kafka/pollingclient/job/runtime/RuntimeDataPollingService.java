@@ -22,6 +22,9 @@ import de.viadee.camunda.kafka.event.VariableUpdateEvent;
  * We have to keep in mind, this state is by now and the data is polled for a given time slice.
  * This time slice might be slightly in the past or (in case we redo a broken polling) quite a lot.
  * </p>
+ *
+ * @author viadee
+ * @version $Id: $Id
  */
 public class RuntimeDataPollingService implements Runnable {
 
@@ -35,6 +38,14 @@ public class RuntimeDataPollingService implements Runnable {
 
     private final ApplicationProperties properties;
 
+    /**
+     * <p>Constructor for RuntimeDataPollingService.</p>
+     *
+     * @param pollingService a {@link de.viadee.camunda.kafka.pollingclient.service.polling.PollingService} object.
+     * @param lastPolledService a {@link de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledService} object.
+     * @param eventService a {@link de.viadee.camunda.kafka.pollingclient.service.event.EventService} object.
+     * @param properties a {@link de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties} object.
+     */
     public RuntimeDataPollingService(PollingService pollingService, LastPolledService lastPolledService,
             EventService eventService, ApplicationProperties properties) {
         this.pollingService = pollingService;
@@ -43,6 +54,7 @@ public class RuntimeDataPollingService implements Runnable {
         this.properties = properties;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void run() {
         final PollingTimeslice pollingTimeslice = lastPolledService.getPollingTimeslice();

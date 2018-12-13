@@ -14,6 +14,12 @@ import de.viadee.camunda.kafka.pollingclient.service.event.EventService;
 import de.viadee.camunda.kafka.event.DeploymentEvent;
 import de.viadee.camunda.kafka.event.HistoryEvent;
 
+/**
+ * <p>KafkaEventServiceImpl class.</p>
+ *
+ * @author viadee
+ * @version $Id: $Id
+ */
 @Component
 public class KafkaEventServiceImpl implements EventService {
 
@@ -24,11 +30,18 @@ public class KafkaEventServiceImpl implements EventService {
     private final ApplicationProperties properties;
 
     @Autowired
+    /**
+     * <p>Constructor for KafkaEventServiceImpl.</p>
+     *
+     * @param kafkaTemplate a {@link org.springframework.kafka.core.KafkaTemplate} object.
+     * @param properties a {@link de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties} object.
+     */
     public KafkaEventServiceImpl(KafkaTemplate<String, String> kafkaTemplate, ApplicationProperties properties) {
         this.kafkaTemplate = kafkaTemplate;
         this.properties = properties;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void sendEvent(HistoryEvent event) {
         try {
@@ -40,6 +53,7 @@ public class KafkaEventServiceImpl implements EventService {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void sendEvent(final DeploymentEvent event) {
         try {

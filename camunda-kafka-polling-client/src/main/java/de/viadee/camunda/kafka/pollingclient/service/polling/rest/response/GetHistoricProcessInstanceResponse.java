@@ -10,6 +10,9 @@ import lombok.ToString;
 
 /**
  * Response structure of Camunda REST API <code>GET /history/process-instance</code>
+ *
+ * @author viadee
+ * @version $Id: $Id
  */
 @Getter
 @Setter

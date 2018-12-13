@@ -5,6 +5,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * <p>HistoryEvent class.</p>
+ *
+ * @author viadee
+ * @version $Id: $Id
+ */
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)

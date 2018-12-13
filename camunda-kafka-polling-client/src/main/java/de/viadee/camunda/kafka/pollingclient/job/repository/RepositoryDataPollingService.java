@@ -12,6 +12,9 @@ import de.viadee.camunda.kafka.event.ProcessDefinitionEvent;
 
 /**
  * Implementation of polling repository data
+ *
+ * @author viadee
+ * @version $Id: $Id
  */
 public class RepositoryDataPollingService implements Runnable {
 
@@ -25,6 +28,14 @@ public class RepositoryDataPollingService implements Runnable {
 
     private final ApplicationProperties properties;
 
+    /**
+     * <p>Constructor for RepositoryDataPollingService.</p>
+     *
+     * @param pollingService a {@link de.viadee.camunda.kafka.pollingclient.service.polling.PollingService} object.
+     * @param lastPolledService a {@link de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledService} object.
+     * @param eventService a {@link de.viadee.camunda.kafka.pollingclient.service.event.EventService} object.
+     * @param properties a {@link de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties} object.
+     */
     public RepositoryDataPollingService(PollingService pollingService, LastPolledService lastPolledService,
             EventService eventService, ApplicationProperties properties) {
         this.pollingService = pollingService;
@@ -33,6 +44,7 @@ public class RepositoryDataPollingService implements Runnable {
         this.properties = properties;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void run() {
         final PollingTimeslice pollingTimeslice = lastPolledService.getPollingTimeslice();

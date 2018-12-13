@@ -20,6 +20,9 @@ import de.viadee.camunda.kafka.pollingclient.service.lastpolled.PollingTimeslice
  * Implementation of file based last polled data.
  * <p>
  * This implementation might be optimized to perform some kind of caching instead of always performing synchronous IO.
+ *
+ * @author viadee
+ * @version $Id: $Id
  */
 public class FilebasedLastPolledServiceImpl implements LastPolledService {
 
@@ -29,10 +32,16 @@ public class FilebasedLastPolledServiceImpl implements LastPolledService {
 
     private final PollingProperties pollingProperties;
 
+    /**
+     * <p>Constructor for FilebasedLastPolledServiceImpl.</p>
+     *
+     * @param pollingProperties a {@link de.viadee.camunda.kafka.pollingclient.config.properties.PollingProperties} object.
+     */
     public FilebasedLastPolledServiceImpl(final PollingProperties pollingProperties) {
         this.pollingProperties = pollingProperties;
     }
 
+    /** {@inheritDoc} */
     @Override
     public PollingTimeslice getPollingTimeslice() {
         final Properties properties = readProperties();
@@ -82,6 +91,7 @@ public class FilebasedLastPolledServiceImpl implements LastPolledService {
         return properties;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void updatePollingTimeslice(final PollingTimeslice pollingTimeslice) {
         final File lastPolledFile = pollingProperties.getLastPolledFile();

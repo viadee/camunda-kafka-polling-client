@@ -5,6 +5,12 @@ import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * <p>IncidentEvent class.</p>
+ *
+ * @author viadee
+ * @version $Id: $Id
+ */
 @Getter
 @Setter
 public class IncidentEvent extends HistoryEvent {

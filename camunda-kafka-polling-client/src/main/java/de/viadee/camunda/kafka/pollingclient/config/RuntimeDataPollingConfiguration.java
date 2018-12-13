@@ -13,6 +13,12 @@ import de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledServic
 import de.viadee.camunda.kafka.pollingclient.service.lastpolled.filebased.FilebasedLastPolledServiceImpl;
 import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
 
+/**
+ * <p>RuntimeDataPollingConfiguration class.</p>
+ *
+ * @author viadee
+ * @version $Id: $Id
+ */
 @Configuration
 public class RuntimeDataPollingConfiguration {
 
@@ -25,16 +31,31 @@ public class RuntimeDataPollingConfiguration {
     @Autowired
     private EventService eventService;
 
+    /**
+     * <p>runtimeDataLastPolledService.</p>
+     *
+     * @return a {@link de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledService} object.
+     */
     @Bean
     public LastPolledService runtimeDataLastPolledService() {
         return new FilebasedLastPolledServiceImpl(properties.getRuntimeData());
     }
 
+    /**
+     * <p>runtimeDataPollingService.</p>
+     *
+     * @return a {@link de.viadee.camunda.kafka.pollingclient.job.runtime.RuntimeDataPollingService} object.
+     */
     @Bean
     public RuntimeDataPollingService runtimeDataPollingService() {
         return new RuntimeDataPollingService(pollingService, runtimeDataLastPolledService(), eventService, properties);
     }
 
+    /**
+     * <p>runtimeDataPollingJob.</p>
+     *
+     * @return a {@link de.viadee.camunda.kafka.pollingclient.job.runtime.RuntimeDataPollingJob} object.
+     */
     @Bean
     @ConditionalOnProperty(name = "polling.runtime-data.enabled", havingValue = "true", matchIfMissing = true)
     public RuntimeDataPollingJob runtimeDataPollingJob() {

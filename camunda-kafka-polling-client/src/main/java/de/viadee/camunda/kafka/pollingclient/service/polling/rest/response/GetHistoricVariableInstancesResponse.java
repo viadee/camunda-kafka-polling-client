@@ -13,6 +13,9 @@ import lombok.ToString;
 
 /**
  * Response structure of Camunda REST API <code>GET /history/variable-instance</code>
+ *
+ * @author viadee
+ * @version $Id: $Id
  */
 @Getter
 @Setter
@@ -58,6 +61,9 @@ public class GetHistoricVariableInstancesResponse {
 
     /**
      * If {@link #valueInfo} is available as Map-Data, retrieve value of given key as String.
+     *
+     * @param key a {@link java.lang.String} object.
+     * @return a {@link java.lang.String} object.
      */
     public String getValueInfoEntry(String key) {
         return valueInfo instanceof Map ?

@@ -8,6 +8,9 @@ import lombok.Setter;
 
 /**
  * Properties for polling using Camunda REST API
+ *
+ * @author viadee
+ * @version $Id: $Id
  */
 @Getter
 @Setter
@@ -29,6 +32,11 @@ public class CamundaRestPollingProperties {
      */
     private String password;
 
+    /**
+     * <p>isAuthenticationEnabled.</p>
+     *
+     * @return a boolean.
+     */
     public boolean isAuthenticationEnabled() {
         return StringUtils.isNotEmpty(username);
     }

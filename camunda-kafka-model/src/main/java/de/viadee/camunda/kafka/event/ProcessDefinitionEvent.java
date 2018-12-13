@@ -3,6 +3,12 @@ package de.viadee.camunda.kafka.event;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * <p>ProcessDefinitionEvent class.</p>
+ *
+ * @author viadee
+ * @version $Id: $Id
+ */
 @Getter
 @Setter
 public class ProcessDefinitionEvent extends DeploymentEvent {

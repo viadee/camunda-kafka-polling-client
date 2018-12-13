@@ -9,6 +9,9 @@ import lombok.Setter;
 
 /**
  * Response structure of Camunda REST API <code>GET /deployment</code>
+ *
+ * @author viadee
+ * @version $Id: $Id
  */
 @Getter
 @Setter

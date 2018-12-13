@@ -36,6 +36,12 @@ import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetHi
 import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetProcessDefinitionXmlResponse;
 
 
+/**
+ * <p>CamundaRestPollingServiceImpl class.</p>
+ *
+ * @author viadee
+ * @version $Id: $Id
+ */
 public class CamundaRestPollingServiceImpl implements PollingService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CamundaRestPollingServiceImpl.class);
@@ -48,6 +54,12 @@ public class CamundaRestPollingServiceImpl implements PollingService {
 
     private final RestTemplate restTemplate;
 
+    /**
+     * <p>Constructor for CamundaRestPollingServiceImpl.</p>
+     *
+     * @param camundaProperties a {@link de.viadee.camunda.kafka.pollingclient.config.properties.CamundaRestPollingProperties} object.
+     * @param restTemplate a {@link org.springframework.web.client.RestTemplate} object.
+     */
     public CamundaRestPollingServiceImpl(CamundaRestPollingProperties camundaProperties, RestTemplate restTemplate) {
         this.camundaProperties = camundaProperties;
         this.restTemplate = restTemplate;
@@ -55,6 +67,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         this.objectMapper.setDateFormat(new SimpleDateFormat(API_DATE_FORMAT));
     }
 
+    /** {@inheritDoc} */
     @Override
     public Iterable<ProcessInstanceEvent> pollFinishedProcessInstances(Date startedAfter, Date startedBefore,
             Date finishedAfter) {
@@ -95,6 +108,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Iterable<ProcessInstanceEvent> pollUnfinishedProcessInstances(Date startedAfter, Date startedBefore) {
         final String url = camundaProperties.getUrl()
@@ -133,6 +147,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Iterable<ActivityInstanceEvent> pollFinishedActivities(String processInstanceId, Date finishedAfter,
             Date finishedBefore) {
@@ -173,6 +188,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Iterable<ActivityInstanceEvent> pollUnfinishedActivities(String processInstanceId, Date startedAfter,
             Date startedBefore) {
@@ -213,6 +229,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Iterable<VariableUpdateEvent> pollCurrentVariables(String activityInstanceId) {
         final String url = camundaProperties.getUrl()
@@ -249,6 +266,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Iterable<VariableUpdateEvent> pollVariableDetails(String activityInstanceId) {
         final String url = camundaProperties.getUrl()
@@ -284,6 +302,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Iterable<ProcessDefinitionEvent> pollProcessDefinitions(final Date startTime,
             final Date endTime) {

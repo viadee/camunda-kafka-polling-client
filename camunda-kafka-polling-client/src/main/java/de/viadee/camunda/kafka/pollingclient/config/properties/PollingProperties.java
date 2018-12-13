@@ -6,6 +6,12 @@ import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * <p>PollingProperties class.</p>
+ *
+ * @author viadee
+ * @version $Id: $Id
+ */
 @Getter
 @Setter
 public class PollingProperties {

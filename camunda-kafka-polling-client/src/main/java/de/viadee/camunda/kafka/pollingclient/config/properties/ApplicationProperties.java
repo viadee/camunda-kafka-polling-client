@@ -11,6 +11,12 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * <p>ApplicationProperties class.</p>
+ *
+ * @author viadee
+ * @version $Id: $Id
+ */
 @Getter
 @Setter
 @ConfigurationProperties(prefix = "polling")

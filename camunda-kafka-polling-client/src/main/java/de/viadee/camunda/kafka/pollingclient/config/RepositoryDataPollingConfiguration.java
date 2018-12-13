@@ -13,6 +13,12 @@ import de.viadee.camunda.kafka.pollingclient.service.lastpolled.filebased.Fileba
 import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
 import de.viadee.camunda.kafka.pollingclient.job.repository.RepositoryDataPollingJob;
 
+/**
+ * <p>RepositoryDataPollingConfiguration class.</p>
+ *
+ * @author viadee
+ * @version $Id: $Id
+ */
 @Configuration
 public class RepositoryDataPollingConfiguration {
 
@@ -25,17 +31,32 @@ public class RepositoryDataPollingConfiguration {
     @Autowired
     private EventService eventService;
 
+    /**
+     * <p>repositoryDataLastPolledService.</p>
+     *
+     * @return a {@link de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledService} object.
+     */
     @Bean
     public LastPolledService repositoryDataLastPolledService() {
         return new FilebasedLastPolledServiceImpl(properties.getRepositoryData());
     }
 
+    /**
+     * <p>repositoryDataPollingService.</p>
+     *
+     * @return a {@link de.viadee.camunda.kafka.pollingclient.job.repository.RepositoryDataPollingService} object.
+     */
     @Bean
     public RepositoryDataPollingService repositoryDataPollingService() {
         return new RepositoryDataPollingService(pollingService, repositoryDataLastPolledService(), eventService,
                 properties);
     }
 
+    /**
+     * <p>repositoryDataPollingJob.</p>
+     *
+     * @return a {@link de.viadee.camunda.kafka.pollingclient.job.repository.RepositoryDataPollingJob} object.
+     */
     @Bean
     @ConditionalOnProperty(name = "polling.repository-data.enabled", havingValue = "true", matchIfMissing = true)
     public RepositoryDataPollingJob repositoryDataPollingJob() {

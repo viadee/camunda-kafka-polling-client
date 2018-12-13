@@ -15,16 +15,35 @@ import org.springframework.context.annotation.Profile;
 import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
 import de.viadee.camunda.kafka.pollingclient.service.polling.jdbc.CamundaJdbcPollingServiceImpl;
 
+/**
+ * <p>CamundaJdbcPollingConfiguration class.</p>
+ *
+ * @author viadee
+ * @version $Id: $Id
+ */
 @Configuration
 @ImportAutoConfiguration(DataSourceAutoConfiguration.class)
 @Profile("jdbc")
 public class CamundaJdbcPollingConfiguration {
 
+    /**
+     * <p>pollingService.</p>
+     *
+     * @param historyService a {@link org.camunda.bpm.engine.HistoryService} object.
+     * @param repositoryService a {@link org.camunda.bpm.engine.RepositoryService} object.
+     * @return a {@link de.viadee.camunda.kafka.pollingclient.service.polling.PollingService} object.
+     */
     @Bean
     public PollingService pollingService(HistoryService historyService, RepositoryService repositoryService) {
         return new CamundaJdbcPollingServiceImpl(historyService, repositoryService);
     }
 
+    /**
+     * <p>processEngine.</p>
+     *
+     * @param dataSource a {@link javax.sql.DataSource} object.
+     * @return a {@link org.camunda.bpm.engine.ProcessEngine} object.
+     */
     @Bean
     public ProcessEngine processEngine(DataSource dataSource) {
         return ProcessEngineConfiguration.createStandaloneProcessEngineConfiguration()
@@ -35,6 +54,12 @@ public class CamundaJdbcPollingConfiguration {
                 .buildProcessEngine();
     }
 
+    /**
+     * <p>historyService.</p>
+     *
+     * @param processEngine a {@link org.camunda.bpm.engine.ProcessEngine} object.
+     * @return a {@link org.camunda.bpm.engine.HistoryService} object.
+     */
     @Bean
     public HistoryService historyService(ProcessEngine processEngine) {
         return processEngine.getHistoryService();
