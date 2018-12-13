@@ -46,11 +46,13 @@ Further configurations can be made via the applications property file *applicati
 Run the *PollingClientApllication* to extract the process data and store them in Kafka.
 
 ## 2. Using the JSON-Import
-This part of the tutorial serves to store process data in Apache Kafka **without having a Camunda database available**.
+This part of the tutorial serves to store process data in Apache Kafka **without having a Camunda database available**. This is for illustrative purposes and integration testing only.
+
 Since you cloned the spark-importer repository already, you can now build the [kafkatutorialproducer](https://github.com/viadee/bpmn.ai/tree/develop/tutorials/spark%20importer/kafkatutorialproducer) submodule.
+
 Two JSON based data sources are provided to be imported to Kafka: The *processInstances.json* contains 7 entries to be processed, the *variableUpdate.json* consists of 36 variable updates to be processed.
 
-By running the *KafkaProducerApp*, kafka will be filled with data on server defined in the app: "127.0.0.1:19092".
+By running the *KafkaProducerApp*, Kafka will be filled with data on server defined in the app: "127.0.0.1:19092".
 
 
 ## 3. Next steps

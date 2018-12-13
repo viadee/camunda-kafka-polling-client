@@ -23,6 +23,24 @@
 
 	<developers>
 		<developer>
+			<name>Michael Twelkemeier</name>
+			<email>Michael.Twelkemeier@viadee.de</email>
+			<organization>viadee Unternehmensberatung AG</organization>
+			<organizationUrl>http://www.viadee.de</organizationUrl>
+		</developer>
+		<developer>
+			<name>Jan-Philipp Friedenstab</name>
+			<email>Jan-Philipp.Friedenstab@viadee.de</email>
+			<organization>viadee Unternehmensberatung AG</organization>
+			<organizationUrl>http://www.viadee.de</organizationUrl>
+		</developer>
+		<developer>
+			<name>Sebastian Sirch</name>
+			<email>Sebastian.Sirch@viadee.de</email>
+			<organization>viadee Unternehmensberatung AG</organization>
+			<organizationUrl>http://www.viadee.de</organizationUrl>
+		</developer>
+		<developer>
 			<name>Mario Micudaj</name>
 			<email>Mario.Micudaj@viadee.de</email>
 			<organization>viadee Unternehmensberatung AG</organization>
