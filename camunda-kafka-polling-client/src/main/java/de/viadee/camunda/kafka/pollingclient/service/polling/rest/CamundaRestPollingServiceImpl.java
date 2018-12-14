@@ -112,7 +112,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     @Override
     public Iterable<ProcessInstanceEvent> pollUnfinishedProcessInstances(Date startedAfter, Date startedBefore) {
         final String url = camundaProperties.getUrl()
-                + "history/process-instance?finished=false&startedBefore={startedBefore}&startedAfter={startedAfter}";
+                + "history/process-instance?unfinished=true&startedBefore={startedBefore}&startedAfter={startedAfter}";
         try {
             final SimpleDateFormat apiDateFormat = new SimpleDateFormat(API_DATE_FORMAT);
             final Map<String, Object> variables = new HashMap<>();
@@ -193,7 +193,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     public Iterable<ActivityInstanceEvent> pollUnfinishedActivities(String processInstanceId, Date startedAfter,
             Date startedBefore) {
         final String url = camundaProperties.getUrl()
-                + "history/activity-instance?finished=false&processInstanceId={processInstanceId}&startedBefore={startedBefore}&startedAfter={startedAfter}";
+                + "history/activity-instance?unfinished=true&processInstanceId={processInstanceId}&startedBefore={startedBefore}&startedAfter={startedAfter}";
         try {
             final SimpleDateFormat apiDateFormat = new SimpleDateFormat(API_DATE_FORMAT);
             final Map<String, Object> variables = new HashMap<>();
