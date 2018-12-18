@@ -2,12 +2,15 @@
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![Status](https://travis-ci.org/viadee/camunda-kafka-polling-client.svg?branch=master)](https://travis-ci.org/viadee/camunda-kafka-polling-client/branches "See test builds")
 [![Sonarcloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=de.viadee.camunda:camunda-kafka-polling-client-parent&metric=coverage)](https://sonarcloud.io/dashboard?id=de.viadee.camunda:camunda-kafka-polling-client-parent)
+[![](https://img.shields.io/docker/automated/viadee/camunda-kafka-polling-client.svg)](https://cloud.docker.com/u/viadee/repository/docker/viadee/camunda-kafka-polling-client)
 
 The Polling Client is a useful tool for the extraction of Camunda process data and their permanent storage in Apache Kafka. As such it is used in the projects [bpmn.ai](https://github.com/viadee/bpmn.ai) or [vPW](https://www.viadee.de/business-process-management/process-warehouse), that aim to open up standard process data for data mining and exploration.
 
 Two different polling modes are supported: Polling via JDBC access from a Camunda database using an embedded Camunda engine and polling via the Camunda engines own REST API from an existing Camunda instance.
 
 ## Configuration
+We provide a pre-configured [docker image on docker hub](https://hub.docker.com/r/viadee/camunda-kafka-polling-client). 
+
 The polling mode selection is done by using Spring profiles.
 The polling client can be configured on several levels, i.e. directly via the applications properties files or by setting environment variables.
 
