@@ -5,10 +5,16 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
+
 	<parent>
 		<groupId>de.viadee.camunda</groupId>
 		<artifactId>camunda-kafka-polling-client-parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>${project.version}</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 

@@ -3,10 +3,16 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
+
 	<parent>
 		<groupId>de.viadee.camunda</groupId>
 		<artifactId>camunda-kafka-polling-client-parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>${project.version}</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -20,6 +26,28 @@
 	<name>camunda-kafka-model</name>
 	<description>Data model (e.g. events) used to send to kafka for processing</description>
 	<inceptionYear>2018</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>BSD-3 Clause</name>
+            <url>https://opensource.org/licenses/BSD-3-Clause</url>
+        </license>
+    </licenses>
+
+    <ciManagement>
+        <url>https://travis-ci.org/viadee/camunda-kafka-polling-client</url>
+        <system>Travis</system>
+    </ciManagement>
+
+    <issueManagement>
+        <url>https://github.com/viadee/camunda-kafka-polling-client/issues</url>
+        <system>GitHub</system>
+    </issueManagement>
+
+    <scm>
+        <connection>https://github.com/viadee/camunda-kafka-polling-client</connection>
+        <url>GitHub</url>
+    </scm>
 
 	<developers>
 		<developer>
