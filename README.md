@@ -20,6 +20,12 @@ The polling client can be configured on several levels, i.e. directly via the ap
 | ------------- | ------------- | ------------- |
 | KAFKA_BOOTSTRAP_SERVERS  | *name:port*  | 127.0.0.1:19092 |
 
+Depending on its retention policy your Kafka server might discard messages after a defined time period.
+You can set the retention policy for the broker by adjusting the value for the key log.retention.hours.
+```bash
+bin/kafka-configs.sh --bootstrap-server localhost:9092 --entity-type brokers --entity-default --alter --add-config log.retention.hours=1073741824
+```
+
 #### REST Polling
 
 | Property  | Value | Example |
