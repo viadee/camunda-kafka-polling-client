@@ -5,6 +5,7 @@ import java.util.Date;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * <p>PollingProperties class.</p>
@@ -19,7 +20,8 @@ public class PollingProperties {
     /**
      * Initial timestamp to start polling with in case no polling has been performed before. (Default: Start timestamp of polling client)
      */
-    private Date initalTimestamp = new Date();
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date initialTimestamp = new Date();
 
     /**
      * Polling intervall in ms

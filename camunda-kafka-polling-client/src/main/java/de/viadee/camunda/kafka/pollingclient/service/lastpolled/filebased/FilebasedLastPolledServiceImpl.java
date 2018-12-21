@@ -50,7 +50,7 @@ public class FilebasedLastPolledServiceImpl implements LastPolledService {
 
         final Date cutoffTimestamp;
         if (cutoffTimestampLong == null) {
-            cutoffTimestamp = pollingProperties.getInitalTimestamp();
+            cutoffTimestamp = pollingProperties.getInitialTimestamp();
         } else {
             cutoffTimestamp = new Date(cutoffTimestampLong);
         }
