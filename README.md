@@ -9,7 +9,7 @@ The Polling Client is a useful tool for the extraction of Camunda process data a
 Two different polling modes are supported: Polling via JDBC access from a Camunda database using an embedded Camunda engine and polling via the Camunda engines own REST API from an existing Camunda instance.
 
 ## Configuration
-We provide a pre-configured [docker image on docker hub](https://hub.docker.com/r/viadee/camunda-kafka-polling-client). 
+We provide a pre-configured [docker image on docker hub](https://hub.docker.com/r/viadee/camunda-kafka-polling-client).
 
 The polling mode selection is done by using Spring profiles.
 The polling client can be configured on several levels, i.e. directly via the applications properties files or by setting environment variables.
@@ -43,6 +43,12 @@ bin/kafka-configs.sh --bootstrap-server localhost:9092 --entity-type brokers --e
 | CAMUNDA_JDBC_URL  | *jdbc url*  | |
 | CAMUNDA_JDBC_USERNAME  | *db username*  | demo |
 | CAMUNDA_JDBC_PASSWORD  | *db password*  | demo |
+
+#### Polling start time configuration
+| Property  | Value | Example |
+| ------------- | ------------- | ------------- |
+| POLLING_RUNTIME_DATA_INITIAL_TIMESTAMP | *(optional) initial start time the polling of runtime data (only relevant for initial polling);<br/>format: "yyyy-MM-dd HH:mm:ss".<br/>Default is the current time.*  | 2018-01-01 00:00:00 |
+| POLLING_REPOSITORY_DATA_INITIAL_TIMESTAMP | *(optional) initial start time the polling of repository data (only relevant for initial polling);<br/>format: "yyyy-MM-dd HH:mm:ss.<br/>Default is the current time."*  | 2018-01-01 00:00:00 |
 
 #### Further configurations
 
