@@ -18,6 +18,7 @@
 
 	<artifactId>camunda-kafka-polling-client</artifactId>
 
+	<url>https://github.com/viadee/camunda-kafka-polling-client</url>
 	<organization>
 		<name>viadee Unternehmensberatung AG</name>
 		<url>www.viadee.de</url>

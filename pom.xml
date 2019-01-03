@@ -18,6 +18,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<project.version>1.0.0</project.version>
+
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 
@@ -30,6 +31,7 @@
 		<lombok.version>1.18.4</lombok.version>
 	</properties>
 
+	<url>https://github.com/viadee/camunda-kafka-polling-client</url>
 	<organization>
 		<name>viadee Unternehmensberatung AG</name>
 		<url>www.viadee.de</url>
