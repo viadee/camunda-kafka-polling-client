@@ -25,9 +25,8 @@ import lombok.ToString;
  * @author viadee
  * @version $Id: $Id
  */
-@Getter
-@ToString
-@AllArgsConstructor
+
+
 public class PollingTimeslice {
 
     /**
@@ -44,4 +43,41 @@ public class PollingTimeslice {
      * End of polling slice
      */
     private final Date endTime;
+    
+    /**
+     * First polling slice start. No data should be polled before this point.
+     */
+    @java.lang.SuppressWarnings("all")
+    public Date getCutoffTime() {
+        return this.cutoffTime;
+    }
+
+    /**
+     * Start of polling slice
+     */
+    @java.lang.SuppressWarnings("all")
+    public Date getStartTime() {
+        return this.startTime;
+    }
+
+    /**
+     * End of polling slice
+     */
+    @java.lang.SuppressWarnings("all")
+    public Date getEndTime() {
+        return this.endTime;
+    }
+
+    @java.lang.Override
+    @java.lang.SuppressWarnings("all")
+    public java.lang.String toString() {
+        return "PollingTimeslice(cutoffTime=" + this.getCutoffTime() + ", startTime=" + this.getStartTime() + ", endTime=" + this.getEndTime() + ")";
+    }
+
+    @java.lang.SuppressWarnings("all")
+    public PollingTimeslice(final Date cutoffTime, final Date startTime, final Date endTime) {
+        this.cutoffTime = cutoffTime;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
 }

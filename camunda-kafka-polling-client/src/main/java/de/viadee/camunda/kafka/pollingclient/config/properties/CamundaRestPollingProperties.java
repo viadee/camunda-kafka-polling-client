@@ -12,8 +12,7 @@ import lombok.Setter;
  * @author viadee
  * @version $Id: $Id
  */
-@Getter
-@Setter
+
 @ConfigurationProperties(prefix = "polling.camunda.rest")
 public class CamundaRestPollingProperties {
 
@@ -39,5 +38,53 @@ public class CamundaRestPollingProperties {
      */
     public boolean isAuthenticationEnabled() {
         return StringUtils.isNotEmpty(username);
+    }
+    
+    /**
+     * URL of Camunda REST API
+     */
+    @java.lang.SuppressWarnings("all")
+    public String getUrl() {
+        return this.url;
+    }
+
+    /**
+     * Username used for authentication
+     */
+    @java.lang.SuppressWarnings("all")
+    public String getUsername() {
+        return this.username;
+    }
+
+    /**
+     * Password used for authentication
+     */
+    @java.lang.SuppressWarnings("all")
+    public String getPassword() {
+        return this.password;
+    }
+
+    /**
+     * URL of Camunda REST API
+     */
+    @java.lang.SuppressWarnings("all")
+    public void setUrl(final String url) {
+        this.url = url;
+    }
+
+    /**
+     * Username used for authentication
+     */
+    @java.lang.SuppressWarnings("all")
+    public void setUsername(final String username) {
+        this.username = username;
+    }
+
+    /**
+     * Password used for authentication
+     */
+    @java.lang.SuppressWarnings("all")
+    public void setPassword(final String password) {
+        this.password = password;
     }
 }

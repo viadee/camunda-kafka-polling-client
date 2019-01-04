@@ -8,6 +8,7 @@ import java.util.Set;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
+import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties.PollingEvents;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,8 +18,7 @@ import lombok.Setter;
  * @author viadee
  * @version $Id: $Id
  */
-@Getter
-@Setter
+
 @ConfigurationProperties(prefix = "polling")
 public class ApplicationProperties {
 
@@ -72,5 +72,77 @@ public class ApplicationProperties {
          */
         VARIABLE_CURRENT_UNFINISHED,
         PROCESS_DEFINITION
+    }
+    
+    /**
+     * Configuration for polling runtime data
+     */
+    @java.lang.SuppressWarnings("all")
+    public PollingProperties getRuntimeData() {
+        return this.runtimeData;
+    }
+
+    /**
+     * Configuration for polling repository data
+     */
+    @java.lang.SuppressWarnings("all")
+    public PollingProperties getRepositoryData() {
+        return this.repositoryData;
+    }
+
+    /**
+     * Configuration of kafka topics to use on event type basis:
+
+     * Mapping of event type (event class name without "Event" suffix) to kafka topic name.
+
+     * Default topic of an event is the event type.
+     */
+    @java.lang.SuppressWarnings("all")
+    public Map<String, String> getEventTopics() {
+        return this.eventTopics;
+    }
+
+    /**
+     * Configuration of events to poll
+     */
+    @java.lang.SuppressWarnings("all")
+    public Set<PollingEvents> getPollingEvents() {
+        return this.pollingEvents;
+    }
+
+    /**
+     * Configuration for polling runtime data
+     */
+    @java.lang.SuppressWarnings("all")
+    public void setRuntimeData(final PollingProperties runtimeData) {
+        this.runtimeData = runtimeData;
+    }
+
+    /**
+     * Configuration for polling repository data
+     */
+    @java.lang.SuppressWarnings("all")
+    public void setRepositoryData(final PollingProperties repositoryData) {
+        this.repositoryData = repositoryData;
+    }
+
+    /**
+     * Configuration of kafka topics to use on event type basis:
+
+     * Mapping of event type (event class name without "Event" suffix) to kafka topic name.
+
+     * Default topic of an event is the event type.
+     */
+    @java.lang.SuppressWarnings("all")
+    public void setEventTopics(final Map<String, String> eventTopics) {
+        this.eventTopics = eventTopics;
+    }
+
+    /**
+     * Configuration of events to poll
+     */
+    @java.lang.SuppressWarnings("all")
+    public void setPollingEvents(final Set<PollingEvents> pollingEvents) {
+        this.pollingEvents = pollingEvents;
     }
 }
