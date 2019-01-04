@@ -24,7 +24,7 @@
 		<url>www.viadee.de</url>
 	</organization>
 
-	<name>camunda-kafka-model</name>
+	<name>camunda-kafka-polling-client</name>
 	<description>Data model (e.g. events) used to send to kafka for processing</description>
 	<inceptionYear>2018</inceptionYear>
 
@@ -278,6 +278,11 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
 			<scope>test</scope>
 		</dependency>
 

@@ -6,6 +6,7 @@ import de.viadee.camunda.kafka.pollingclient.service.event.EventService;
 import de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledService;
 import de.viadee.camunda.kafka.pollingclient.service.lastpolled.PollingTimeslice;
 import de.viadee.camunda.kafka.pollingclient.service.polling.jdbc.CamundaJdbcPollingServiceImpl;
+import org.apache.ibatis.logging.LogFactory;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.ProcessEngineConfiguration;
 import org.camunda.bpm.engine.impl.util.ClockUtil;
@@ -60,6 +61,7 @@ public class RepositoryDataPollingServiceTest {
 
     @BeforeEach
     void setup() {
+        LogFactory.useSlf4jLogging();
         processEngine = ProcessEngineConfiguration
                 .createStandaloneInMemProcessEngineConfiguration()
                 .setJobExecutorActivate(false)

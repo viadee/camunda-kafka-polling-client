@@ -26,7 +26,7 @@
 		<url>www.viadee.de</url>
 	</organization>
 
-	<name>camunda-kafka-polling-client</name>
+	<name>camunda-kafka-model</name>
 	<description>
 		A small java-based toolset to gather event data from a Camunda bpm engine and store it in Apache Kafka.
 		Repository contains the camunda-kafka-polling-client and the camunda-kafka-model, to make reuse of the data
