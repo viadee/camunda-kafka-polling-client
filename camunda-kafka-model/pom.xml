@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>de.viadee.camunda</groupId>
 		<artifactId>camunda-kafka-polling-client-parent</artifactId>
-		<version>${project.version}</version>
+		<version>1.0.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
