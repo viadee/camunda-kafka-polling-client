@@ -1,16 +1,12 @@
 package de.viadee.camunda.kafka.pollingclient.config.properties;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
-
-import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties.PollingEvents;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * <p>ApplicationProperties class.</p>
