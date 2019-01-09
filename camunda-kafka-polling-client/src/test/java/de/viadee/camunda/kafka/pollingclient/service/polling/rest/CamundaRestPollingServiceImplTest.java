@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import de.viadee.camunda.kafka.event.ActivityInstanceEvent;
 import de.viadee.camunda.kafka.event.ProcessInstanceEvent;
 import de.viadee.camunda.kafka.pollingclient.config.properties.CamundaRestPollingProperties;
 import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetHistoricProcessInstanceResponse;
@@ -18,76 +19,97 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 class CamundaRestPollingServiceImplTest {
 
 	RestTemplate mockedRestTemplate = mock(RestTemplate.class);
 	Date startedAfter = parseDate("2012-10-01T09:45:00.000UTC+00:00");
 	Date startedBefore = parseDate("2019-10-01T09:45:00.000UTC+00:00");
+	Date finishedBefore = parseDate("2019-12-01T09:45:00.000UTC+00:00");
 	Date finishedAfter = parseDate("2012-10-01T09:45:00.000UTC+00:00");
-	
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	void pollFinishedProcessInstancesWithEmptyList() {
-		
+
 		// create CamundaRestPollingProperties
 		CamundaRestPollingProperties prop = new CamundaRestPollingProperties();
 		prop.setPassword("XY");
 		prop.setUrl("XY");
 		prop.setUsername("XY");
-		
+
 		List<GetHistoricProcessInstanceResponse> emptyResultList = new ArrayList();
-		
-		// mocking			
+
+		// mocking
 		ResponseEntity mockedResponseEntity = mock(ResponseEntity.class);
 		when(mockedResponseEntity.getBody()).thenReturn(emptyResultList);
-		when(mockedRestTemplate.exchange(any(), any(), any(), (ParameterizedTypeReference) any(), (Map<String, Object>) any())).thenReturn(mockedResponseEntity);
-		
+		when(mockedRestTemplate.exchange(any(), any(), any(), (ParameterizedTypeReference) any(),
+				(Map<String, Object>) any())).thenReturn(mockedResponseEntity);
+
 		// call functions
-		CamundaRestPollingServiceImpl c = new CamundaRestPollingServiceImpl(prop, mockedRestTemplate);				
-		Iterable<ProcessInstanceEvent> pieList = c.pollFinishedProcessInstances(startedAfter, startedBefore, finishedAfter);
-		
+		CamundaRestPollingServiceImpl c = new CamundaRestPollingServiceImpl(prop, mockedRestTemplate);
+		Iterable<ProcessInstanceEvent> pieList = c.pollFinishedProcessInstances(startedAfter, startedBefore,
+				finishedAfter);
+
 		assertFalse(pieList.iterator().hasNext());
 	}
-	
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	void pollFinishedProcessInstances() {
-		
+
 		// create CamundaRestPollingProperties
 		CamundaRestPollingProperties prop = new CamundaRestPollingProperties();
 		prop.setPassword("XY");
 		prop.setUrl("XY");
 		prop.setUsername("XY");
-		
-		List<GetHistoricProcessInstanceResponse> emptyResultList = new ArrayList();
-		
-		// mocking			
+
+		// fill list with two events: one before start time and one exactly at start
+		// time
+		Date startTime = parseDate("2009-11-02T09:45:00.000UTC+00:00");
+
+		List<GetHistoricProcessInstanceResponse> resultList = new ArrayList();
+		GetHistoricProcessInstanceResponse g = new GetHistoricProcessInstanceResponse();
+		g.setId("123");
+		g.setStartTime(startTime);
+		resultList.add(g);
+		GetHistoricProcessInstanceResponse g2 = new GetHistoricProcessInstanceResponse();
+		g2.setId("124");
+		g2.setStartTime(startedBefore);
+		resultList.add(g2);
+
+		// mocking
 		ResponseEntity mockedResponseEntity = mock(ResponseEntity.class);
-		when(mockedResponseEntity.getBody()).thenReturn(emptyResultList);
-		when(mockedRestTemplate.exchange(any(), any(), any(), (ParameterizedTypeReference) any(), (Map<String, Object>) any())).thenReturn(mockedResponseEntity);
-		
+		when(mockedResponseEntity.getBody()).thenReturn(resultList);
+		when(mockedRestTemplate.exchange(any(), any(), any(), (ParameterizedTypeReference) any(),
+				(Map<String, Object>) any())).thenReturn(mockedResponseEntity);
+
 		// call functions
-		CamundaRestPollingServiceImpl c = new CamundaRestPollingServiceImpl(prop, mockedRestTemplate);				
-		Iterable<ProcessInstanceEvent> pieList = c.pollFinishedProcessInstances(startedAfter, startedBefore, finishedAfter);
-		
-		assertFalse(pieList.iterator().hasNext());
+		CamundaRestPollingServiceImpl c = new CamundaRestPollingServiceImpl(prop, mockedRestTemplate);
+		Iterable<ProcessInstanceEvent> pieIterator = c.pollFinishedProcessInstances(startedAfter, startedBefore,
+				finishedAfter);
+
+		Iterator<ProcessInstanceEvent> iter = pieIterator.iterator();
+
+		assertEquals(iter.next().getId(), "123");
+		assertFalse(iter.hasNext());
 	}
+
 	
 	
-	
+
 	// Generate date in needed format
-	 public static Date parseDate(String date) {
-		 final String API_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-	     try {
-	         return new SimpleDateFormat(API_DATE_FORMAT).parse(date);
-	     } catch (ParseException e) {
-	         return null;
-	     }
-	  }
+	public static Date parseDate(String date) {
+		final String API_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+		try {
+			return new SimpleDateFormat(API_DATE_FORMAT).parse(date);
+		} catch (ParseException e) {
+			return null;
+		}
+	}
 
 }

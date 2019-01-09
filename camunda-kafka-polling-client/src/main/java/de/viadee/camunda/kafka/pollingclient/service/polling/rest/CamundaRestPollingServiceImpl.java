@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -66,6 +67,25 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.setDateFormat(new SimpleDateFormat(API_DATE_FORMAT));
     }
+    
+    /**
+     * Since data is filtered as <= by Camunda, this function checks for < on process level
+     */
+    public Stream<ProcessInstanceEvent> checkEdgecaseProcess(List<GetHistoricProcessInstanceResponse> result, Date date){
+    	return result.stream()
+    			.filter(event -> event.getStartTime().compareTo(date) < 0) // startedBefore is selected as <= by Camunda - thus add filter
+                .map(this::createProcessInstanceEvent);
+    }
+    
+    /**
+     * Since data is filtered as <= by Camunda, this function checks for < on process level
+     */
+    public Stream<ActivityInstanceEvent> checkEdgecaseActivity(List<GetHistoricActivityInstanceRespone> result, Date date){
+    	return result.stream()
+    			.filter(event -> event.getStartTime().compareTo(date) < 0) // startedBefore is selected as <= by Camunda - thus add filter
+    			.map(this::createActivityInstanceEvent);	      	
+    }
+    
 
     /** {@inheritDoc} */
     @Override
@@ -98,10 +118,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
 
             LOGGER.debug("Found {} finished process instances from {} ({})", result.size(), url, variables);
 
-            return result
-                    .stream()
-                    .filter(event -> event.getStartTime().compareTo(startedBefore) < 0) // startedBefore ist selected as <= by Camunda - thus add filter
-                    .map(this::createProcessInstanceEvent)
+            return checkEdgecaseProcess(result, startedBefore)
                     ::iterator;
         } catch (RestClientException e) {
             throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for process instances", e);
@@ -137,10 +154,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
 
             LOGGER.debug("Found {} unfinished process instances from {}", result.size(), url);
 
-            return result
-                    .stream()
-                    .filter(event -> event.getStartTime().compareTo(startedBefore) < 0) // startedBefore ist selected as <= by Camunda - thus add filter
-                    .map(this::createProcessInstanceEvent)
+            return checkEdgecaseProcess(result, startedBefore)    
                     ::iterator;
         } catch (RestClientException e) {
             throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for process instances", e);
@@ -178,10 +192,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
 
             LOGGER.debug("Found {} finished activity instances from {} ({})", result.size(), url, variables);
 
-            return result
-                    .stream()
-                    .filter(event -> event.getEndTime().compareTo(finishedBefore) < 0) // finishedBefore ist selected as <= by Camunda - thus add filter
-                    .map(this::createActivityInstanceEvent)
+            return  checkEdgecaseActivity(result, finishedBefore)                
                     ::iterator;
         } catch (RestClientException e) {
             throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for activity instances", e);
@@ -219,10 +230,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
 
             LOGGER.debug("Found {} unfinished activity instances from {} ({})", result.size(), url, variables);
 
-            return result
-                    .stream()
-                    .filter(event -> event.getStartTime().compareTo(startedBefore) < 0) // startedBefore ist selected as <= by Camunda - thus add filter
-                    .map(this::createActivityInstanceEvent)
+            return checkEdgecaseActivity(result, startedBefore)           		
                     ::iterator;
         } catch (RestClientException e) {
             throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for activity instances", e);

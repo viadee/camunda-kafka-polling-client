@@ -9,8 +9,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties.PollingEvents;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * <p>ApplicationProperties class.</p>
