@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>de.viadee.camunda</groupId>
 		<artifactId>camunda-kafka-polling-client-parent</artifactId>
-		<version>1.0.1-SNAPSHOT</version>
+		<version>1.0.1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -131,7 +131,7 @@
 		<dependency>
 			<groupId>de.viadee.camunda</groupId>
 			<artifactId>camunda-kafka-model</artifactId>
-			<version>${project.version}</version>
+			<version>1.0.1</version>
 		</dependency>
 
 		<!-- Spring Boot -->
@@ -330,7 +330,7 @@
 				<artifactId>maven-deploy-plugin</artifactId>
 				<version>2.4</version>
 				<configuration>
-					<skip>true</skip> <!-- end-product, no need for deployment in a repo -->
+					<skip>false</skip>
 				</configuration>
 			</plugin>
 		</plugins>
