@@ -2,7 +2,9 @@ package de.viadee.camunda.kafka.pollingclient.service.lastpolled;
 
 import java.util.Date;
 
-
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
 
 /**
  * Defines the time slice to perform polling for.
