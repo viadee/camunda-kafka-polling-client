@@ -6,7 +6,7 @@
 
 	<groupId>de.viadee.camunda</groupId>
 	<artifactId>camunda-kafka-polling-client-parent</artifactId>
-	<version>${project.version}</version>
+	<version>1.0.1</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -17,7 +17,6 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<project.version>1.0.1-SNAPSHOT</project.version>
 
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -25,7 +24,7 @@
 		<spring-boot.version>2.0.0.RELEASE</spring-boot.version>
 		<camunda.version>7.8.0</camunda.version>
 		<kafka.version>1.0.0</kafka.version>
-		<jackson.version>2.9.7</jackson.version>
+		<jackson.version>2.9.8</jackson.version>
 		<postgresql.version>42.2.1</postgresql.version>
 		<h2.version>1.4.196</h2.version>
 		<lombok.version>1.18.4</lombok.version>

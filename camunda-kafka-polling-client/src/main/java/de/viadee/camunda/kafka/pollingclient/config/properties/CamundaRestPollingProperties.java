@@ -3,9 +3,6 @@ package de.viadee.camunda.kafka.pollingclient.config.properties;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * Properties for polling using Camunda REST API
  *
