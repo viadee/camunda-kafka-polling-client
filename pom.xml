@@ -37,7 +37,7 @@
 
 	<name>camunda-kafka-polling-client-parent</name>
 	<description>
-		A small java-based toolset to gather event data from a Camunda bpm engine and store it in Apache Kafka.
+		A small Java-based toolset to gather event data from a Camunda BPM engine and store it in Apache Kafka.
 		Repository contains the camunda-kafka-polling-client and the camunda-kafka-model, to make reuse of the data
 		structures easy.
 		This tooling is meant to be used as a part of the viadee Process Warehouse or the bpmn.ai concepts.

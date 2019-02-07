@@ -28,13 +28,13 @@
 
 	<name>camunda-kafka-model</name>
 	<description>
-		A small java-based toolset to gather event data from a Camunda bpm engine and store it in Apache Kafka.
+		A small Java-based toolset to gather event data from a Camunda BPM engine and store it in Apache Kafka.
 		Repository contains the camunda-kafka-polling-client and the camunda-kafka-model, to make reuse of the data
 		structures easy.
 		This tooling is meant to be used as a part of the viadee Process Warehouse or the bpmn.ai concepts.
 
-		This is the model module, i.e. it contains the data model classes for reuse by java based,
-		downstream analysis components.
+		This is the model module, i.e. it contains the data model classes for reuse by Java-based, downstream analysis
+		components.
 	</description>
 	<inceptionYear>2018</inceptionYear>
 	<licenses>

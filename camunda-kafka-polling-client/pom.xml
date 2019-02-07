@@ -25,7 +25,12 @@
 	</organization>
 
 	<name>camunda-kafka-polling-client</name>
-	<description>Data model (e.g. events) used to send to kafka for processing</description>
+	<description>
+		A small Java-based toolset to gather event data from a Camunda BPM engine and store it in Apache Kafka.
+		Repository contains the camunda-kafka-polling-client and the camunda-kafka-model, to make reuse of the data
+		structures easy.
+		This tooling is meant to be used as a part of the viadee Process Warehouse or the bpmn.ai concepts.
+	</description>
 	<inceptionYear>2018</inceptionYear>
 
     <licenses>
