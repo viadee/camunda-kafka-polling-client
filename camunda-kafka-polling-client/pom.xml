@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>de.viadee.camunda</groupId>
 		<artifactId>camunda-kafka-polling-client-parent</artifactId>
-		<version>1.0.2-SNAPSHOT</version>
+		<version>1.0.2</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -136,7 +136,7 @@
 		<dependency>
 			<groupId>de.viadee.camunda</groupId>
 			<artifactId>camunda-kafka-model</artifactId>
-			<version>1.0.2-SNAPSHOT</version>
+			<version>1.0.2</version>
 		</dependency>
 
 		<!-- Spring Boot -->
