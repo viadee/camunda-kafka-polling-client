@@ -26,7 +26,7 @@
 		<kafka.version>1.0.0</kafka.version>
 		<jackson.version>2.9.8</jackson.version>
 		<postgresql.version>42.2.1</postgresql.version>
-		<h2.version>1.4.196</h2.version>		
+		<h2.version>1.4.196</h2.version>
 	</properties>
 
 	<url>https://github.com/viadee/camunda-kafka-polling-client</url>
