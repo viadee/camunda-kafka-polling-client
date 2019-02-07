@@ -1,5 +1,6 @@
 package de.viadee.camunda.kafka.pollingclient.service.lastpolled;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -21,9 +22,9 @@ import java.util.Date;
  * @author viadee
  * @version $Id: $Id
  */
-
-
 public class PollingTimeslice {
+
+    private final SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     /**
      * First polling slice start. No data should be polled before this point.
@@ -39,11 +40,16 @@ public class PollingTimeslice {
      * End of polling slice
      */
     private final Date endTime;
-    
+
+    public PollingTimeslice(final Date cutoffTime, final Date startTime, final Date endTime) {
+        this.cutoffTime = cutoffTime;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
     /**
      * First polling slice start. No data should be polled before this point.
      */
-    @java.lang.SuppressWarnings("all")
     public Date getCutoffTime() {
         return this.cutoffTime;
     }
@@ -51,7 +57,6 @@ public class PollingTimeslice {
     /**
      * Start of polling slice
      */
-    @java.lang.SuppressWarnings("all")
     public Date getStartTime() {
         return this.startTime;
     }
@@ -59,21 +64,13 @@ public class PollingTimeslice {
     /**
      * End of polling slice
      */
-    @java.lang.SuppressWarnings("all")
     public Date getEndTime() {
         return this.endTime;
     }
 
-    @java.lang.Override
-    @java.lang.SuppressWarnings("all")
+    @Override
     public java.lang.String toString() {
-        return "PollingTimeslice(cutoffTime=" + this.getCutoffTime() + ", startTime=" + this.getStartTime() + ", endTime=" + this.getEndTime() + ")";
-    }
-
-    @java.lang.SuppressWarnings("all")
-    public PollingTimeslice(final Date cutoffTime, final Date startTime, final Date endTime) {
-        this.cutoffTime = cutoffTime;
-        this.startTime = startTime;
-        this.endTime = endTime;
+        return "PollingTimeslice(cutoffTime=" + timeFormat.format(cutoffTime) + ", startTime=" + timeFormat
+                .format(startTime) + ", endTime=" + timeFormat.format(endTime) + ")";
     }
 }

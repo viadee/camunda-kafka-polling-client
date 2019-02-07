@@ -49,13 +49,13 @@ public class RepositoryDataPollingService implements Runnable {
     public void run() {
         final PollingTimeslice pollingTimeslice = lastPolledService.getPollingTimeslice();
 
-        LOGGER.info("Start polling data: {}", pollingTimeslice);
+        LOGGER.info("Start polling repository data: {}", pollingTimeslice);
 
         pollProcessDefinitions(pollingTimeslice);
 
         lastPolledService.updatePollingTimeslice(pollingTimeslice);
 
-        LOGGER.info("Finished polling data: {}", pollingTimeslice);
+        LOGGER.info("Finished polling repository data: {}", pollingTimeslice);
     }
 
     private void pollProcessDefinitions(final PollingTimeslice pollingTimeslice) {

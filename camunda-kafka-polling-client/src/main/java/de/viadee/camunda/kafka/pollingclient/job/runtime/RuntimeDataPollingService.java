@@ -59,14 +59,14 @@ public class RuntimeDataPollingService implements Runnable {
     public void run() {
         final PollingTimeslice pollingTimeslice = lastPolledService.getPollingTimeslice();
 
-        LOGGER.info("Start polling data: {}", pollingTimeslice);
+        LOGGER.info("Start polling runtime data: {}", pollingTimeslice);
 
         pollUnfinishedProcessInstances(pollingTimeslice);
         pollFinishedProcessInstances(pollingTimeslice);
 
         lastPolledService.updatePollingTimeslice(pollingTimeslice);
 
-        LOGGER.info("Finished polling data: {}", pollingTimeslice);
+        LOGGER.info("Finished polling runtime data: {}", pollingTimeslice);
     }
 
     private void pollUnfinishedProcessInstances(final PollingTimeslice pollingTimeslice) {
