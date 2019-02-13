@@ -1,6 +1,7 @@
 package de.viadee.camunda.kafka.pollingclient.service.polling.rest;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -8,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -64,7 +66,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         this.camundaProperties = camundaProperties;
         this.restTemplate = restTemplate;
         this.objectMapper = new ObjectMapper();
-        this.objectMapper.setDateFormat(new SimpleDateFormat(API_DATE_FORMAT));
+        this.objectMapper.setDateFormat(getAPIDateFormat(false));
     }
 
     /** {@inheritDoc} */
@@ -74,7 +76,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         final String url = camundaProperties.getUrl()
                 + "history/process-instance?finished=true&startedBefore={startedBefore}&startedAfter={startedAfter}&finishedAfter={finishedAfter}";
         try {
-            final SimpleDateFormat apiDateFormat = new SimpleDateFormat(API_DATE_FORMAT);
+            final DateFormat apiDateFormat = getAPIDateFormat(true);
             final Map<String, Object> variables = new HashMap<>();
             variables.put("startedAfter", apiDateFormat.format(startedAfter));
             variables.put("startedBefore", apiDateFormat.format(startedBefore));
@@ -114,7 +116,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         final String url = camundaProperties.getUrl()
                 + "history/process-instance?unfinished=true&startedBefore={startedBefore}&startedAfter={startedAfter}";
         try {
-            final SimpleDateFormat apiDateFormat = new SimpleDateFormat(API_DATE_FORMAT);
+            final DateFormat apiDateFormat = getAPIDateFormat(true);
             final Map<String, Object> variables = new HashMap<>();
             variables.put("startedBefore", apiDateFormat.format(startedBefore));
             variables.put("startedAfter", apiDateFormat.format(startedAfter));
@@ -154,7 +156,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         final String url = camundaProperties.getUrl()
                 + "history/activity-instance?finished=true&processInstanceId={processInstanceId}&finishedBefore={finishedBefore}&finishedAfter={finishedAfter}";
         try {
-            final SimpleDateFormat apiDateFormat = new SimpleDateFormat(API_DATE_FORMAT);
+            final DateFormat apiDateFormat = getAPIDateFormat(true);
             final Map<String, Object> variables = new HashMap<>();
             variables.put("finishedBefore", apiDateFormat.format(finishedBefore));
             variables.put("finishedAfter", apiDateFormat.format(finishedAfter));
@@ -195,7 +197,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         final String url = camundaProperties.getUrl()
                 + "history/activity-instance?unfinished=true&processInstanceId={processInstanceId}&startedBefore={startedBefore}&startedAfter={startedAfter}";
         try {
-            final SimpleDateFormat apiDateFormat = new SimpleDateFormat(API_DATE_FORMAT);
+            final DateFormat apiDateFormat = getAPIDateFormat(true);
             final Map<String, Object> variables = new HashMap<>();
             variables.put("startedBefore", apiDateFormat.format(startedBefore));
             variables.put("startedAfter", apiDateFormat.format(startedAfter));
@@ -410,7 +412,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
 
         List<GetDeploymentResponse> deployments = new ArrayList<>();
         try {
-            final SimpleDateFormat apiDateFormat = new SimpleDateFormat(API_DATE_FORMAT);
+            final DateFormat apiDateFormat = getAPIDateFormat(true);
             final Map<String, Object> variables = new HashMap<>();
             variables.put("before", apiDateFormat.format(deploymentBefore));
             variables.put("after", apiDateFormat.format(deploymentAfter));
@@ -577,5 +579,23 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                 }
             }
         }
+    }
+
+    /**
+     * DateFormat used in REST API and serialization
+     *
+     * @param isSource format for Source or Client
+     * @return DateFormat used for Date serialization
+     */
+    private DateFormat getAPIDateFormat(boolean isSource) {
+
+        final SimpleDateFormat apiDateFormat = new SimpleDateFormat(API_DATE_FORMAT);
+
+        String sourceTimeZone = camundaProperties.getSourceTimeZone();
+
+        if(isSource && sourceTimeZone!= null && !sourceTimeZone.isEmpty())
+            apiDateFormat.setTimeZone(TimeZone.getTimeZone(sourceTimeZone));
+
+        return apiDateFormat;
     }
 }

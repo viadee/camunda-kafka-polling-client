@@ -28,6 +28,12 @@ public class CamundaRestPollingProperties {
      */
     private String password;
 
+
+    /**
+     * Source Time Zone used for Date formatting
+     */
+    private String sourceTimeZone;
+
     /**
      * <p>isAuthenticationEnabled.</p>
      *
@@ -84,4 +90,17 @@ public class CamundaRestPollingProperties {
     public void setPassword(final String password) {
         this.password = password;
     }
+
+
+    /**
+     * Source Time Zone used for Date formatting
+     */
+    @SuppressWarnings("all")
+    public String getSourceTimeZone() { return sourceTimeZone; }
+
+    /**
+     * Source Time Zone used for Date formatting
+     */
+    @SuppressWarnings("all")
+    public void setSourceTimeZone(String sourceTimeZone) { this.sourceTimeZone = sourceTimeZone; }
 }
