@@ -587,7 +587,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
      * @param isSource format for Source or Client
      * @return DateFormat used for Date serialization
      */
-    private DateFormat getAPIDateFormat(boolean isSource) {
+     DateFormat getAPIDateFormat(boolean isSource) {
 
         final SimpleDateFormat apiDateFormat = new SimpleDateFormat(API_DATE_FORMAT);
 
