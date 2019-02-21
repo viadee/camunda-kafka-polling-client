@@ -34,6 +34,13 @@ public class CamundaRestPollingProperties {
      */
     private String sourceTimeZone;
 
+
+    /**
+     * The pattern string for Date formatter.
+     */
+    private String dateFormatPattern;
+
+
     /**
      * <p>isAuthenticationEnabled.</p>
      *
@@ -68,6 +75,18 @@ public class CamundaRestPollingProperties {
     }
 
     /**
+     * Source Time Zone used for Date formatting
+     */
+    @SuppressWarnings("all")
+    public String getSourceTimeZone() { return sourceTimeZone; }
+
+    /**
+     * The pattern string for Date formatter.
+     */
+    @java.lang.SuppressWarnings("all")
+    public String getDateFormatPattern() {return dateFormatPattern;}
+
+    /**
      * URL of Camunda REST API
      */
     @java.lang.SuppressWarnings("all")
@@ -96,11 +115,14 @@ public class CamundaRestPollingProperties {
      * Source Time Zone used for Date formatting
      */
     @SuppressWarnings("all")
-    public String getSourceTimeZone() { return sourceTimeZone; }
+    public void setSourceTimeZone(String sourceTimeZone) { this.sourceTimeZone = sourceTimeZone; }
+
 
     /**
-     * Source Time Zone used for Date formatting
+     * The pattern string for Date formatter.
      */
     @SuppressWarnings("all")
-    public void setSourceTimeZone(String sourceTimeZone) { this.sourceTimeZone = sourceTimeZone; }
+    public void setDateFormatPattern(String dateFormatPattern) { this.dateFormatPattern = dateFormatPattern; }
+
+
 }

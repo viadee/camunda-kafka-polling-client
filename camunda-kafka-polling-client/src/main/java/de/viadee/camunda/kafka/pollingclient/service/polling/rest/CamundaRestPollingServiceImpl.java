@@ -48,13 +48,17 @@ public class CamundaRestPollingServiceImpl implements PollingService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CamundaRestPollingServiceImpl.class);
 
-    private static final String API_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    private static final String DEFAULT_DATE_FORMAT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     private final ObjectMapper objectMapper;
 
     private final CamundaRestPollingProperties camundaProperties;
 
     private final RestTemplate restTemplate;
+
+    private final SimpleDateFormat apiDateFormat;
+
+    private final SimpleDateFormat sourceApiDateFormat;
 
     /**
      * <p>Constructor for CamundaRestPollingServiceImpl.</p>
@@ -67,6 +71,17 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         this.restTemplate = restTemplate;
         this.objectMapper = new ObjectMapper();
         this.objectMapper.setDateFormat(getAPIDateFormat(false));
+
+        String dateFormatPattern = camundaProperties.getDateFormatPattern();
+        if(dateFormatPattern==null || dateFormatPattern.isEmpty())
+            dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN;
+
+        apiDateFormat = new SimpleDateFormat(dateFormatPattern);
+        sourceApiDateFormat = new SimpleDateFormat(dateFormatPattern);
+
+        String sourceTimeZone = camundaProperties.getSourceTimeZone();
+        if(sourceTimeZone!= null && !sourceTimeZone.isEmpty())
+            sourceApiDateFormat.setTimeZone(TimeZone.getTimeZone(sourceTimeZone));
     }
 
     /** {@inheritDoc} */
@@ -588,14 +603,9 @@ public class CamundaRestPollingServiceImpl implements PollingService {
      * @return DateFormat used for Date serialization
      */
      DateFormat getAPIDateFormat(boolean isSource) {
-
-        final SimpleDateFormat apiDateFormat = new SimpleDateFormat(API_DATE_FORMAT);
-
-        String sourceTimeZone = camundaProperties.getSourceTimeZone();
-
-        if(isSource && sourceTimeZone!= null && !sourceTimeZone.isEmpty())
-            apiDateFormat.setTimeZone(TimeZone.getTimeZone(sourceTimeZone));
-
-        return apiDateFormat;
+        if(isSource)
+            return sourceApiDateFormat;
+        else
+            return apiDateFormat;
     }
 }
