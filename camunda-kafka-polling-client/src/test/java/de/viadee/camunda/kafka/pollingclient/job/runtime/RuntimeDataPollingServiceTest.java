@@ -91,7 +91,7 @@ public class RuntimeDataPollingServiceTest {
 		applicationProperties.getRuntimeData().setEnabled(true);
 
 		pollingApiService = new CamundaJdbcPollingServiceImpl(processEngine.getHistoryService(),
-				processEngine.getRepositoryService());
+				processEngine.getRepositoryService(), processEngine.getTaskService());
 
 		pollingService = new RuntimeDataPollingService(pollingApiService, lastPolledService, eventSendService,
 				applicationProperties);

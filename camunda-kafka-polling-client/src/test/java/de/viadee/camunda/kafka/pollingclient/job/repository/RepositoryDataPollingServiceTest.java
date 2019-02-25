@@ -78,7 +78,7 @@ public class RepositoryDataPollingServiceTest {
 
         pollingApiService = new CamundaJdbcPollingServiceImpl(
                 processEngine.getHistoryService(),
-                processEngine.getRepositoryService());
+                processEngine.getRepositoryService(), processEngine.getTaskService());
 
         pollingService = new RepositoryDataPollingService(pollingApiService, lastPolledService, eventSendService, applicationProperties);
     }

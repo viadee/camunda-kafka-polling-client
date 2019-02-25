@@ -24,9 +24,11 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.viadee.camunda.kafka.event.ActivityInstanceEvent;
+import de.viadee.camunda.kafka.event.CommentEvent;
 import de.viadee.camunda.kafka.event.ProcessDefinitionEvent;
 import de.viadee.camunda.kafka.event.ProcessInstanceEvent;
 import de.viadee.camunda.kafka.event.VariableUpdateEvent;
+import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetCommentResponse;
 import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetDeploymentResponse;
 import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetHistoricDetailVariableUpdateResponse;
 import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetHistoricVariableInstancesResponse;
@@ -330,6 +332,42 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                 ::iterator;
     }
 
+
+    /** {@inheritDoc}
+     * @param activityInstanceEvent*/
+    @Override
+    public Iterable<CommentEvent> pollComments(final ActivityInstanceEvent activityInstanceEvent) {
+
+        final String url = camundaProperties.getUrl()
+                + "task/"+activityInstanceEvent.getTaskId()+"/comment";
+        try {
+            final Map<String, Object> variables = new HashMap<>();
+            LOGGER.debug("Polling comments for taskId: {}", activityInstanceEvent.getTaskId());
+
+            List<GetCommentResponse> result = this.restTemplate
+                    .exchange(url,
+                            HttpMethod.GET,
+                            null,
+                            new ParameterizedTypeReference<List<GetCommentResponse>>() {
+
+                            }, variables)
+                    .getBody();
+
+            if (result == null) {
+                return new ArrayList<>();
+            }
+
+            LOGGER.debug("Found {} comments for taskId: {} ", result.size(), activityInstanceEvent.getTaskId());
+
+            return result
+                    .stream()
+                    .map(getCommentResponse ->  createCommentEventFromDetails(getCommentResponse, activityInstanceEvent))
+                    ::iterator;
+        } catch (RestClientException e) {
+            throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for comments", e);
+        }
+    }
+
     private GetProcessDefinitionXmlResponse getProcessDefinitionXML(String processDefinitionId) {
         final String url = camundaProperties.getUrl()
                 + "process-definition/{processDefinitionId}/xml";
@@ -517,6 +555,18 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         return e;
 
     }
+
+
+    private CommentEvent createCommentEventFromDetails(
+            GetCommentResponse getCommentResponse, ActivityInstanceEvent activityInstanceEvent) {
+        final CommentEvent event = new CommentEvent();
+
+        BeanUtils.copyProperties(activityInstanceEvent, event);
+        BeanUtils.copyProperties(getCommentResponse, event);
+
+        return event;
+    }
+
 
     private void setVariableValue(VariableUpdateEvent event, Object value, String type,
             String serializationDataFormat) {

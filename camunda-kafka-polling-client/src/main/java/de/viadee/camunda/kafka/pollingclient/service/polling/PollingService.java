@@ -3,6 +3,7 @@ package de.viadee.camunda.kafka.pollingclient.service.polling;
 import java.util.Date;
 
 import de.viadee.camunda.kafka.event.ActivityInstanceEvent;
+import de.viadee.camunda.kafka.event.CommentEvent;
 import de.viadee.camunda.kafka.event.ProcessDefinitionEvent;
 import de.viadee.camunda.kafka.event.ProcessInstanceEvent;
 import de.viadee.camunda.kafka.event.VariableUpdateEvent;
@@ -81,4 +82,13 @@ public interface PollingService {
      * @return a {@link java.lang.Iterable} object.
      */
     Iterable<ProcessDefinitionEvent> pollProcessDefinitions(Date deploymentAfter, Date deploymentBefore);
+
+
+    /**
+     * Poll comments for specified task
+     *
+     * @param taskId
+     * @return a {@link java.lang.Iterable} object.
+     */
+    Iterable<CommentEvent> pollComments(ActivityInstanceEvent taskId);
 }
