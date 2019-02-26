@@ -1,6 +1,7 @@
 package de.viadee.camunda.kafka.pollingclient.service.polling.rest;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -8,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -22,9 +24,11 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.viadee.camunda.kafka.event.ActivityInstanceEvent;
+import de.viadee.camunda.kafka.event.CommentEvent;
 import de.viadee.camunda.kafka.event.ProcessDefinitionEvent;
 import de.viadee.camunda.kafka.event.ProcessInstanceEvent;
 import de.viadee.camunda.kafka.event.VariableUpdateEvent;
+import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetCommentResponse;
 import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetDeploymentResponse;
 import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetHistoricDetailVariableUpdateResponse;
 import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetHistoricVariableInstancesResponse;
@@ -64,7 +68,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         this.camundaProperties = camundaProperties;
         this.restTemplate = restTemplate;
         this.objectMapper = new ObjectMapper();
-        this.objectMapper.setDateFormat(new SimpleDateFormat(API_DATE_FORMAT));
+        this.objectMapper.setDateFormat(getAPIDateFormat(false));
     }
 
     /** {@inheritDoc} */
@@ -74,7 +78,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         final String url = camundaProperties.getUrl()
                 + "history/process-instance?finished=true&startedBefore={startedBefore}&startedAfter={startedAfter}&finishedAfter={finishedAfter}";
         try {
-            final SimpleDateFormat apiDateFormat = new SimpleDateFormat(API_DATE_FORMAT);
+            final DateFormat apiDateFormat = getAPIDateFormat(true);
             final Map<String, Object> variables = new HashMap<>();
             variables.put("startedAfter", apiDateFormat.format(startedAfter));
             variables.put("startedBefore", apiDateFormat.format(startedBefore));
@@ -114,7 +118,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         final String url = camundaProperties.getUrl()
                 + "history/process-instance?unfinished=true&startedBefore={startedBefore}&startedAfter={startedAfter}";
         try {
-            final SimpleDateFormat apiDateFormat = new SimpleDateFormat(API_DATE_FORMAT);
+            final DateFormat apiDateFormat = getAPIDateFormat(true);
             final Map<String, Object> variables = new HashMap<>();
             variables.put("startedBefore", apiDateFormat.format(startedBefore));
             variables.put("startedAfter", apiDateFormat.format(startedAfter));
@@ -154,7 +158,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         final String url = camundaProperties.getUrl()
                 + "history/activity-instance?finished=true&processInstanceId={processInstanceId}&finishedBefore={finishedBefore}&finishedAfter={finishedAfter}";
         try {
-            final SimpleDateFormat apiDateFormat = new SimpleDateFormat(API_DATE_FORMAT);
+            final DateFormat apiDateFormat = getAPIDateFormat(true);
             final Map<String, Object> variables = new HashMap<>();
             variables.put("finishedBefore", apiDateFormat.format(finishedBefore));
             variables.put("finishedAfter", apiDateFormat.format(finishedAfter));
@@ -195,7 +199,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         final String url = camundaProperties.getUrl()
                 + "history/activity-instance?unfinished=true&processInstanceId={processInstanceId}&startedBefore={startedBefore}&startedAfter={startedAfter}";
         try {
-            final SimpleDateFormat apiDateFormat = new SimpleDateFormat(API_DATE_FORMAT);
+            final DateFormat apiDateFormat = getAPIDateFormat(true);
             final Map<String, Object> variables = new HashMap<>();
             variables.put("startedBefore", apiDateFormat.format(startedBefore));
             variables.put("startedAfter", apiDateFormat.format(startedAfter));
@@ -328,6 +332,42 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                 ::iterator;
     }
 
+
+    /** {@inheritDoc}
+     * @param activityInstanceEvent*/
+    @Override
+    public Iterable<CommentEvent> pollComments(final ActivityInstanceEvent activityInstanceEvent) {
+
+        final String url = camundaProperties.getUrl()
+                + "task/"+activityInstanceEvent.getTaskId()+"/comment";
+        try {
+            final Map<String, Object> variables = new HashMap<>();
+            LOGGER.debug("Polling comments for taskId: {}", activityInstanceEvent.getTaskId());
+
+            List<GetCommentResponse> result = this.restTemplate
+                    .exchange(url,
+                            HttpMethod.GET,
+                            null,
+                            new ParameterizedTypeReference<List<GetCommentResponse>>() {
+
+                            }, variables)
+                    .getBody();
+
+            if (result == null) {
+                return new ArrayList<>();
+            }
+
+            LOGGER.debug("Found {} comments for taskId: {} ", result.size(), activityInstanceEvent.getTaskId());
+
+            return result
+                    .stream()
+                    .map(getCommentResponse ->  createCommentEventFromDetails(getCommentResponse, activityInstanceEvent))
+                    ::iterator;
+        } catch (RestClientException e) {
+            throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for comments", e);
+        }
+    }
+
     private GetProcessDefinitionXmlResponse getProcessDefinitionXML(String processDefinitionId) {
         final String url = camundaProperties.getUrl()
                 + "process-definition/{processDefinitionId}/xml";
@@ -410,7 +450,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
 
         List<GetDeploymentResponse> deployments = new ArrayList<>();
         try {
-            final SimpleDateFormat apiDateFormat = new SimpleDateFormat(API_DATE_FORMAT);
+            final DateFormat apiDateFormat = getAPIDateFormat(true);
             final Map<String, Object> variables = new HashMap<>();
             variables.put("before", apiDateFormat.format(deploymentBefore));
             variables.put("after", apiDateFormat.format(deploymentAfter));
@@ -516,6 +556,18 @@ public class CamundaRestPollingServiceImpl implements PollingService {
 
     }
 
+
+    private CommentEvent createCommentEventFromDetails(
+            GetCommentResponse getCommentResponse, ActivityInstanceEvent activityInstanceEvent) {
+        final CommentEvent event = new CommentEvent();
+
+        BeanUtils.copyProperties(activityInstanceEvent, event);
+        BeanUtils.copyProperties(getCommentResponse, event);
+
+        return event;
+    }
+
+
     private void setVariableValue(VariableUpdateEvent event, Object value, String type,
             String serializationDataFormat) {
 
@@ -577,5 +629,23 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                 }
             }
         }
+    }
+
+    /**
+     * DateFormat used in REST API and serialization
+     *
+     * @param isSource format for Source or Client
+     * @return DateFormat used for Date serialization
+     */
+    private DateFormat getAPIDateFormat(boolean isSource) {
+
+        final SimpleDateFormat apiDateFormat = new SimpleDateFormat(API_DATE_FORMAT);
+
+        String sourceTimeZone = camundaProperties.getSourceTimeZone();
+
+        if(isSource && sourceTimeZone!= null && !sourceTimeZone.isEmpty())
+            apiDateFormat.setTimeZone(TimeZone.getTimeZone(sourceTimeZone));
+
+        return apiDateFormat;
     }
 }

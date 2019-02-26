@@ -6,7 +6,7 @@
 
 	<groupId>de.viadee.camunda</groupId>
 	<artifactId>camunda-kafka-polling-client-parent</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>1.0.2</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -27,7 +27,6 @@
 		<jackson.version>2.9.8</jackson.version>
 		<postgresql.version>42.2.1</postgresql.version>
 		<h2.version>1.4.196</h2.version>
-		<lombok.version>1.18.4</lombok.version>
 	</properties>
 
 	<url>https://github.com/viadee/camunda-kafka-polling-client</url>
@@ -38,7 +37,7 @@
 
 	<name>camunda-kafka-polling-client-parent</name>
 	<description>
-		A small java-based toolset to gather event data from a Camunda bpm engine and store it in Apache Kafka.
+		A small Java-based toolset to gather event data from a Camunda BPM engine and store it in Apache Kafka.
 		Repository contains the camunda-kafka-polling-client and the camunda-kafka-model, to make reuse of the data
 		structures easy.
 		This tooling is meant to be used as a part of the viadee Process Warehouse or the bpmn.ai concepts.

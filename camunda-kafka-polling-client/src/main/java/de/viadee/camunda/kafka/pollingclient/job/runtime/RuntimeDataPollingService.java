@@ -2,6 +2,7 @@ package de.viadee.camunda.kafka.pollingclient.job.runtime;
 
 import java.util.Date;
 
+import de.viadee.camunda.kafka.event.CommentEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,14 +60,14 @@ public class RuntimeDataPollingService implements Runnable {
     public void run() {
         final PollingTimeslice pollingTimeslice = lastPolledService.getPollingTimeslice();
 
-        LOGGER.info("Start polling data: {}", pollingTimeslice);
+        LOGGER.info("Start polling runtime data: {}", pollingTimeslice);
 
         pollUnfinishedProcessInstances(pollingTimeslice);
         pollFinishedProcessInstances(pollingTimeslice);
 
         lastPolledService.updatePollingTimeslice(pollingTimeslice);
 
-        LOGGER.info("Finished polling data: {}", pollingTimeslice);
+        LOGGER.info("Finished polling runtime data: {}", pollingTimeslice);
     }
 
     private void pollUnfinishedProcessInstances(final PollingTimeslice pollingTimeslice) {
@@ -130,6 +131,13 @@ public class RuntimeDataPollingService implements Runnable {
                         .contains(ApplicationProperties.PollingEvents.VARIABLE_CURRENT_UNFINISHED)) {
                     pollCurrentVariables(activityInstanceEvent.getActivityInstanceId());
                 }
+
+                if (properties.getPollingEvents()
+                        .contains(ApplicationProperties.PollingEvents.COMMENTS)
+                        && activityInstanceEvent.getActivityType().equals("userTask")) {
+
+                    pollComments(activityInstanceEvent);
+                }
             }
         }
     }
@@ -150,6 +158,13 @@ public class RuntimeDataPollingService implements Runnable {
                         .contains(ApplicationProperties.PollingEvents.VARIABLE_CURRENT_FINISHED)) {
                     pollCurrentVariables(activityInstanceEvent.getActivityInstanceId());
                 }
+
+                if (properties.getPollingEvents()
+                        .contains(ApplicationProperties.PollingEvents.COMMENTS)
+                        && activityInstanceEvent.getActivityType().equals("userTask")) {
+
+                    pollComments(activityInstanceEvent);
+                }
             }
         }
     }
@@ -165,6 +180,14 @@ public class RuntimeDataPollingService implements Runnable {
         for (final VariableUpdateEvent variableUpdateEvent : pollingService
                 .pollVariableDetails(activityInstanceId)) {
             eventService.sendEvent(variableUpdateEvent);
+        }
+    }
+
+    private void pollComments(final ActivityInstanceEvent activityInstanceEvent) {
+        for (final CommentEvent commentEvent : pollingService
+                .pollComments(activityInstanceEvent)) {
+
+            eventService.sendEvent(commentEvent);
         }
     }
 

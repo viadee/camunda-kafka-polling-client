@@ -5,3 +5,5 @@
 .classpath
 .springBeans
 .settings/
+camunda-kafka-polling-client/.factorypath
+camunda-kafka-model/.factorypath
