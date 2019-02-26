@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -14,6 +13,7 @@ import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetHi
 
 import static org.mockito.Mockito.*;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -21,6 +21,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 class CamundaRestPollingServiceImplTest {
 
@@ -95,9 +97,46 @@ class CamundaRestPollingServiceImplTest {
 		assertEquals(iter.next().getId(), "123");
 		assertFalse(iter.hasNext());
 	}
-	
-	
-	
+
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	void diffSourceTimeZone() throws ParseException {
+
+		final String noTimeZonePattern = "yyyy-MM-dd'T'HH:mm:ss";
+		final String testDateStr="2012-10-01T09:45:00";
+
+		final String simulatedLocalTimeZone = "GMT";
+		final long simulatedHoursDiff=3;
+		final String simulatedSourceTimeZone = "GMT+"+simulatedHoursDiff;
+
+
+		DateFormat noTimeZoneDateFormat = new SimpleDateFormat(noTimeZonePattern);
+		noTimeZoneDateFormat.setTimeZone(TimeZone.getTimeZone(simulatedLocalTimeZone));
+
+		Date localDate=noTimeZoneDateFormat.parse(testDateStr);
+
+		// create CamundaRestPollingProperties
+		CamundaRestPollingProperties prop = new CamundaRestPollingProperties();
+		prop.setSourceTimeZone(simulatedSourceTimeZone);
+		CamundaRestPollingServiceImpl camundaRestPollingService = new CamundaRestPollingServiceImpl(prop, mockedRestTemplate);
+		DateFormat sourceDateFormat = camundaRestPollingService.getAPIDateFormat(true);
+		String sourceFormatedDateStr = sourceDateFormat.format(localDate);
+
+		//  source Date without TimeZone information
+		Date sourceDate = noTimeZoneDateFormat.parse(sourceFormatedDateStr);
+
+
+		long diffInMillies = Math.abs(localDate.getTime() - sourceDate.getTime());
+		long diff = TimeUnit.HOURS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+
+
+		assertEquals(diff, simulatedHoursDiff);
+
+	}
+
+
+
 	// Generate date in needed format
 	 public static Date parseDate(String date) {
 		 final String API_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
