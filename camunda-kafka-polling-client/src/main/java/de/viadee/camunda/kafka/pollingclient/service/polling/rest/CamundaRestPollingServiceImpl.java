@@ -558,11 +558,15 @@ public class CamundaRestPollingServiceImpl implements PollingService {
 
 
     private CommentEvent createCommentEventFromDetails(
-            GetCommentResponse getCommentResponse, ActivityInstanceEvent activityInstanceEvent) {
+            GetCommentResponse commentResponse, ActivityInstanceEvent activityInstanceEvent) {
         final CommentEvent event = new CommentEvent();
 
         BeanUtils.copyProperties(activityInstanceEvent, event);
-        BeanUtils.copyProperties(getCommentResponse, event);
+
+        event.setId(commentResponse.getId());
+        event.setUserId(commentResponse.getUserId());
+        event.setTimestamp(commentResponse.getTime());
+        event.setMessage(commentResponse.getMessage());
 
         return event;
     }

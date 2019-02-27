@@ -285,10 +285,13 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
 
     private CommentEvent createCommentEventFromDetails(
             Comment comment, ActivityInstanceEvent activityInstanceEvent) {
+
         final CommentEvent event = new CommentEvent();
 
         BeanUtils.copyProperties(activityInstanceEvent, event);
-        BeanUtils.copyProperties(comment, event);
+        event.setId(comment.getId());
+        event.setUserId(comment.getUserId());
+        event.setTimestamp(comment.getTime());
         event.setMessage(comment.getFullMessage());
 
         return event;
