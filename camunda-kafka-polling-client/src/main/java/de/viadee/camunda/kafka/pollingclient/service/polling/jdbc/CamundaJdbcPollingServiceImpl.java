@@ -199,8 +199,6 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
     @Override
     public Iterable<CommentEvent> pollComments(ActivityInstanceEvent activityInstanceEvent) {
 
-        taskService.getTaskComments(activityInstanceEvent.getTaskId());
-
         return  taskService.getTaskComments(activityInstanceEvent.getTaskId())
                 .stream()
                 .map(comment ->  createCommentEventFromDetails(comment, activityInstanceEvent))
