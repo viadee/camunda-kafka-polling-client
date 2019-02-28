@@ -13,6 +13,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "polling.camunda.rest")
 public class CamundaRestPollingProperties {
 
+    private static final String DEFAULT_DATE_FORMAT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+
     /**
      * URL of Camunda REST API
      */
@@ -84,7 +86,11 @@ public class CamundaRestPollingProperties {
      * The pattern string for Date formatter.
      */
     @java.lang.SuppressWarnings("all")
-    public String getDateFormatPattern() {return dateFormatPattern;}
+    public String getDateFormatPattern() {
+        if(dateFormatPattern==null || dateFormatPattern.isEmpty())
+            dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN;
+        return dateFormatPattern;
+    }
 
     /**
      * URL of Camunda REST API
