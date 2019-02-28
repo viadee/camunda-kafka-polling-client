@@ -120,8 +120,7 @@ class CamundaRestPollingServiceImplTest {
 		CamundaRestPollingProperties prop = new CamundaRestPollingProperties();
 		prop.setSourceTimeZone(simulatedSourceTimeZone);
 		CamundaRestPollingServiceImpl camundaRestPollingService = new CamundaRestPollingServiceImpl(prop, mockedRestTemplate);
-		DateFormat sourceDateFormat = camundaRestPollingService.getAPIDateFormat(true);
-		String sourceFormatedDateStr = sourceDateFormat.format(localDate);
+		String sourceFormatedDateStr = camundaRestPollingService.formatDate(localDate);
 
 		//  source Date without TimeZone information
 		Date sourceDate = noTimeZoneDateFormat.parse(sourceFormatedDateStr);
