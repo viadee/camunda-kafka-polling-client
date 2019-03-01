@@ -55,8 +55,6 @@ public class CamundaRestPollingServiceImpl implements PollingService {
 
     private final RestTemplate restTemplate;
 
-    private final SimpleDateFormat apiDateFormat;
-
     /**
      * <p>Constructor for CamundaRestPollingServiceImpl.</p>
      *
@@ -71,10 +69,6 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.setDateFormat(new SimpleDateFormat(dateFormatPattern));
 
-        apiDateFormat = new SimpleDateFormat(dateFormatPattern);
-        String sourceTimeZone = camundaProperties.getSourceTimeZone();
-        if(sourceTimeZone!= null && !sourceTimeZone.isEmpty())
-            apiDateFormat.setTimeZone(TimeZone.getTimeZone(sourceTimeZone));
     }
 
     /** {@inheritDoc} */
@@ -645,8 +639,15 @@ public class CamundaRestPollingServiceImpl implements PollingService {
      *
      * */
     String formatDate(Date date) {
-        synchronized(apiDateFormat) {
-            return apiDateFormat.format(date);
-        }
+
+        String dateFormatPattern = camundaProperties.getDateFormatPattern();
+        SimpleDateFormat apiDateFormat = new SimpleDateFormat(dateFormatPattern);
+
+        String sourceTimeZone = camundaProperties.getSourceTimeZone();
+        if(sourceTimeZone!= null && !sourceTimeZone.isEmpty())
+            apiDateFormat.setTimeZone(TimeZone.getTimeZone(sourceTimeZone));
+
+        return apiDateFormat.format(date);
+
     }
 }
