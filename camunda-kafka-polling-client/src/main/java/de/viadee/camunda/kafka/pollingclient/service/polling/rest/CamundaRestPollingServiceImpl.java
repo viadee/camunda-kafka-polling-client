@@ -634,6 +634,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     /**
      *
      *  Format Date to String - used in REST API
+     *
      *  @param date to format
      *  @return formated Date according to configured format
      *
