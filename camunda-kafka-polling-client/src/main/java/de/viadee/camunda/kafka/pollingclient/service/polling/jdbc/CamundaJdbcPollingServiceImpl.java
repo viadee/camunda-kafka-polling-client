@@ -42,14 +42,14 @@ import de.viadee.camunda.kafka.event.VariableUpdateEvent;
 public class CamundaJdbcPollingServiceImpl implements PollingService {
 
     private final HistoryService historyService;
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CamundaRestPollingServiceImpl.class);
 
     private final RepositoryService repositoryService;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     private final TaskService taskService;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * <p>Constructor for CamundaJdbcPollingServiceImpl.</p>
@@ -199,7 +199,7 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
     @Override
     public Iterable<CommentEvent> pollComments(ActivityInstanceEvent activityInstanceEvent) {
 
-        return  taskService.getTaskComments(activityInstanceEvent.getTaskId())
+        return taskService.getTaskComments(activityInstanceEvent.getTaskId())
                 .stream()
                 .map(comment ->  createCommentEventFromDetails(comment, activityInstanceEvent))
                 ::iterator;
@@ -287,6 +287,7 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
         final CommentEvent event = new CommentEvent();
 
         BeanUtils.copyProperties(activityInstanceEvent, event);
+
         event.setId(comment.getId());
         event.setUserId(comment.getUserId());
         event.setTimestamp(comment.getTime());
@@ -303,7 +304,7 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
                 if (decodedValue != null) {
                     event.setComplexValue(decodedValue);
                 }
-            } catch (IOException e) {        	
+            } catch (IOException e) {
             	LOGGER.error("IOException found.");
             }
         }

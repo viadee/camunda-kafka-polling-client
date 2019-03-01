@@ -68,7 +68,7 @@ public class ApplicationProperties {
          */
         VARIABLE_CURRENT_UNFINISHED,
         PROCESS_DEFINITION,
-        COMMENTS
+        TASK_COMMENTS
     }
     
     /**
