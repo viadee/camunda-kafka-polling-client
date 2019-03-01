@@ -47,9 +47,9 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
 
     private final RepositoryService repositoryService;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     private final TaskService taskService;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * <p>Constructor for CamundaJdbcPollingServiceImpl.</p>
@@ -287,6 +287,7 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
         final CommentEvent event = new CommentEvent();
 
         BeanUtils.copyProperties(activityInstanceEvent, event);
+
         event.setId(comment.getId());
         event.setUserId(comment.getUserId());
         event.setTimestamp(comment.getTime());

@@ -133,9 +133,8 @@ public class RuntimeDataPollingService implements Runnable {
                 }
 
                 if (properties.getPollingEvents()
-                        .contains(ApplicationProperties.PollingEvents.COMMENTS)
+                        .contains(ApplicationProperties.PollingEvents.TASK_COMMENTS)
                         && activityInstanceEvent.getActivityType().equals("userTask")) {
-
                     pollComments(activityInstanceEvent);
                 }
             }
@@ -160,9 +159,8 @@ public class RuntimeDataPollingService implements Runnable {
                 }
 
                 if (properties.getPollingEvents()
-                        .contains(ApplicationProperties.PollingEvents.COMMENTS)
+                        .contains(ApplicationProperties.PollingEvents.TASK_COMMENTS)
                         && activityInstanceEvent.getActivityType().equals("userTask")) {
-
                     pollComments(activityInstanceEvent);
                 }
             }
@@ -186,7 +184,6 @@ public class RuntimeDataPollingService implements Runnable {
     private void pollComments(final ActivityInstanceEvent activityInstanceEvent) {
         for (final CommentEvent commentEvent : pollingService
                 .pollComments(activityInstanceEvent)) {
-
             eventService.sendEvent(commentEvent);
         }
     }
