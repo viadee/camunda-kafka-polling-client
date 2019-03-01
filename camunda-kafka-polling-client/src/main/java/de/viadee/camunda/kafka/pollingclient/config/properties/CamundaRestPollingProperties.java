@@ -13,6 +13,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "polling.camunda.rest")
 public class CamundaRestPollingProperties {
 
+    private static final String DEFAULT_DATE_FORMAT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+
     /**
      * URL of Camunda REST API
      */
@@ -33,6 +35,13 @@ public class CamundaRestPollingProperties {
      * Source Time Zone used for Date formatting
      */
     private String sourceTimeZone;
+
+
+    /**
+     * The pattern string for Date formatter.
+     */
+    private String dateFormatPattern;
+
 
     /**
      * <p>isAuthenticationEnabled.</p>
@@ -68,6 +77,22 @@ public class CamundaRestPollingProperties {
     }
 
     /**
+     * Source Time Zone used for Date formatting
+     */
+    @SuppressWarnings("all")
+    public String getSourceTimeZone() { return sourceTimeZone; }
+
+    /**
+     * The pattern string for Date formatter.
+     */
+    @java.lang.SuppressWarnings("all")
+    public String getDateFormatPattern() {
+        if(dateFormatPattern==null || dateFormatPattern.isEmpty())
+            dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN;
+        return dateFormatPattern;
+    }
+
+    /**
      * URL of Camunda REST API
      */
     @java.lang.SuppressWarnings("all")
@@ -96,11 +121,14 @@ public class CamundaRestPollingProperties {
      * Source Time Zone used for Date formatting
      */
     @SuppressWarnings("all")
-    public String getSourceTimeZone() { return sourceTimeZone; }
+    public void setSourceTimeZone(String sourceTimeZone) { this.sourceTimeZone = sourceTimeZone; }
+
 
     /**
-     * Source Time Zone used for Date formatting
+     * The pattern string for Date formatter.
      */
     @SuppressWarnings("all")
-    public void setSourceTimeZone(String sourceTimeZone) { this.sourceTimeZone = sourceTimeZone; }
+    public void setDateFormatPattern(String dateFormatPattern) { this.dateFormatPattern = dateFormatPattern; }
+
+
 }
