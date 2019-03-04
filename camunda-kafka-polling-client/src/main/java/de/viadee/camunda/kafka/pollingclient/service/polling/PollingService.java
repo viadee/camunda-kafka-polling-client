@@ -87,8 +87,8 @@ public interface PollingService {
     /**
      * Poll comments for specified task
      *
-     * @param taskId
+     * @param activityInstanceEvent
      * @return a {@link java.lang.Iterable} object.
      */
-    Iterable<CommentEvent> pollComments(ActivityInstanceEvent taskId);
+    Iterable<CommentEvent> pollComments(ActivityInstanceEvent activityInstanceEvent);
 }

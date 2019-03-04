@@ -35,7 +35,8 @@ public class CamundaJdbcPollingConfiguration {
      * @return a {@link de.viadee.camunda.kafka.pollingclient.service.polling.PollingService} object.
      */
     @Bean
-    public PollingService pollingService(HistoryService historyService, RepositoryService repositoryService, TaskService taskService) {
+    public PollingService pollingService(HistoryService historyService, RepositoryService repositoryService,
+                                         TaskService taskService) {
         return new CamundaJdbcPollingServiceImpl(historyService, repositoryService, taskService);
     }
 

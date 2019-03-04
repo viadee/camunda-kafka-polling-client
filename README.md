@@ -60,6 +60,14 @@ The project is operated and further developed by the viadee Consulting AG in Mü
 * Community contributions to the project are welcome: Please open Github-Issues with suggestions (or PR), which we can then edit in the team.
 * We are also looking for further partners who have interesting process data to refine our tooling as well as partners that are simply interested in a discussion about AI and data warehouses in the context of business process automation.
 
+## Commitments
+
+This library will remain under an open source licence indefinately.
+
+We follow the semantic versioning scheme (2.0.0).
+
+In the sense of semantic versioning, the resulting JSON outputs are the only public "API" provided here. We will keep these as stable as possible.
+
 ## Roadmap
 This software component is considered to be stable and ready for production use.
 However, we plan to extend on it if there is demand or if the Camunda APIs change.
