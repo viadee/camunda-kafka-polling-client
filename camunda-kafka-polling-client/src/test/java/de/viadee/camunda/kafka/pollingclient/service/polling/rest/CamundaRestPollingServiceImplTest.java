@@ -97,8 +97,8 @@ class CamundaRestPollingServiceImplTest {
 		assertEquals(iter.next().getId(), "123");
 		assertFalse(iter.hasNext());
 	}
-	
-	
+
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	void diffSourceTimeZone() throws ParseException {
