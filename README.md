@@ -62,7 +62,7 @@ The project is operated and further developed by the viadee Consulting AG in Mü
 
 ## Commitments
 
-This library will remain under an open source licence indefinately.
+This library will remain under an open source licence indefinitely.
 
 We follow the semantic versioning scheme (2.0.0).
 
