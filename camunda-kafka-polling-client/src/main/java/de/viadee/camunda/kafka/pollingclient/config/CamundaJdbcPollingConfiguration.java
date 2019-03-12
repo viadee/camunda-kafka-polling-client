@@ -2,10 +2,7 @@ package de.viadee.camunda.kafka.pollingclient.config;
 
 import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
 import de.viadee.camunda.kafka.pollingclient.service.polling.jdbc.CamundaJdbcPollingServiceImpl;
-import org.camunda.bpm.engine.HistoryService;
-import org.camunda.bpm.engine.ProcessEngine;
-import org.camunda.bpm.engine.ProcessEngineConfiguration;
-import org.camunda.bpm.engine.RepositoryService;
+import org.camunda.bpm.engine.*;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -39,8 +36,9 @@ public class CamundaJdbcPollingConfiguration {
      * @return a {@link de.viadee.camunda.kafka.pollingclient.service.polling.PollingService} object.
      */
     @Bean
-    public PollingService pollingService(HistoryService historyService, RepositoryService repositoryService) {
-        return new CamundaJdbcPollingServiceImpl(historyService, repositoryService);
+    public PollingService pollingService(HistoryService historyService, RepositoryService repositoryService,
+                                         TaskService taskService) {
+        return new CamundaJdbcPollingServiceImpl(historyService, repositoryService, taskService);
     }
 
     /**
@@ -79,5 +77,10 @@ public class CamundaJdbcPollingConfiguration {
     @Bean
     RepositoryService repositoryService(ProcessEngine processEngine) {
         return processEngine.getRepositoryService();
+    }
+
+    @Bean
+    TaskService taskService(ProcessEngine processEngine) {
+        return processEngine.getTaskService();
     }
 }

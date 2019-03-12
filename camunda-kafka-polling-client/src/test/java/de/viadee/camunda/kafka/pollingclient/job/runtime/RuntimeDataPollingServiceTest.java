@@ -1,6 +1,7 @@
 package de.viadee.camunda.kafka.pollingclient.job.runtime;
 
 import de.viadee.camunda.kafka.event.ActivityInstanceEvent;
+import de.viadee.camunda.kafka.event.CommentEvent;
 import de.viadee.camunda.kafka.event.HistoryEvent;
 import de.viadee.camunda.kafka.event.ProcessInstanceEvent;
 import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties;
@@ -11,8 +12,13 @@ import de.viadee.camunda.kafka.pollingclient.service.polling.jdbc.CamundaJdbcPol
 import org.apache.ibatis.logging.LogFactory;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.ProcessEngineConfiguration;
+import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.impl.util.ClockUtil;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.bpm.engine.task.Comment;
+import org.camunda.bpm.engine.task.Task;
+import org.camunda.bpm.model.bpmn.Bpmn;
+import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -27,6 +33,7 @@ import java.util.stream.Stream;
 import static de.viadee.camunda.kafka.pollingclient.job.runtime.RuntimeDataPollingServiceTest.PointOfTime.*;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -80,7 +87,8 @@ public class RuntimeDataPollingServiceTest {
         applicationProperties.getRuntimeData().setEnabled(true);
 
         pollingApiService = new CamundaJdbcPollingServiceImpl(processEngine.getHistoryService(),
-                                                              processEngine.getRepositoryService());
+                                                              processEngine.getRepositoryService(),
+                                                              processEngine.getTaskService());
 
         pollingService = new RuntimeDataPollingService(pollingApiService, lastPolledService, eventSendService,
                                                        applicationProperties);
@@ -97,8 +105,7 @@ public class RuntimeDataPollingServiceTest {
     void updatePollingTimeslice() {
 
         // define polling cycle
-        when(lastPolledService.getPollingTimeslice())
-                                                     .thenReturn(new PollingTimeslice(CUTOFF_TIME.date, START_TIME.date,
+        when(lastPolledService.getPollingTimeslice()).thenReturn(new PollingTimeslice(CUTOFF_TIME.date, START_TIME.date,
                                                                                       END_TIME.date));
 
         // perform polling
@@ -106,8 +113,7 @@ public class RuntimeDataPollingServiceTest {
 
         // verify timeslice update
         final ArgumentCaptor<PollingTimeslice> pollingTimesliceCaptor = ArgumentCaptor.forClass(PollingTimeslice.class);
-        verify(lastPolledService, times(1))
-                                           .updatePollingTimeslice(pollingTimesliceCaptor.capture());
+        verify(lastPolledService, times(1)).updatePollingTimeslice(pollingTimesliceCaptor.capture());
 
         final PollingTimeslice updatePollingTimeslice = pollingTimesliceCaptor.getValue();
         assertEquals(CUTOFF_TIME.date, updatePollingTimeslice.getCutoffTime());
@@ -150,8 +156,7 @@ public class RuntimeDataPollingServiceTest {
 
         // Verify process instance event
         final ArgumentCaptor<HistoryEvent> processInstanceEventCaptor = ArgumentCaptor.forClass(HistoryEvent.class);
-        verify(eventSendService, atLeast(shouldBePolled ? 1 : 0))
-                                                                 .sendEvent(processInstanceEventCaptor.capture());
+        verify(eventSendService, atLeast(shouldBePolled ? 1 : 0)).sendEvent(processInstanceEventCaptor.capture());
 
         final List<String> polledProcessIds = processInstanceEventCaptor.getAllValues()
                                                                         .stream()
@@ -245,8 +250,7 @@ public class RuntimeDataPollingServiceTest {
 
         // Verify process instance event
         final ArgumentCaptor<HistoryEvent> historyEventCaptor = ArgumentCaptor.forClass(HistoryEvent.class);
-        verify(eventSendService, atLeast(shouldBePolled ? 1 : 0))
-                                                                 .sendEvent(historyEventCaptor.capture());
+        verify(eventSendService, atLeast(shouldBePolled ? 1 : 0)).sendEvent(historyEventCaptor.capture());
 
         assertEquals(shouldBePolled ? 1 : 0,
                      historyEventCaptor.getAllValues()
@@ -331,8 +335,7 @@ public class RuntimeDataPollingServiceTest {
 
         // Verify process instance event
         final ArgumentCaptor<HistoryEvent> historyEventCaptor = ArgumentCaptor.forClass(HistoryEvent.class);
-        verify(eventSendService, atLeast(shouldBePolled ? 1 : 0))
-                                                                 .sendEvent(historyEventCaptor.capture());
+        verify(eventSendService, atLeast(shouldBePolled ? 1 : 0)).sendEvent(historyEventCaptor.capture());
 
         assertEquals(shouldBePolled ? 1 : 0,
                      historyEventCaptor.getAllValues()
@@ -390,8 +393,7 @@ public class RuntimeDataPollingServiceTest {
 
         // Verify process instance event
         final ArgumentCaptor<HistoryEvent> processInstanceEventCaptor = ArgumentCaptor.forClass(HistoryEvent.class);
-        verify(eventSendService, atLeast(shouldBePolled ? 1 : 0))
-                                                                 .sendEvent(processInstanceEventCaptor.capture());
+        verify(eventSendService, atLeast(shouldBePolled ? 1 : 0)).sendEvent(processInstanceEventCaptor.capture());
 
         final List<String> polledProcessIds = processInstanceEventCaptor.getAllValues()
                                                                         .stream()
@@ -418,6 +420,96 @@ public class RuntimeDataPollingServiceTest {
 				arguments(AFTER_TIMESLICE,          false)
         );
 		// @formatter:on
+    }
+
+    @ParameterizedTest(name = "{index}: task comment added {0} => should be polled={1}")
+    @MethodSource
+    @DisplayName("Polling of task comments ")
+    public void pollTaskComments(PointOfTime processStart, boolean shouldBePolled) {
+
+        // create testdata
+        setCurrentTime(BEFORE_CUTOFF);
+
+        // create process model
+        final String processId = "simpleProcess";
+        BpmnModelInstance modelInstance = Bpmn.createExecutableProcess(processId)
+                                              .startEvent()
+                                              .userTask()
+                                              .endEvent()
+                                              .done();
+
+        // deploy process model
+        processEngine.getRepositoryService()
+                     .createDeployment()
+                     .addModelInstance(processId + ".bpmn", modelInstance)
+                     .deploy();
+
+        setCurrentTime(processStart);
+
+        processEngine.getRuntimeService().startProcessInstanceByKey(processId);
+
+        // obtain task
+        TaskService taskService = processEngine.getTaskService();
+        Task task = taskService.createTaskQuery().singleResult();
+        String taskId = task.getId();
+
+        // create two comments
+        final String firstMessage = "Comment 1";
+        final String secondMessage = "Comment 2";
+
+        taskService.createComment(taskId, null, firstMessage);
+        taskService.createComment(taskId, null, secondMessage);
+
+        // prepare expectations for test
+        Set<String> expectedMessages = new HashSet<>();
+        expectedMessages.add(firstMessage);
+        expectedMessages.add(secondMessage);
+
+        Set<String> actualMessages = taskService.getTaskComments(taskId)
+                                                .stream()
+                                                .map(Comment::getFullMessage)
+                                                .collect(toSet());
+
+        assertEquals(expectedMessages, actualMessages);
+
+        // define polling cycle
+        when(lastPolledService.getPollingTimeslice())
+                                                     .thenReturn(new PollingTimeslice(CUTOFF_TIME.date, START_TIME.date,
+                                                                                      END_TIME.date));
+
+        // perform polling
+        pollingService.run();
+
+        // Verify task comment event
+        final ArgumentCaptor<HistoryEvent> commentEventCaptor = ArgumentCaptor.forClass(HistoryEvent.class);
+        verify(eventSendService, atLeast(shouldBePolled ? 1 : 0))
+                                                                 .sendEvent(commentEventCaptor.capture());
+
+        final Set<String> polledMessages = commentEventCaptor.getAllValues()
+                                                             .stream()
+                                                             .filter(event -> event instanceof CommentEvent)
+                                                             .map(historyEvent -> ((CommentEvent) historyEvent).getMessage())
+                                                             .collect(toSet());
+
+        assertEquals(shouldBePolled ? expectedMessages.size() : 0, polledMessages.size());
+        if (shouldBePolled) {
+            assertEquals(expectedMessages, polledMessages);
+        }
+    }
+
+    static Stream<Arguments> pollTaskComments() {
+        // @formatter:off
+        return Stream.of(
+                //        Process start             Should be polled?
+                arguments(BEFORE_CUTOFF,            false),
+                arguments(CUTOFF_TIME,              false),
+                arguments(WITHIN_PAST_TIMESLICE,    false),
+                arguments(START_TIME,               true),
+                arguments(WITHIN_TIMESLICE,         true),
+                arguments(END_TIME,                 false),
+                arguments(AFTER_TIMESLICE,          false)
+        );
+        // @formatter:on
     }
 
     private static void setCurrentTime(PointOfTime time) {

@@ -1,6 +1,7 @@
 package de.viadee.camunda.kafka.pollingclient.job.runtime;
 
 import de.viadee.camunda.kafka.event.ActivityInstanceEvent;
+import de.viadee.camunda.kafka.event.CommentEvent;
 import de.viadee.camunda.kafka.event.ProcessInstanceEvent;
 import de.viadee.camunda.kafka.event.VariableUpdateEvent;
 import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties;
@@ -141,6 +142,12 @@ public class RuntimeDataPollingService implements Runnable {
                               .contains(ApplicationProperties.PollingEvents.VARIABLE_CURRENT_UNFINISHED)) {
                     pollCurrentVariables(activityInstanceEvent.getActivityInstanceId());
                 }
+
+                if (properties.getPollingEvents()
+                              .contains(ApplicationProperties.PollingEvents.TASK_COMMENTS)
+                        && activityInstanceEvent.getActivityType().equals("userTask")) {
+                    pollComments(activityInstanceEvent);
+                }
             }
         }
     }
@@ -162,6 +169,12 @@ public class RuntimeDataPollingService implements Runnable {
                               .contains(ApplicationProperties.PollingEvents.VARIABLE_CURRENT_FINISHED)) {
                     pollCurrentVariables(activityInstanceEvent.getActivityInstanceId());
                 }
+
+                if (properties.getPollingEvents()
+                              .contains(ApplicationProperties.PollingEvents.TASK_COMMENTS)
+                        && activityInstanceEvent.getActivityType().equals("userTask")) {
+                    pollComments(activityInstanceEvent);
+                }
             }
         }
     }
@@ -177,6 +190,13 @@ public class RuntimeDataPollingService implements Runnable {
         for (final VariableUpdateEvent variableUpdateEvent : pollingService
                                                                            .pollVariableDetails(activityInstanceId)) {
             eventService.sendEvent(variableUpdateEvent);
+        }
+    }
+
+    private void pollComments(final ActivityInstanceEvent activityInstanceEvent) {
+        for (final CommentEvent commentEvent : pollingService
+                                                             .pollComments(activityInstanceEvent)) {
+            eventService.sendEvent(commentEvent);
         }
     }
 

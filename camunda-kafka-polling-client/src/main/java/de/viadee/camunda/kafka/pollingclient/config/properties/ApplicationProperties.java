@@ -68,7 +68,8 @@ public class ApplicationProperties {
          * also polled {@link #PROCESS_INSTANCE_UNFINISHED})
          */
         VARIABLE_CURRENT_UNFINISHED,
-        PROCESS_DEFINITION
+        PROCESS_DEFINITION,
+        TASK_COMMENTS
     }
 
     /**

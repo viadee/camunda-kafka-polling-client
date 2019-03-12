@@ -1,16 +1,14 @@
 package de.viadee.camunda.kafka.pollingclient.service.polling.jdbc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.viadee.camunda.kafka.event.ActivityInstanceEvent;
-import de.viadee.camunda.kafka.event.ProcessDefinitionEvent;
-import de.viadee.camunda.kafka.event.ProcessInstanceEvent;
-import de.viadee.camunda.kafka.event.VariableUpdateEvent;
+import de.viadee.camunda.kafka.event.*;
 import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
 import de.viadee.camunda.kafka.pollingclient.service.polling.rest.CamundaRestPollingServiceImpl;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
+import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
 import org.camunda.bpm.engine.history.HistoricDetail;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
@@ -19,6 +17,7 @@ import org.camunda.bpm.engine.impl.persistence.entity.HistoricDetailVariableInst
 import org.camunda.bpm.engine.impl.persistence.entity.HistoricVariableInstanceEntity;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
+import org.camunda.bpm.engine.task.Comment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -44,6 +43,8 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
 
     private final RepositoryService repositoryService;
 
+    private final TaskService taskService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
@@ -52,16 +53,22 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
      * </p>
      *
      * @param historyService
-     *            a {@link org.camunda.bpm.engine.HistoryService} object.
+     *            a {@link HistoryService} object.
      * @param repositoryService
-     *            a {@link org.camunda.bpm.engine.RepositoryService} object.
+     *            a {@link RepositoryService} object.
+     * @param taskService
+     *            a {@link TaskService} object.
      */
-    public CamundaJdbcPollingServiceImpl(HistoryService historyService, RepositoryService repositoryService) {
+    public CamundaJdbcPollingServiceImpl(HistoryService historyService, RepositoryService repositoryService,
+            TaskService taskService) {
         this.historyService = historyService;
         this.repositoryService = repositoryService;
+        this.taskService = taskService;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Iterable<ProcessInstanceEvent> pollFinishedProcessInstances(Date startedAfter, Date startedBefore,
                                                                        Date finishedAfter) {
@@ -79,7 +86,9 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
                              .map(this::createProcessInstanceEvent)::iterator;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Iterable<ProcessInstanceEvent> pollUnfinishedProcessInstances(Date startedAfter, Date startedBefore) {
         return historyService.createHistoricProcessInstanceQuery()
@@ -95,7 +104,9 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
                              .map(this::createProcessInstanceEvent)::iterator;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Iterable<ActivityInstanceEvent> pollFinishedActivities(String processInstanceId, Date finishedAfter,
                                                                   Date finishedBefore) {
@@ -113,7 +124,9 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
                              .map(this::createActivityInstanceEvent)::iterator;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Iterable<ActivityInstanceEvent> pollUnfinishedActivities(String processInstanceId, Date startedAfter,
                                                                     Date startedBefore) {
@@ -131,7 +144,9 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
                              .map(this::createActivityInstanceEvent)::iterator;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Iterable<VariableUpdateEvent> pollCurrentVariables(String activityInstanceId) {
         return historyService.createHistoricVariableInstanceQuery()
@@ -142,7 +157,9 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
                              .map(this::createVariableUpdateEventFromInstance)::iterator;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Iterable<VariableUpdateEvent> pollVariableDetails(String activityInstanceId) {
         return historyService.createHistoricDetailQuery()
@@ -154,7 +171,9 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
                              .map(this::createVariableUpdateEventFromDetail)::iterator;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Iterable<ProcessDefinitionEvent> pollProcessDefinitions(Date deploymentAfter, Date deploymentBefore) {
 
@@ -199,6 +218,14 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
         }
 
         return result;
+    }
+
+    @Override
+    public Iterable<CommentEvent> pollComments(ActivityInstanceEvent activityInstanceEvent) {
+
+        return taskService.getTaskComments(activityInstanceEvent.getTaskId())
+                          .stream()
+                          .map(comment -> createCommentEventFromDetails(comment, activityInstanceEvent))::iterator;
     }
 
     private ProcessDefinitionEvent createProcessDefinitionEvent(Deployment d, ProcessDefinition pd) {
@@ -271,6 +298,21 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
                                     historicVariableDetail.getSerializerName(),
                                     historicVariableDetail.getByteArrayValue());
         }
+
+        return event;
+    }
+
+    private CommentEvent createCommentEventFromDetails(
+                                                       Comment comment, ActivityInstanceEvent activityInstanceEvent) {
+
+        final CommentEvent event = new CommentEvent();
+
+        BeanUtils.copyProperties(activityInstanceEvent, event);
+
+        event.setId(comment.getId());
+        event.setUserId(comment.getUserId());
+        event.setTimestamp(comment.getTime());
+        event.setMessage(comment.getFullMessage());
 
         return event;
     }
