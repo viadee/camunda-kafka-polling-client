@@ -7,8 +7,9 @@ import java.util.Date;
  * Defines the time slice to perform polling for.
  *
  * The slice is defined by the interval to poll data starting with {@link #startTime} and ending with {@link #endTime}.
- * To prevent polling incomplete process data, an initial cutoff timestamp {@link #cutoffTime} is provided.
- * All data polled must be after this cutoff time. This means, a process started before this cutoff time, must not be polled at all.
+ * To prevent polling incomplete process data, an initial cutoff timestamp {@link #cutoffTime} is provided. All data
+ * polled must be after this cutoff time. This means, a process started before this cutoff time, must not be polled at
+ * all.
  *
  * Following rules apply:
  * <ol>
@@ -71,6 +72,7 @@ public class PollingTimeslice {
     @Override
     public java.lang.String toString() {
         return "PollingTimeslice(cutoffTime=" + timeFormat.format(cutoffTime) + ", startTime=" + timeFormat
-                .format(startTime) + ", endTime=" + timeFormat.format(endTime) + ")";
+                                                                                                           .format(startTime)
+                + ", endTime=" + timeFormat.format(endTime) + ")";
     }
 }

@@ -2,12 +2,18 @@
 package de.viadee.camunda.kafka.event;
 
 /**
- * <p>VariableUpdateEvent class.</p>
- *
- * @author viadee
+ * <p>
+ * VariableUpdateEvent class.
+ * </p>
+ *
+ * 
+ * 
+ * @author viadee
+ * 
  * @version $Id: $Id
  */
 public class VariableUpdateEvent extends DetailEvent {
+
     private int revision;
     private String variableName;
     private String variableInstanceId;

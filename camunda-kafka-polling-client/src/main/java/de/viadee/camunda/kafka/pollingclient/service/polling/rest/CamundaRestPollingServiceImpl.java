@@ -1,16 +1,13 @@
 package de.viadee.camunda.kafka.pollingclient.service.polling.rest;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.TimeZone;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.viadee.camunda.kafka.event.ActivityInstanceEvent;
+import de.viadee.camunda.kafka.event.ProcessDefinitionEvent;
+import de.viadee.camunda.kafka.event.ProcessInstanceEvent;
+import de.viadee.camunda.kafka.event.VariableUpdateEvent;
+import de.viadee.camunda.kafka.pollingclient.config.properties.CamundaRestPollingProperties;
+import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
+import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,44 +17,44 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import de.viadee.camunda.kafka.event.ActivityInstanceEvent;
-import de.viadee.camunda.kafka.event.ProcessDefinitionEvent;
-import de.viadee.camunda.kafka.event.ProcessInstanceEvent;
-import de.viadee.camunda.kafka.event.VariableUpdateEvent;
-import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetDeploymentResponse;
-import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetHistoricDetailVariableUpdateResponse;
-import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetHistoricVariableInstancesResponse;
-import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetProcessDefinitionResponse;
-import de.viadee.camunda.kafka.pollingclient.config.properties.CamundaRestPollingProperties;
-import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
-import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetHistoricActivityInstanceRespone;
-import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetHistoricProcessInstanceResponse;
-import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetProcessDefinitionXmlResponse;
-
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- * <p>CamundaRestPollingServiceImpl class.</p>
+ * <p>
+ * CamundaRestPollingServiceImpl class.
+ * </p>
  *
  * @author viadee
- * @version $Id: $Id
  */
 public class CamundaRestPollingServiceImpl implements PollingService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CamundaRestPollingServiceImpl.class);
 
+    private static final String STARTED_AFTER = "startedAfter";
+    private static final String STARTED_BEFORE = "startedBefore";
+    private static final String FINISHED_AFTER = "finishedAfter";
+    private static final String FINISHED_BEFORE = "finishedBefore";
+    private static final String PROCESS_INSTANCE_ID = "processInstanceId";
+    private static final String ACTIVITY_INSTANCE_ID = "activityInstanceId";
+    private static final String PROCESS_DEFINITION_ID = "processDefinitionId";
+    private static final String DEPLOYMENT_ID = "deploymentId";
+
     private final ObjectMapper objectMapper;
-
     private final CamundaRestPollingProperties camundaProperties;
-
     private final RestTemplate restTemplate;
 
     /**
-     * <p>Constructor for CamundaRestPollingServiceImpl.</p>
+     * <p>
+     * Constructor for CamundaRestPollingServiceImpl.
+     * </p>
      *
-     * @param camundaProperties a {@link de.viadee.camunda.kafka.pollingclient.config.properties.CamundaRestPollingProperties} object.
-     * @param restTemplate a {@link org.springframework.web.client.RestTemplate} object.
+     * @param camundaProperties
+     *            a {@link de.viadee.camunda.kafka.pollingclient.config.properties.CamundaRestPollingProperties} object.
+     * @param restTemplate
+     *            a {@link org.springframework.web.client.RestTemplate} object.
      */
     public CamundaRestPollingServiceImpl(CamundaRestPollingProperties camundaProperties, RestTemplate restTemplate) {
         this.camundaProperties = camundaProperties;
@@ -72,26 +69,26 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     /** {@inheritDoc} */
     @Override
     public Iterable<ProcessInstanceEvent> pollFinishedProcessInstances(Date startedAfter, Date startedBefore,
-            Date finishedAfter) {
+                                                                       Date finishedAfter) {
         final String url = camundaProperties.getUrl()
                 + "history/process-instance?finished=true&startedBefore={startedBefore}&startedAfter={startedAfter}&finishedAfter={finishedAfter}";
         try {
             final Map<String, Object> variables = new HashMap<>();
-            variables.put("startedAfter", formatDate(startedAfter));
-            variables.put("startedBefore", formatDate(startedBefore));
-            variables.put("finishedAfter", formatDate(finishedAfter));
+            variables.put(STARTED_AFTER, formatDate(startedAfter));
+            variables.put(STARTED_BEFORE, formatDate(startedBefore));
+            variables.put(FINISHED_AFTER, formatDate(finishedAfter));
 
             LOGGER.debug("Polling finished process instances from {} ({})", url, variables);
 
             List<GetHistoricProcessInstanceResponse> result = this.restTemplate
-                    .exchange(url,
-                            HttpMethod.GET,
-                            null,
-                            new ParameterizedTypeReference<List<GetHistoricProcessInstanceResponse>>() {
+                                                                               .exchange(url,
+                                                                                         HttpMethod.GET,
+                                                                                         null,
+                                                                                         new ParameterizedTypeReference<List<GetHistoricProcessInstanceResponse>>() {
 
-                            },
-                            variables)
-                    .getBody();
+                                                                                         },
+                                                                                         variables)
+                                                                               .getBody();
 
             if (result == null) {
                 return new ArrayList<>();
@@ -100,10 +97,12 @@ public class CamundaRestPollingServiceImpl implements PollingService {
             LOGGER.debug("Found {} finished process instances from {} ({})", result.size(), url, variables);
 
             return result
-                    .stream()
-                    .filter(event -> event.getStartTime().compareTo(startedBefore) < 0) // startedBefore ist selected as <= by Camunda - thus add filter
-                    .map(this::createProcessInstanceEvent)
-                    ::iterator;
+                         .stream()
+                         .filter(event -> event.getStartTime().compareTo(startedBefore) < 0) // startedBefore ist
+                                                                                             // selected as <= by
+                                                                                             // Camunda - thus add
+                                                                                             // filter
+                         .map(this::createProcessInstanceEvent)::iterator;
         } catch (RestClientException e) {
             throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for process instances", e);
         }
@@ -116,20 +115,20 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                 + "history/process-instance?unfinished=true&startedBefore={startedBefore}&startedAfter={startedAfter}";
         try {
             final Map<String, Object> variables = new HashMap<>();
-            variables.put("startedBefore", formatDate(startedBefore));
-            variables.put("startedAfter", formatDate(startedAfter));
+            variables.put(STARTED_BEFORE, formatDate(startedBefore));
+            variables.put(STARTED_AFTER, formatDate(startedAfter));
 
             LOGGER.debug("Polling unfinished process instances from {} ({})", url, variables);
 
             List<GetHistoricProcessInstanceResponse> result = this.restTemplate
-                    .exchange(url,
-                            HttpMethod.GET,
-                            null,
-                            new ParameterizedTypeReference<List<GetHistoricProcessInstanceResponse>>() {
+                                                                               .exchange(url,
+                                                                                         HttpMethod.GET,
+                                                                                         null,
+                                                                                         new ParameterizedTypeReference<List<GetHistoricProcessInstanceResponse>>() {
 
-                            },
-                            variables)
-                    .getBody();
+                                                                                         },
+                                                                                         variables)
+                                                                               .getBody();
 
             if (result == null) {
                 return new ArrayList<>();
@@ -138,10 +137,12 @@ public class CamundaRestPollingServiceImpl implements PollingService {
             LOGGER.debug("Found {} unfinished process instances from {}", result.size(), url);
 
             return result
-                    .stream()
-                    .filter(event -> event.getStartTime().compareTo(startedBefore) < 0) // startedBefore ist selected as <= by Camunda - thus add filter
-                    .map(this::createProcessInstanceEvent)
-                    ::iterator;
+                         .stream()
+                         .filter(event -> event.getStartTime().compareTo(startedBefore) < 0) // startedBefore ist
+                                                                                             // selected as <= by
+                                                                                             // Camunda - thus add
+                                                                                             // filter
+                         .map(this::createProcessInstanceEvent)::iterator;
         } catch (RestClientException e) {
             throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for process instances", e);
         }
@@ -150,26 +151,26 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     /** {@inheritDoc} */
     @Override
     public Iterable<ActivityInstanceEvent> pollFinishedActivities(String processInstanceId, Date finishedAfter,
-            Date finishedBefore) {
+                                                                  Date finishedBefore) {
         final String url = camundaProperties.getUrl()
                 + "history/activity-instance?finished=true&processInstanceId={processInstanceId}&finishedBefore={finishedBefore}&finishedAfter={finishedAfter}";
         try {
             final Map<String, Object> variables = new HashMap<>();
-            variables.put("finishedBefore", formatDate(finishedBefore));
-            variables.put("finishedAfter", formatDate(finishedAfter));
-            variables.put("processInstanceId", processInstanceId);
+            variables.put(FINISHED_BEFORE, formatDate(finishedBefore));
+            variables.put(FINISHED_AFTER, formatDate(finishedAfter));
+            variables.put(PROCESS_INSTANCE_ID, processInstanceId);
 
             LOGGER.debug("Polling finished activity instances from {} ({})", url, variables);
 
             List<GetHistoricActivityInstanceRespone> result = this.restTemplate
-                    .exchange(url,
-                            HttpMethod.GET,
-                            null,
-                            new ParameterizedTypeReference<List<GetHistoricActivityInstanceRespone>>() {
+                                                                               .exchange(url,
+                                                                                         HttpMethod.GET,
+                                                                                         null,
+                                                                                         new ParameterizedTypeReference<List<GetHistoricActivityInstanceRespone>>() {
 
-                            },
-                            variables)
-                    .getBody();
+                                                                                         },
+                                                                                         variables)
+                                                                               .getBody();
 
             if (result == null) {
                 return new ArrayList<>();
@@ -178,10 +179,11 @@ public class CamundaRestPollingServiceImpl implements PollingService {
             LOGGER.debug("Found {} finished activity instances from {} ({})", result.size(), url, variables);
 
             return result
-                    .stream()
-                    .filter(event -> event.getEndTime().compareTo(finishedBefore) < 0) // finishedBefore ist selected as <= by Camunda - thus add filter
-                    .map(this::createActivityInstanceEvent)
-                    ::iterator;
+                         .stream()
+                         .filter(event -> event.getEndTime().compareTo(finishedBefore) < 0) // finishedBefore ist
+                                                                                            // selected as <= by Camunda
+                                                                                            // - thus add filter
+                         .map(this::createActivityInstanceEvent)::iterator;
         } catch (RestClientException e) {
             throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for activity instances", e);
         }
@@ -190,26 +192,26 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     /** {@inheritDoc} */
     @Override
     public Iterable<ActivityInstanceEvent> pollUnfinishedActivities(String processInstanceId, Date startedAfter,
-            Date startedBefore) {
+                                                                    Date startedBefore) {
         final String url = camundaProperties.getUrl()
                 + "history/activity-instance?unfinished=true&processInstanceId={processInstanceId}&startedBefore={startedBefore}&startedAfter={startedAfter}";
         try {
             final Map<String, Object> variables = new HashMap<>();
-            variables.put("startedBefore", formatDate(startedBefore));
-            variables.put("startedAfter", formatDate(startedAfter));
-            variables.put("processInstanceId", processInstanceId);
+            variables.put(STARTED_BEFORE, formatDate(startedBefore));
+            variables.put(STARTED_AFTER, formatDate(startedAfter));
+            variables.put(PROCESS_INSTANCE_ID, processInstanceId);
 
             LOGGER.debug("Polling unfinished activity instances from {} ({})", url, variables);
 
             List<GetHistoricActivityInstanceRespone> result = this.restTemplate
-                    .exchange(url,
-                            HttpMethod.GET,
-                            null,
-                            new ParameterizedTypeReference<List<GetHistoricActivityInstanceRespone>>() {
+                                                                               .exchange(url,
+                                                                                         HttpMethod.GET,
+                                                                                         null,
+                                                                                         new ParameterizedTypeReference<List<GetHistoricActivityInstanceRespone>>() {
 
-                            },
-                            variables)
-                    .getBody();
+                                                                                         },
+                                                                                         variables)
+                                                                               .getBody();
 
             if (result == null) {
                 return new ArrayList<>();
@@ -218,10 +220,12 @@ public class CamundaRestPollingServiceImpl implements PollingService {
             LOGGER.debug("Found {} unfinished activity instances from {} ({})", result.size(), url, variables);
 
             return result
-                    .stream()
-                    .filter(event -> event.getStartTime().compareTo(startedBefore) < 0) // startedBefore ist selected as <= by Camunda - thus add filter
-                    .map(this::createActivityInstanceEvent)
-                    ::iterator;
+                         .stream()
+                         .filter(event -> event.getStartTime().compareTo(startedBefore) < 0) // startedBefore ist
+                                                                                             // selected as <= by
+                                                                                             // Camunda - thus add
+                                                                                             // filter
+                         .map(this::createActivityInstanceEvent)::iterator;
         } catch (RestClientException e) {
             throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for activity instances", e);
         }
@@ -234,20 +238,20 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                 + "history/variable-instance?deserializeValues=false&activityInstanceIdIn={activityInstanceId}";
         try {
             final Map<String, Object> variables = new HashMap<>();
-            variables.put("activityInstanceId", activityInstanceId);
+            variables.put(ACTIVITY_INSTANCE_ID, activityInstanceId);
 
             LOGGER.debug("Polling variables from {} ({})", url, variables);
 
             final Date pollingTimestamp = new Date();
             List<GetHistoricVariableInstancesResponse> result = this.restTemplate
-                    .exchange(url,
-                            HttpMethod.GET,
-                            null,
-                            new ParameterizedTypeReference<List<GetHistoricVariableInstancesResponse>>() {
+                                                                                 .exchange(url,
+                                                                                           HttpMethod.GET,
+                                                                                           null,
+                                                                                           new ParameterizedTypeReference<List<GetHistoricVariableInstancesResponse>>() {
 
-                            },
-                            variables)
-                    .getBody();
+                                                                                           },
+                                                                                           variables)
+                                                                                 .getBody();
 
             if (result == null) {
                 return new ArrayList<>();
@@ -256,9 +260,8 @@ public class CamundaRestPollingServiceImpl implements PollingService {
             LOGGER.debug("Found {} variables from {} ({})", result.size(), url, variables);
 
             return result
-                    .stream()
-                    .map(response -> createVariableUpdateEventFromInstance(response, pollingTimestamp))
-                    ::iterator;
+                         .stream()
+                         .map(response -> createVariableUpdateEventFromInstance(response, pollingTimestamp))::iterator;
         } catch (RestClientException e) {
             throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for variables", e);
         }
@@ -271,19 +274,19 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                 + "history/detail?deserializeValues=false&type=variableUpdate&activityInstanceId={activityInstanceId}";
         try {
             final Map<String, Object> variables = new HashMap<>();
-            variables.put("activityInstanceId", activityInstanceId);
+            variables.put(ACTIVITY_INSTANCE_ID, activityInstanceId);
 
             LOGGER.debug("Polling variables from {} ({})", url, variables);
 
             List<GetHistoricDetailVariableUpdateResponse> result = this.restTemplate
-                    .exchange(url,
-                            HttpMethod.GET,
-                            null,
-                            new ParameterizedTypeReference<List<GetHistoricDetailVariableUpdateResponse>>() {
+                                                                                    .exchange(url,
+                                                                                              HttpMethod.GET,
+                                                                                              null,
+                                                                                              new ParameterizedTypeReference<List<GetHistoricDetailVariableUpdateResponse>>() {
 
-                            },
-                            variables)
-                    .getBody();
+                                                                                              },
+                                                                                              variables)
+                                                                                    .getBody();
 
             if (result == null) {
                 return new ArrayList<>();
@@ -292,9 +295,8 @@ public class CamundaRestPollingServiceImpl implements PollingService {
             LOGGER.debug("Found {} variables from {} ({})", result.size(), url, variables);
 
             return result
-                    .stream()
-                    .map(this::createVariableUpdateEventFromDetails)
-                    ::iterator;
+                         .stream()
+                         .map(this::createVariableUpdateEventFromDetails)::iterator;
         } catch (RestClientException e) {
             throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for variables details", e);
         }
@@ -303,7 +305,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     /** {@inheritDoc} */
     @Override
     public Iterable<ProcessDefinitionEvent> pollProcessDefinitions(final Date startTime,
-            final Date endTime) {
+                                                                   final Date endTime) {
 
         List<GetDeploymentResponse> deploymentList = getDeployments(startTime, endTime);
 
@@ -315,15 +317,14 @@ public class CamundaRestPollingServiceImpl implements PollingService {
 
         for (ProcessDefinitionEvent processDefinitionEvent : processDefinitionList) {
             GetProcessDefinitionXmlResponse processDefinitionXML = getProcessDefinitionXML(
-                    processDefinitionEvent.getId());
+                                                                                           processDefinitionEvent.getId());
             if (processDefinitionXML != null) {
                 processDefinitionEvent.setXml(processDefinitionXML.getBpmn20Xml());
             }
         }
 
         return processDefinitionList
-                .stream()
-                ::iterator;
+                                    .stream()::iterator;
     }
 
     private GetProcessDefinitionXmlResponse getProcessDefinitionXML(String processDefinitionId) {
@@ -333,17 +334,17 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         GetProcessDefinitionXmlResponse resp;
         try {
             final Map<String, Object> variables = new HashMap<>();
-            variables.put("processDefinitionId", processDefinitionId);
+            variables.put(PROCESS_DEFINITION_ID, processDefinitionId);
 
             LOGGER.debug("Polling process definition xml from {} ({})", url, variables);
 
             resp = this.restTemplate
-                    .exchange(url,
-                            HttpMethod.GET,
-                            null,
-                            GetProcessDefinitionXmlResponse.class,
-                            variables)
-                    .getBody();
+                                    .exchange(url,
+                                              HttpMethod.GET,
+                                              null,
+                                              GetProcessDefinitionXmlResponse.class,
+                                              variables)
+                                    .getBody();
 
             if (resp != null) {
                 LOGGER.debug("Found process definition xml from {} ({})", url, variables);
@@ -352,7 +353,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
             }
         } catch (RestClientException e) {
             throw new RuntimeException(
-                    "Error requesting Camunda REST API (" + url + ") for process definition xml", e);
+                                       "Error requesting Camunda REST API (" + url + ") for process definition xml", e);
         }
 
         return resp;
@@ -365,19 +366,19 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         List<GetProcessDefinitionResponse> processDefinitions = new ArrayList<>();
         try {
             final Map<String, Object> variables = new HashMap<>();
-            variables.put("deploymentId", deploymentResponse.getId());
+            variables.put(DEPLOYMENT_ID, deploymentResponse.getId());
 
             LOGGER.debug("Polling process definitions from {} ({})", url, variables);
 
             processDefinitions = this.restTemplate
-                    .exchange(url,
-                            HttpMethod.GET,
-                            null,
-                            new ParameterizedTypeReference<List<GetProcessDefinitionResponse>>() {
+                                                  .exchange(url,
+                                                            HttpMethod.GET,
+                                                            null,
+                                                            new ParameterizedTypeReference<List<GetProcessDefinitionResponse>>() {
 
-                            },
-                            variables)
-                    .getBody();
+                                                            },
+                                                            variables)
+                                                  .getBody();
 
             if (processDefinitions == null) {
                 processDefinitions = new ArrayList<>();
@@ -386,13 +387,13 @@ public class CamundaRestPollingServiceImpl implements PollingService {
             LOGGER.debug("Found {} process definitions from {} ({})", processDefinitions.size(), url, variables);
         } catch (RestClientException e) {
             throw new RuntimeException(
-                    "Error requesting Camunda REST API (" + url + ") for process definitions", e);
+                                       "Error requesting Camunda REST API (" + url + ") for process definitions", e);
         }
 
         return processDefinitions
-                .stream()
-                .map(response -> createProcessDefinitionEvent(response, deploymentResponse))
-                .collect(Collectors.toList());
+                                 .stream()
+                                 .map(response -> createProcessDefinitionEvent(response, deploymentResponse))
+                                 .collect(Collectors.toList());
     }
 
     private List<GetDeploymentResponse> getDeployments(Date deploymentAfter, Date deploymentBefore) {
@@ -401,7 +402,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         // Where the other history queries regarding time boundaries are inclusive (startedBefore, startedAfter, ...),
         // deploymentBefore and deploymentAfter are implemented exclusive.
         // Thus we have to slightly adjust the deploymentAfter parameter by 1 millisecond to act inclusive:
-        deploymentAfter = new Date(deploymentAfter.getTime()-1);
+        deploymentAfter = new Date(deploymentAfter.getTime() - 1);
 
         final String deploymentUrl = camundaProperties.getUrl()
                 + "deployment?before={before}&after={after}";
@@ -415,14 +416,14 @@ public class CamundaRestPollingServiceImpl implements PollingService {
             LOGGER.debug("Polling deployments from {} ({})", deploymentUrl, variables);
 
             deployments = this.restTemplate
-                    .exchange(deploymentUrl,
-                            HttpMethod.GET,
-                            null,
-                            new ParameterizedTypeReference<List<GetDeploymentResponse>>() {
+                                           .exchange(deploymentUrl,
+                                                     HttpMethod.GET,
+                                                     null,
+                                                     new ParameterizedTypeReference<List<GetDeploymentResponse>>() {
 
-                            },
-                            variables)
-                    .getBody();
+                                                     },
+                                                     variables)
+                                           .getBody();
 
             if (deployments == null) {
                 deployments = new ArrayList<>();
@@ -431,14 +432,14 @@ public class CamundaRestPollingServiceImpl implements PollingService {
             LOGGER.debug("Found {} deployments from {} ({})", deployments.size(), deploymentUrl, variables);
         } catch (RestClientException e) {
             throw new RuntimeException(
-                    "Error requesting Camunda REST API (" + deploymentUrl + ") for deployments", e);
+                                       "Error requesting Camunda REST API (" + deploymentUrl + ") for deployments", e);
         }
 
         return deployments;
     }
 
     private ProcessInstanceEvent createProcessInstanceEvent(
-            GetHistoricProcessInstanceResponse getHistoricProcessInstanceResponse) {
+                                                            GetHistoricProcessInstanceResponse getHistoricProcessInstanceResponse) {
         final ProcessInstanceEvent event = new ProcessInstanceEvent();
         BeanUtils.copyProperties(getHistoricProcessInstanceResponse, event);
 
@@ -449,7 +450,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     }
 
     private ActivityInstanceEvent createActivityInstanceEvent(
-            GetHistoricActivityInstanceRespone getHistoricActivityInstanceRespone) {
+                                                              GetHistoricActivityInstanceRespone getHistoricActivityInstanceRespone) {
         final ActivityInstanceEvent event = new ActivityInstanceEvent();
         BeanUtils.copyProperties(getHistoricActivityInstanceRespone, event);
 
@@ -459,7 +460,8 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     }
 
     private VariableUpdateEvent createVariableUpdateEventFromInstance(
-            GetHistoricVariableInstancesResponse getHistoricVariableInstancesResponse, Date pollingTimestamp) {
+                                                                      GetHistoricVariableInstancesResponse getHistoricVariableInstancesResponse,
+                                                                      Date pollingTimestamp) {
         final VariableUpdateEvent event = new VariableUpdateEvent();
         BeanUtils.copyProperties(getHistoricVariableInstancesResponse, event);
 
@@ -469,30 +471,30 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         event.setTimestamp(pollingTimestamp);
 
         setVariableValue(event,
-                getHistoricVariableInstancesResponse.getValue(),
-                getHistoricVariableInstancesResponse.getType(),
-                getHistoricVariableInstancesResponse.getValueInfoEntry("serializationDataFormat"));
+                         getHistoricVariableInstancesResponse.getValue(),
+                         getHistoricVariableInstancesResponse.getType(),
+                         getHistoricVariableInstancesResponse.getValueInfoEntry("serializationDataFormat"));
 
         return event;
     }
 
     private VariableUpdateEvent createVariableUpdateEventFromDetails(
-            GetHistoricDetailVariableUpdateResponse getHistoricDetailVariableUpdateResponse) {
+                                                                     GetHistoricDetailVariableUpdateResponse getHistoricDetailVariableUpdateResponse) {
         final VariableUpdateEvent event = new VariableUpdateEvent();
         BeanUtils.copyProperties(getHistoricDetailVariableUpdateResponse, event);
 
         event.setTimestamp(getHistoricDetailVariableUpdateResponse.getTime());
 
         setVariableValue(event,
-                getHistoricDetailVariableUpdateResponse.getValue(),
-                getHistoricDetailVariableUpdateResponse.getVariableType(),
-                getHistoricDetailVariableUpdateResponse.getValueInfoEntry("serializationDataFormat"));
+                         getHistoricDetailVariableUpdateResponse.getValue(),
+                         getHistoricDetailVariableUpdateResponse.getVariableType(),
+                         getHistoricDetailVariableUpdateResponse.getValueInfoEntry("serializationDataFormat"));
 
         return event;
     }
 
     private ProcessDefinitionEvent createProcessDefinitionEvent(GetProcessDefinitionResponse resp,
-            final GetDeploymentResponse deploymentResponse) {
+                                                                final GetDeploymentResponse deploymentResponse) {
 
         ProcessDefinitionEvent e = new ProcessDefinitionEvent();
         e.setId(resp.getId());
@@ -514,7 +516,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     }
 
     private void setVariableValue(VariableUpdateEvent event, Object value, String type,
-            String serializationDataFormat) {
+                                  String serializationDataFormat) {
 
         if (value != null) {
             switch (StringUtils.defaultString(type)) {
@@ -529,7 +531,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                                 event.setSerializerName("spin://application/json");
                             }
                         } catch (IOException e) {
-                        	LOGGER.error("IOException found.");
+                            LOGGER.error("IOException found.");
                         }
                     }
 
@@ -569,32 +571,32 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                     }
                     break;
                 }
-                default :{
-                	LOGGER.warn("Data type does not exist.");
+                default: {
+                    LOGGER.warn("Data type does not exist.");
                 }
             }
         }
     }
 
-
     /**
      *
-     *  Format Date to String - used in REST API
+     * Format Date to String - used in REST API
      *
-     *  @param date to format
-     *  @return formated Date according to configured format
+     * @param date
+     *            to format
+     * @return formated Date according to configured format
      *
-     * */
+     */
     String formatDate(Date date) {
 
         String dateFormatPattern = camundaProperties.getDateFormatPattern();
         SimpleDateFormat apiDateFormat = new SimpleDateFormat(dateFormatPattern);
 
         String sourceTimeZone = camundaProperties.getSourceTimeZone();
-        if(sourceTimeZone!= null && !sourceTimeZone.isEmpty())
+        if (sourceTimeZone != null && !sourceTimeZone.isEmpty())
             apiDateFormat.setTimeZone(TimeZone.getTimeZone(sourceTimeZone));
 
-            return apiDateFormat.format(date);
+        return apiDateFormat.format(date);
 
     }
 }

@@ -4,13 +4,19 @@ package de.viadee.camunda.kafka.event;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
- * <p>HistoryEvent class.</p>
- *
- * @author viadee
+ * <p>
+ * HistoryEvent class.
+ * </p>
+ *
+ * 
+ * 
+ * @author viadee
+ * 
  * @version $Id: $Id
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class HistoryEvent {
+
     private String id;
     private String processInstanceId;
     private String executionId;

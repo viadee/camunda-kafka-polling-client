@@ -1,7 +1,8 @@
 package de.viadee.camunda.kafka.pollingclient.config;
 
-import java.util.Collections;
-
+import de.viadee.camunda.kafka.pollingclient.config.properties.CamundaRestPollingProperties;
+import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
+import de.viadee.camunda.kafka.pollingclient.service.polling.rest.CamundaRestPollingServiceImpl;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,12 +11,12 @@ import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
-import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
-import de.viadee.camunda.kafka.pollingclient.service.polling.rest.CamundaRestPollingServiceImpl;
-import de.viadee.camunda.kafka.pollingclient.config.properties.CamundaRestPollingProperties;
+import java.util.Collections;
 
 /**
- * <p>CamundaRestPollingConfiguration class.</p>
+ * <p>
+ * CamundaRestPollingConfiguration class.
+ * </p>
  *
  * @author viadee
  * @version $Id: $Id
@@ -28,16 +29,21 @@ public class CamundaRestPollingConfiguration {
     private final CamundaRestPollingProperties camundaProperties;
 
     /**
-     * <p>Constructor for CamundaRestPollingConfiguration.</p>
+     * <p>
+     * Constructor for CamundaRestPollingConfiguration.
+     * </p>
      *
-     * @param camundaProperties a {@link de.viadee.camunda.kafka.pollingclient.config.properties.CamundaRestPollingProperties} object.
+     * @param camundaProperties
+     *            a {@link de.viadee.camunda.kafka.pollingclient.config.properties.CamundaRestPollingProperties} object.
      */
     public CamundaRestPollingConfiguration(CamundaRestPollingProperties camundaProperties) {
         this.camundaProperties = camundaProperties;
     }
 
     /**
-     * <p>pollingService.</p>
+     * <p>
+     * pollingService.
+     * </p>
      *
      * @return a {@link de.viadee.camunda.kafka.pollingclient.service.polling.PollingService} object.
      */
@@ -47,7 +53,9 @@ public class CamundaRestPollingConfiguration {
     }
 
     /**
-     * <p>camundaApiRestTemplate.</p>
+     * <p>
+     * camundaApiRestTemplate.
+     * </p>
      *
      * @return a {@link org.springframework.web.client.RestTemplate} object.
      */
@@ -63,9 +71,8 @@ public class CamundaRestPollingConfiguration {
 
         if (camundaProperties.isAuthenticationEnabled()) {
             template.setInterceptors(Collections.singletonList(new BasicAuthorizationInterceptor(
-                    camundaProperties.getUsername(),
-                    camundaProperties.getPassword()
-            )));
+                                                                                                 camundaProperties.getUsername(),
+                                                                                                 camundaProperties.getPassword())));
         }
 
         return template;

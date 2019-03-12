@@ -1,20 +1,21 @@
 package de.viadee.camunda.kafka.pollingclient.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties;
+import de.viadee.camunda.kafka.pollingclient.job.repository.RepositoryDataPollingJob;
 import de.viadee.camunda.kafka.pollingclient.job.repository.RepositoryDataPollingService;
 import de.viadee.camunda.kafka.pollingclient.service.event.EventService;
 import de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledService;
 import de.viadee.camunda.kafka.pollingclient.service.lastpolled.filebased.FilebasedLastPolledServiceImpl;
 import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
-import de.viadee.camunda.kafka.pollingclient.job.repository.RepositoryDataPollingJob;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
- * <p>RepositoryDataPollingConfiguration class.</p>
+ * <p>
+ * RepositoryDataPollingConfiguration class.
+ * </p>
  *
  * @author viadee
  * @version $Id: $Id
@@ -32,7 +33,9 @@ public class RepositoryDataPollingConfiguration {
     private EventService eventService;
 
     /**
-     * <p>repositoryDataLastPolledService.</p>
+     * <p>
+     * repositoryDataLastPolledService.
+     * </p>
      *
      * @return a {@link de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledService} object.
      */
@@ -42,18 +45,22 @@ public class RepositoryDataPollingConfiguration {
     }
 
     /**
-     * <p>repositoryDataPollingService.</p>
+     * <p>
+     * repositoryDataPollingService.
+     * </p>
      *
      * @return a {@link de.viadee.camunda.kafka.pollingclient.job.repository.RepositoryDataPollingService} object.
      */
     @Bean
     public RepositoryDataPollingService repositoryDataPollingService() {
         return new RepositoryDataPollingService(pollingService, repositoryDataLastPolledService(), eventService,
-                properties);
+                                                properties);
     }
 
     /**
-     * <p>repositoryDataPollingJob.</p>
+     * <p>
+     * repositoryDataPollingJob.
+     * </p>
      *
      * @return a {@link de.viadee.camunda.kafka.pollingclient.job.repository.RepositoryDataPollingJob} object.
      */

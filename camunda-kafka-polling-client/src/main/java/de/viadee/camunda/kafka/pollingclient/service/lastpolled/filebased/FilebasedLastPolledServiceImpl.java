@@ -1,6 +1,10 @@
 package de.viadee.camunda.kafka.pollingclient.service.lastpolled.filebased;
 
-import static org.apache.commons.lang3.StringUtils.*;
+import de.viadee.camunda.kafka.pollingclient.config.properties.PollingProperties;
+import de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledService;
+import de.viadee.camunda.kafka.pollingclient.service.lastpolled.PollingTimeslice;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -9,12 +13,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
 
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.io.FileUtils;
-
-import de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledService;
-import de.viadee.camunda.kafka.pollingclient.config.properties.PollingProperties;
-import de.viadee.camunda.kafka.pollingclient.service.lastpolled.PollingTimeslice;
+import static org.apache.commons.lang3.StringUtils.join;
 
 /**
  * Implementation of file based last polled data.
@@ -33,9 +32,12 @@ public class FilebasedLastPolledServiceImpl implements LastPolledService {
     private final PollingProperties pollingProperties;
 
     /**
-     * <p>Constructor for FilebasedLastPolledServiceImpl.</p>
+     * <p>
+     * Constructor for FilebasedLastPolledServiceImpl.
+     * </p>
      *
-     * @param pollingProperties a {@link de.viadee.camunda.kafka.pollingclient.config.properties.PollingProperties} object.
+     * @param pollingProperties
+     *            a {@link de.viadee.camunda.kafka.pollingclient.config.properties.PollingProperties} object.
      */
     public FilebasedLastPolledServiceImpl(final PollingProperties pollingProperties) {
         this.pollingProperties = pollingProperties;
