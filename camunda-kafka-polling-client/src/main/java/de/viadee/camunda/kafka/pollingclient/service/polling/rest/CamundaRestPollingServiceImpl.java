@@ -28,16 +28,22 @@ import java.util.stream.Collectors;
  * </p>
  *
  * @author viadee
- * @version $Id: $Id
  */
 public class CamundaRestPollingServiceImpl implements PollingService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CamundaRestPollingServiceImpl.class);
 
+    private static final String STARTED_AFTER = "startedAfter";
+    private static final String STARTED_BEFORE = "startedBefore";
+    private static final String FINISHED_AFTER = "finishedAfter";
+    private static final String FINISHED_BEFORE = "finishedBefore";
+    private static final String PROCESS_INSTANCE_ID = "processInstanceId";
+    private static final String ACTIVITY_INSTANCE_ID = "activityInstanceId";
+    private static final String PROCESS_DEFINITION_ID = "processDefinitionId";
+    private static final String DEPLOYMENT_ID = "deploymentId";
+
     private final ObjectMapper objectMapper;
-
     private final CamundaRestPollingProperties camundaProperties;
-
     private final RestTemplate restTemplate;
 
     /**
@@ -68,9 +74,9 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                 + "history/process-instance?finished=true&startedBefore={startedBefore}&startedAfter={startedAfter}&finishedAfter={finishedAfter}";
         try {
             final Map<String, Object> variables = new HashMap<>();
-            variables.put("startedAfter", formatDate(startedAfter));
-            variables.put("startedBefore", formatDate(startedBefore));
-            variables.put("finishedAfter", formatDate(finishedAfter));
+            variables.put(STARTED_AFTER, formatDate(startedAfter));
+            variables.put(STARTED_BEFORE, formatDate(startedBefore));
+            variables.put(FINISHED_AFTER, formatDate(finishedAfter));
 
             LOGGER.debug("Polling finished process instances from {} ({})", url, variables);
 
@@ -109,8 +115,8 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                 + "history/process-instance?unfinished=true&startedBefore={startedBefore}&startedAfter={startedAfter}";
         try {
             final Map<String, Object> variables = new HashMap<>();
-            variables.put("startedBefore", formatDate(startedBefore));
-            variables.put("startedAfter", formatDate(startedAfter));
+            variables.put(STARTED_BEFORE, formatDate(startedBefore));
+            variables.put(STARTED_AFTER, formatDate(startedAfter));
 
             LOGGER.debug("Polling unfinished process instances from {} ({})", url, variables);
 
@@ -150,9 +156,9 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                 + "history/activity-instance?finished=true&processInstanceId={processInstanceId}&finishedBefore={finishedBefore}&finishedAfter={finishedAfter}";
         try {
             final Map<String, Object> variables = new HashMap<>();
-            variables.put("finishedBefore", formatDate(finishedBefore));
-            variables.put("finishedAfter", formatDate(finishedAfter));
-            variables.put("processInstanceId", processInstanceId);
+            variables.put(FINISHED_BEFORE, formatDate(finishedBefore));
+            variables.put(FINISHED_AFTER, formatDate(finishedAfter));
+            variables.put(PROCESS_INSTANCE_ID, processInstanceId);
 
             LOGGER.debug("Polling finished activity instances from {} ({})", url, variables);
 
@@ -191,9 +197,9 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                 + "history/activity-instance?unfinished=true&processInstanceId={processInstanceId}&startedBefore={startedBefore}&startedAfter={startedAfter}";
         try {
             final Map<String, Object> variables = new HashMap<>();
-            variables.put("startedBefore", formatDate(startedBefore));
-            variables.put("startedAfter", formatDate(startedAfter));
-            variables.put("processInstanceId", processInstanceId);
+            variables.put(STARTED_BEFORE, formatDate(startedBefore));
+            variables.put(STARTED_AFTER, formatDate(startedAfter));
+            variables.put(PROCESS_INSTANCE_ID, processInstanceId);
 
             LOGGER.debug("Polling unfinished activity instances from {} ({})", url, variables);
 
@@ -232,7 +238,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                 + "history/variable-instance?deserializeValues=false&activityInstanceIdIn={activityInstanceId}";
         try {
             final Map<String, Object> variables = new HashMap<>();
-            variables.put("activityInstanceId", activityInstanceId);
+            variables.put(ACTIVITY_INSTANCE_ID, activityInstanceId);
 
             LOGGER.debug("Polling variables from {} ({})", url, variables);
 
@@ -268,7 +274,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                 + "history/detail?deserializeValues=false&type=variableUpdate&activityInstanceId={activityInstanceId}";
         try {
             final Map<String, Object> variables = new HashMap<>();
-            variables.put("activityInstanceId", activityInstanceId);
+            variables.put(ACTIVITY_INSTANCE_ID, activityInstanceId);
 
             LOGGER.debug("Polling variables from {} ({})", url, variables);
 
@@ -328,7 +334,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         GetProcessDefinitionXmlResponse resp;
         try {
             final Map<String, Object> variables = new HashMap<>();
-            variables.put("processDefinitionId", processDefinitionId);
+            variables.put(PROCESS_DEFINITION_ID, processDefinitionId);
 
             LOGGER.debug("Polling process definition xml from {} ({})", url, variables);
 
@@ -360,7 +366,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         List<GetProcessDefinitionResponse> processDefinitions = new ArrayList<>();
         try {
             final Map<String, Object> variables = new HashMap<>();
-            variables.put("deploymentId", deploymentResponse.getId());
+            variables.put(DEPLOYMENT_ID, deploymentResponse.getId());
 
             LOGGER.debug("Polling process definitions from {} ({})", url, variables);
 

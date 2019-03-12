@@ -88,7 +88,7 @@ class CamundaRestPollingServiceImplTest {
 
         Iterator<ProcessInstanceEvent> iter = pieIterator.iterator();
 
-        assertEquals(iter.next().getId(), "123");
+        assertEquals("123", iter.next().getId());
         assertFalse(iter.hasNext());
     }
 
