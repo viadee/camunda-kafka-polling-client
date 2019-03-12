@@ -66,7 +66,7 @@ public class RepositoryDataPollingServiceTest {
                                                   .setJobExecutorActivate(false)
                                                   .setHistory(ProcessEngineConfiguration.HISTORY_FULL)
                                                   .setDatabaseSchemaUpdate(
-                                                          ProcessEngineConfiguration.DB_SCHEMA_UPDATE_CREATE_DROP)
+                                                                           ProcessEngineConfiguration.DB_SCHEMA_UPDATE_CREATE_DROP)
                                                   .buildProcessEngine();
 
         lastPolledService = mock(LastPolledService.class);
@@ -95,7 +95,8 @@ public class RepositoryDataPollingServiceTest {
 
         // define polling cycle
         when(lastPolledService.getPollingTimeslice())
-                .thenReturn(new PollingTimeslice(CUTOFF_TIME.date, START_TIME.date, END_TIME.date));
+                                                     .thenReturn(new PollingTimeslice(CUTOFF_TIME.date, START_TIME.date,
+                                                                                      END_TIME.date));
 
         // perform polling
         pollingService.run();
@@ -103,7 +104,7 @@ public class RepositoryDataPollingServiceTest {
         // verify timeslice update
         final ArgumentCaptor<PollingTimeslice> pollingTimesliceCaptor = ArgumentCaptor.forClass(PollingTimeslice.class);
         verify(lastPolledService, times(1))
-                .updatePollingTimeslice(pollingTimesliceCaptor.capture());
+                                           .updatePollingTimeslice(pollingTimesliceCaptor.capture());
 
         final PollingTimeslice updatePollingTimeslice = pollingTimesliceCaptor.getValue();
         Assertions.assertEquals(CUTOFF_TIME.date, updatePollingTimeslice.getCutoffTime());
@@ -125,16 +126,17 @@ public class RepositoryDataPollingServiceTest {
 
         // define polling cycle
         when(lastPolledService.getPollingTimeslice())
-                .thenReturn(new PollingTimeslice(CUTOFF_TIME.date, START_TIME.date, END_TIME.date));
+                                                     .thenReturn(new PollingTimeslice(CUTOFF_TIME.date, START_TIME.date,
+                                                                                      END_TIME.date));
 
         // perform polling
         pollingService.run();
 
         // Verify process instance event
         final ArgumentCaptor<ProcessDefinitionEvent> processDefinitionEventCaptor = ArgumentCaptor.forClass(
-                ProcessDefinitionEvent.class);
+                                                                                                            ProcessDefinitionEvent.class);
         verify(eventSendService, times(shouldBePolled ? 1 : 0))
-                .sendEvent(processDefinitionEventCaptor.capture());
+                                                               .sendEvent(processDefinitionEventCaptor.capture());
     }
 
     static Stream<Arguments> pollProcessDefinitions() {
