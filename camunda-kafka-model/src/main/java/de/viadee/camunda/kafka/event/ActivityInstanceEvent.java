@@ -2,12 +2,18 @@
 package de.viadee.camunda.kafka.event;
 
 /**
- * <p>ActivityInstanceEvent class.</p>
- *
- * @author viadee
+ * <p>
+ * ActivityInstanceEvent class.
+ * </p>
+ *
+ * 
+ * 
+ * @author viadee
+ * 
  * @version $Id: $Id
  */
 public class ActivityInstanceEvent extends ScopeInstanceEvent {
+
     private String activityId;
     private String activityName;
     private String activityType;

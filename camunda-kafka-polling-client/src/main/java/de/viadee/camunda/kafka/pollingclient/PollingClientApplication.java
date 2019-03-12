@@ -1,16 +1,15 @@
 package de.viadee.camunda.kafka.pollingclient;
 
+import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties;
-
 /**
- * DataSourceAutoConfiguration is disabled, since data source must not be configured if using rest.
- * Thus data source auto configuration is enabled when using jdbc polling mode by polling configuration.
+ * DataSourceAutoConfiguration is disabled, since data source must not be configured if using rest. Thus data source
+ * auto configuration is enabled when using jdbc polling mode by polling configuration.
  *
  * @author viadee
  * @version $Id: $Id
@@ -21,9 +20,12 @@ import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProper
 public class PollingClientApplication {
 
     /**
-     * <p>main.</p>
+     * <p>
+     * main.
+     * </p>
      *
-     * @param args an array of {@link java.lang.String} objects.
+     * @param args
+     *            an array of {@link java.lang.String} objects.
      */
     public static void main(String[] args) {
         SpringApplication.run(PollingClientApplication.class, args);

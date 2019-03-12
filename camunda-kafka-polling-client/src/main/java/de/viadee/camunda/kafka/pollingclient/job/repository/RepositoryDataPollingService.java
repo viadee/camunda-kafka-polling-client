@@ -1,14 +1,13 @@
 package de.viadee.camunda.kafka.pollingclient.job.repository;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import de.viadee.camunda.kafka.event.ProcessDefinitionEvent;
 import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties;
 import de.viadee.camunda.kafka.pollingclient.service.event.EventService;
 import de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledService;
 import de.viadee.camunda.kafka.pollingclient.service.lastpolled.PollingTimeslice;
 import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
-import de.viadee.camunda.kafka.event.ProcessDefinitionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of polling repository data
@@ -29,12 +28,18 @@ public class RepositoryDataPollingService implements Runnable {
     private final ApplicationProperties properties;
 
     /**
-     * <p>Constructor for RepositoryDataPollingService.</p>
+     * <p>
+     * Constructor for RepositoryDataPollingService.
+     * </p>
      *
-     * @param pollingService a {@link de.viadee.camunda.kafka.pollingclient.service.polling.PollingService} object.
-     * @param lastPolledService a {@link de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledService} object.
-     * @param eventService a {@link de.viadee.camunda.kafka.pollingclient.service.event.EventService} object.
-     * @param properties a {@link de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties} object.
+     * @param pollingService
+     *            a {@link de.viadee.camunda.kafka.pollingclient.service.polling.PollingService} object.
+     * @param lastPolledService
+     *            a {@link de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledService} object.
+     * @param eventService
+     *            a {@link de.viadee.camunda.kafka.pollingclient.service.event.EventService} object.
+     * @param properties
+     *            a {@link de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties} object.
      */
     public RepositoryDataPollingService(PollingService pollingService, LastPolledService lastPolledService,
             EventService eventService, ApplicationProperties properties) {
@@ -61,7 +66,8 @@ public class RepositoryDataPollingService implements Runnable {
     private void pollProcessDefinitions(final PollingTimeslice pollingTimeslice) {
         if (properties.getPollingEvents().contains(ApplicationProperties.PollingEvents.PROCESS_DEFINITION)) {
             for (final ProcessDefinitionEvent processDefinitionEvent : pollingService
-                    .pollProcessDefinitions(pollingTimeslice.getStartTime(), pollingTimeslice.getEndTime())) {
+                                                                                     .pollProcessDefinitions(pollingTimeslice.getStartTime(),
+                                                                                                             pollingTimeslice.getEndTime())) {
                 eventService.sendEvent(processDefinitionEvent);
             }
         }

@@ -4,12 +4,18 @@ package de.viadee.camunda.kafka.event;
 import java.util.Date;
 
 /**
- * <p>IncidentEvent class.</p>
- *
- * @author viadee
+ * <p>
+ * IncidentEvent class.
+ * </p>
+ *
+ * 
+ * 
+ * @author viadee
+ * 
  * @version $Id: $Id
  */
 public class IncidentEvent extends HistoryEvent {
+
     private Date createTime;
     private Date endTime;
     private String incidentType;

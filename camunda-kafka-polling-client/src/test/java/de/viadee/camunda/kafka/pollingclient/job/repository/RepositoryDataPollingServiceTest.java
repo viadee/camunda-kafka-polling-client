@@ -62,12 +62,12 @@ public class RepositoryDataPollingServiceTest {
     @BeforeEach
     void setup() {
         LogFactory.useSlf4jLogging();
-        processEngine = ProcessEngineConfiguration
-                .createStandaloneInMemProcessEngineConfiguration()
-                .setJobExecutorActivate(false)
-                .setHistory(ProcessEngineConfiguration.HISTORY_FULL)
-                .setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_CREATE_DROP)
-                .buildProcessEngine();
+        processEngine = ProcessEngineConfiguration.createStandaloneInMemProcessEngineConfiguration()
+                                                  .setJobExecutorActivate(false)
+                                                  .setHistory(ProcessEngineConfiguration.HISTORY_FULL)
+                                                  .setDatabaseSchemaUpdate(
+                                                          ProcessEngineConfiguration.DB_SCHEMA_UPDATE_CREATE_DROP)
+                                                  .buildProcessEngine();
 
         lastPolledService = mock(LastPolledService.class);
         eventSendService = mock(EventService.class);
@@ -76,11 +76,11 @@ public class RepositoryDataPollingServiceTest {
         applicationProperties.setPollingEvents(new HashSet<>(asList(ApplicationProperties.PollingEvents.values())));
         applicationProperties.getRepositoryData().setEnabled(true);
 
-        pollingApiService = new CamundaJdbcPollingServiceImpl(
-                processEngine.getHistoryService(),
-                processEngine.getRepositoryService());
+        pollingApiService = new CamundaJdbcPollingServiceImpl(processEngine.getHistoryService(),
+                                                              processEngine.getRepositoryService());
 
-        pollingService = new RepositoryDataPollingService(pollingApiService, lastPolledService, eventSendService, applicationProperties);
+        pollingService = new RepositoryDataPollingService(pollingApiService, lastPolledService, eventSendService,
+                                                          applicationProperties);
     }
 
     @AfterEach
@@ -88,7 +88,6 @@ public class RepositoryDataPollingServiceTest {
         processEngine.close();
         ClockUtil.reset();
     }
-
 
     @Test
     @DisplayName("Update of timeslice after polling")
@@ -103,15 +102,14 @@ public class RepositoryDataPollingServiceTest {
 
         // verify timeslice update
         final ArgumentCaptor<PollingTimeslice> pollingTimesliceCaptor = ArgumentCaptor.forClass(PollingTimeslice.class);
-        verify(lastPolledService, times(1)).updatePollingTimeslice(pollingTimesliceCaptor.capture());
+        verify(lastPolledService, times(1))
+                .updatePollingTimeslice(pollingTimesliceCaptor.capture());
 
         final PollingTimeslice updatePollingTimeslice = pollingTimesliceCaptor.getValue();
         Assertions.assertEquals(CUTOFF_TIME.date, updatePollingTimeslice.getCutoffTime());
         Assertions.assertEquals(START_TIME.date, updatePollingTimeslice.getStartTime());
         Assertions.assertEquals(END_TIME.date, updatePollingTimeslice.getEndTime());
     }
-
-
 
     @ParameterizedTest(name = "{index}: deployment time {0} => should be polled={1}")
     @MethodSource
@@ -120,11 +118,10 @@ public class RepositoryDataPollingServiceTest {
 
         // create testdata
         setCurrentTime(deploymentTime);
-        final Deployment deployment = processEngine
-                .getRepositoryService()
-                .createDeployment()
-                .addClasspathResource("bpmn/simpleProcess.bpmn")
-                .deploy();
+        final Deployment deployment = processEngine.getRepositoryService()
+                                                   .createDeployment()
+                                                   .addClasspathResource("bpmn/simpleProcess.bpmn")
+                                                   .deploy();
 
         // define polling cycle
         when(lastPolledService.getPollingTimeslice())
@@ -134,8 +131,10 @@ public class RepositoryDataPollingServiceTest {
         pollingService.run();
 
         // Verify process instance event
-        final ArgumentCaptor<ProcessDefinitionEvent> processDefinitionEventCaptor = ArgumentCaptor.forClass(ProcessDefinitionEvent.class);
-        verify(eventSendService, times(shouldBePolled ? 1 : 0)).sendEvent(processDefinitionEventCaptor.capture());
+        final ArgumentCaptor<ProcessDefinitionEvent> processDefinitionEventCaptor = ArgumentCaptor.forClass(
+                ProcessDefinitionEvent.class);
+        verify(eventSendService, times(shouldBePolled ? 1 : 0))
+                .sendEvent(processDefinitionEventCaptor.capture());
     }
 
     static Stream<Arguments> pollProcessDefinitions() {
@@ -152,7 +151,6 @@ public class RepositoryDataPollingServiceTest {
         );
         // @formatter:on
     }
-
 
     private static void setCurrentTime(PointOfTime time) {
         ClockUtil.setCurrentTime(time.date);

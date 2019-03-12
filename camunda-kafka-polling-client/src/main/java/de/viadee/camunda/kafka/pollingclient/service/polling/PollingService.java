@@ -1,14 +1,16 @@
 package de.viadee.camunda.kafka.pollingclient.service.polling;
 
-import java.util.Date;
-
 import de.viadee.camunda.kafka.event.ActivityInstanceEvent;
 import de.viadee.camunda.kafka.event.ProcessDefinitionEvent;
 import de.viadee.camunda.kafka.event.ProcessInstanceEvent;
 import de.viadee.camunda.kafka.event.VariableUpdateEvent;
 
+import java.util.Date;
+
 /**
- * <p>PollingService interface.</p>
+ * <p>
+ * PollingService interface.
+ * </p>
  *
  * @author viadee
  * @version $Id: $Id
@@ -18,9 +20,12 @@ public interface PollingService {
     /**
      * Poll finished process instances from history.
      *
-     * @param startedAfter  inclusive
-     * @param startedBefore exclusive
-     * @param finishedAfter inclusive
+     * @param startedAfter
+     *            inclusive
+     * @param startedBefore
+     *            exclusive
+     * @param finishedAfter
+     *            inclusive
      * @return a {@link java.lang.Iterable} object.
      */
     Iterable<ProcessInstanceEvent> pollFinishedProcessInstances(Date startedAfter, Date startedBefore,
@@ -29,8 +34,10 @@ public interface PollingService {
     /**
      * Poll unfinished process instances.
      *
-     * @param startedAfter  inclusive
-     * @param startedBefore exclusive
+     * @param startedAfter
+     *            inclusive
+     * @param startedBefore
+     *            exclusive
      * @return a {@link java.lang.Iterable} object.
      */
     Iterable<ProcessInstanceEvent> pollUnfinishedProcessInstances(Date startedAfter, Date startedBefore);
@@ -38,9 +45,12 @@ public interface PollingService {
     /**
      * Poll finished activities from history.
      *
-     * @param processInstanceId a {@link java.lang.String} object.
-     * @param finishedAfter     inclusive
-     * @param finishedBefore    exclusive
+     * @param processInstanceId
+     *            a {@link java.lang.String} object.
+     * @param finishedAfter
+     *            inclusive
+     * @param finishedBefore
+     *            exclusive
      * @return a {@link java.lang.Iterable} object.
      */
     Iterable<ActivityInstanceEvent> pollFinishedActivities(String processInstanceId, Date finishedAfter,
@@ -49,26 +59,35 @@ public interface PollingService {
     /**
      * Poll unfinished activities.
      *
-     * @param processInstanceId a {@link java.lang.String} object.
-     * @param startedAfter      inclusive
-     * @param startedBefore     exclusive
+     * @param processInstanceId
+     *            a {@link java.lang.String} object.
+     * @param startedAfter
+     *            inclusive
+     * @param startedBefore
+     *            exclusive
      * @return a {@link java.lang.Iterable} object.
      */
     Iterable<ActivityInstanceEvent> pollUnfinishedActivities(String processInstanceId, Date startedAfter,
                                                              Date startedBefore);
 
     /**
-     * <p>pollCurrentVariables.</p>
+     * <p>
+     * pollCurrentVariables.
+     * </p>
      *
-     * @param activityInstanceId a {@link java.lang.String} object.
+     * @param activityInstanceId
+     *            a {@link java.lang.String} object.
      * @return a {@link java.lang.Iterable} object.
      */
     Iterable<VariableUpdateEvent> pollCurrentVariables(String activityInstanceId);
 
     /**
-     * <p>pollVariableDetails.</p>
+     * <p>
+     * pollVariableDetails.
+     * </p>
      *
-     * @param activityInstanceId a {@link java.lang.String} object.
+     * @param activityInstanceId
+     *            a {@link java.lang.String} object.
      * @return a {@link java.lang.Iterable} object.
      */
     Iterable<VariableUpdateEvent> pollVariableDetails(String activityInstanceId);
@@ -76,8 +95,10 @@ public interface PollingService {
     /**
      * Poll process definitions
      *
-     * @param deploymentAfter  inclusive
-     * @param deploymentBefore exclusive
+     * @param deploymentAfter
+     *            inclusive
+     * @param deploymentBefore
+     *            exclusive
      * @return a {@link java.lang.Iterable} object.
      */
     Iterable<ProcessDefinitionEvent> pollProcessDefinitions(Date deploymentAfter, Date deploymentBefore);

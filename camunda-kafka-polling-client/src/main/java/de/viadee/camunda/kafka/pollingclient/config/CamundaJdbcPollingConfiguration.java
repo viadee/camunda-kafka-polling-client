@@ -1,7 +1,7 @@
 package de.viadee.camunda.kafka.pollingclient.config;
 
-import javax.sql.DataSource;
-
+import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
+import de.viadee.camunda.kafka.pollingclient.service.polling.jdbc.CamundaJdbcPollingServiceImpl;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.ProcessEngineConfiguration;
@@ -12,11 +12,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
-import de.viadee.camunda.kafka.pollingclient.service.polling.jdbc.CamundaJdbcPollingServiceImpl;
+import javax.sql.DataSource;
 
 /**
- * <p>CamundaJdbcPollingConfiguration class.</p>
+ * <p>
+ * CamundaJdbcPollingConfiguration class.
+ * </p>
  *
  * @author viadee
  * @version $Id: $Id
@@ -27,10 +28,14 @@ import de.viadee.camunda.kafka.pollingclient.service.polling.jdbc.CamundaJdbcPol
 public class CamundaJdbcPollingConfiguration {
 
     /**
-     * <p>pollingService.</p>
+     * <p>
+     * pollingService.
+     * </p>
      *
-     * @param historyService a {@link org.camunda.bpm.engine.HistoryService} object.
-     * @param repositoryService a {@link org.camunda.bpm.engine.RepositoryService} object.
+     * @param historyService
+     *            a {@link org.camunda.bpm.engine.HistoryService} object.
+     * @param repositoryService
+     *            a {@link org.camunda.bpm.engine.RepositoryService} object.
      * @return a {@link de.viadee.camunda.kafka.pollingclient.service.polling.PollingService} object.
      */
     @Bean
@@ -39,25 +44,31 @@ public class CamundaJdbcPollingConfiguration {
     }
 
     /**
-     * <p>processEngine.</p>
+     * <p>
+     * processEngine.
+     * </p>
      *
-     * @param dataSource a {@link javax.sql.DataSource} object.
+     * @param dataSource
+     *            a {@link javax.sql.DataSource} object.
      * @return a {@link org.camunda.bpm.engine.ProcessEngine} object.
      */
     @Bean
     public ProcessEngine processEngine(DataSource dataSource) {
         return ProcessEngineConfiguration.createStandaloneProcessEngineConfiguration()
-                .setDataSource(dataSource)
-                .setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_FALSE)
-                .setJobExecutorActivate(false)
-                .setHistory(ProcessEngineConfiguration.HISTORY_AUTO)
-                .buildProcessEngine();
+                                         .setDataSource(dataSource)
+                                         .setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_FALSE)
+                                         .setJobExecutorActivate(false)
+                                         .setHistory(ProcessEngineConfiguration.HISTORY_AUTO)
+                                         .buildProcessEngine();
     }
 
     /**
-     * <p>historyService.</p>
+     * <p>
+     * historyService.
+     * </p>
      *
-     * @param processEngine a {@link org.camunda.bpm.engine.ProcessEngine} object.
+     * @param processEngine
+     *            a {@link org.camunda.bpm.engine.ProcessEngine} object.
      * @return a {@link org.camunda.bpm.engine.HistoryService} object.
      */
     @Bean
