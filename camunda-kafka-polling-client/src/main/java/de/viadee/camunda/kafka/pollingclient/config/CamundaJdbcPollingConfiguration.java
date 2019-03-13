@@ -1,10 +1,12 @@
 package de.viadee.camunda.kafka.pollingclient.config;
 
+import de.viadee.camunda.kafka.pollingclient.config.properties.CamundaJdbcPollingProperties;
 import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
 import de.viadee.camunda.kafka.pollingclient.service.polling.jdbc.CamundaJdbcPollingServiceImpl;
 import org.camunda.bpm.engine.*;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -21,8 +23,23 @@ import javax.sql.DataSource;
  */
 @Configuration
 @ImportAutoConfiguration(DataSourceAutoConfiguration.class)
+@EnableConfigurationProperties(CamundaJdbcPollingProperties.class)
 @Profile("jdbc")
 public class CamundaJdbcPollingConfiguration {
+
+    private CamundaJdbcPollingProperties camundaJdbcPollingProperties;
+
+    /**
+     * <p>
+     * Constructor for CamundaJdbcPollingConfiguration.
+     * </p>
+     *
+     * @param camundaJdbcPollingProperties
+     *            a {@link de.viadee.camunda.kafka.pollingclient.config.properties.CamundaJdbcPollingProperties} object.
+     */
+    public CamundaJdbcPollingConfiguration(CamundaJdbcPollingProperties camundaJdbcPollingProperties) {
+        this.camundaJdbcPollingProperties = camundaJdbcPollingProperties;
+    }
 
     /**
      * <p>
@@ -56,7 +73,7 @@ public class CamundaJdbcPollingConfiguration {
                                          .setDataSource(dataSource)
                                          .setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_FALSE)
                                          .setJobExecutorActivate(false)
-                                         .setHistory(ProcessEngineConfiguration.HISTORY_AUTO)
+                                         .setHistory(camundaJdbcPollingProperties.getHistoryLevel())
                                          .buildProcessEngine();
     }
 
