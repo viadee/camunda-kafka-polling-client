@@ -12,9 +12,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class CamundaJdbcPollingProperties {
 
     /**
-     * History level to set in process engine.
-     * One of 'auto', 'full', 'audit', 'variable'.
-     * For details, see Camunda documentation.
+     * History level to set in process engine. One of 'auto', 'full', 'audit', 'variable'. For details, see Camunda
+     * documentation.
      */
     private String historyLevel = ProcessEngineConfiguration.HISTORY_AUTO;
 
