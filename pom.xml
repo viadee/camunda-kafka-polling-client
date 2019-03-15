@@ -22,7 +22,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
 
         <spring-boot.version>2.0.0.RELEASE</spring-boot.version>
-        <camunda.version>7.8.0</camunda.version>
+		<camunda.version>7.10.0</camunda.version>
         <kafka.version>1.0.0</kafka.version>
         <jackson.version>2.9.8</jackson.version>
         <postgresql.version>42.2.1</postgresql.version>

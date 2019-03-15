@@ -9,7 +9,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author viadee
  * @version $Id: $Id
  */
-
 @ConfigurationProperties(prefix = "polling.camunda.rest")
 public class CamundaRestPollingProperties {
 
