@@ -1,5 +1,6 @@
 package de.viadee.camunda.kafka.pollingclient.config.properties;
 
+import org.camunda.bpm.engine.ProcessEngineConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -7,22 +8,20 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *
  * @version $Id: $Id
  */
-
 @ConfigurationProperties(prefix = "polling.camunda.jdbc")
 public class CamundaJdbcPollingProperties {
 
-    private static final String DEFAULT_HISTORY_LEVEL = "auto";
-
-    private String historyLevel;
+    /**
+     * History level to set in process engine.
+     * One of 'auto', 'full', 'audit', 'variable'.
+     * For details, see Camunda documentation.
+     */
+    private String historyLevel = ProcessEngineConfiguration.HISTORY_AUTO;
 
     /**
      * Camunda history level
      */
     public String getHistoryLevel() {
-
-        if (historyLevel == null)
-            this.historyLevel = DEFAULT_HISTORY_LEVEL;
-
         return historyLevel;
     }
 
