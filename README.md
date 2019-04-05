@@ -35,6 +35,8 @@ bin/kafka-configs.sh --bootstrap-server localhost:9092 --entity-type brokers --e
 | CAMUNDA_REST_URL  | *url to camunda rest api*  | http://localhost:8080/engine-rest/ |
 | CAMUNDA_REST_USERNAME  | *(optional) username for authentication*  | demo |
 | CAMUNDA_REST_PASSWORD  | *(optional) password for authentication*  | demo |
+| CAMUNDA_REST_SOURCE_TIME_ZONE | *(optional) Time zone used for formatting timestamps provided to camunda rest api (Default: System timezone)* | CEST |
+| CAMUNDA_REST_DATE_FORMAT_PATERN | *(optional) Format string used for formatting timestamps provided to camunda rest api (Default: See example)* | yyyy-MM-dd'T'HH:mm:ss.SSSZ |
 
 #### JDBC Polling
 
