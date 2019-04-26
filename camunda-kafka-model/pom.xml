@@ -1,189 +1,189 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>de.viadee.camunda</groupId>
+        <artifactId>camunda-kafka-polling-client-parent</artifactId>
+        <version>1.1.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
-	</properties>
+    <artifactId>camunda-kafka-model</artifactId>
 
-	<parent>
-		<groupId>de.viadee.camunda</groupId>
-		<artifactId>camunda-kafka-polling-client-parent</artifactId>
-		<version>1.0.2</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
+    <url>https://github.com/viadee/camunda-kafka-polling-client</url>
+    <organization>
+        <name>viadee Unternehmensberatung AG</name>
+        <url>www.viadee.de</url>
+    </organization>
 
-	<artifactId>camunda-kafka-model</artifactId>
+    <name>camunda-kafka-model</name>
+    <description>
+        A small Java-based toolset to gather event data from a Camunda BPM engine and store it in Apache Kafka.
+        Repository contains the camunda-kafka-polling-client and the camunda-kafka-model, to make reuse of the data
+        structures easy.
+        This tooling is meant to be used as a part of the viadee Process Warehouse or the bpmn.ai concepts.
 
-	<url>https://github.com/viadee/camunda-kafka-polling-client</url>
-	<organization>
-		<name>viadee Unternehmensberatung AG</name>
-		<url>www.viadee.de</url>
-	</organization>
+        This is the model module, i.e. it contains the data model classes for reuse by Java-based, downstream analysis
+        components.
+    </description>
+    <inceptionYear>2018</inceptionYear>
+    <licenses>
+        <license>
+            <name>BSD-3 Clause</name>
+            <url>https://opensource.org/licenses/BSD-3-Clause</url>
+        </license>
+    </licenses>
 
-	<name>camunda-kafka-model</name>
-	<description>
-		A small Java-based toolset to gather event data from a Camunda BPM engine and store it in Apache Kafka.
-		Repository contains the camunda-kafka-polling-client and the camunda-kafka-model, to make reuse of the data
-		structures easy.
-		This tooling is meant to be used as a part of the viadee Process Warehouse or the bpmn.ai concepts.
+    <ciManagement>
+        <url>https://travis-ci.org/viadee/camunda-kafka-polling-client</url>
+        <system>Travis</system>
+    </ciManagement>
 
-		This is the model module, i.e. it contains the data model classes for reuse by Java-based, downstream analysis
-		components.
-	</description>
-	<inceptionYear>2018</inceptionYear>
-	<licenses>
-		<license>
-			<name>BSD-3 Clause</name>
-			<url>https://opensource.org/licenses/BSD-3-Clause</url>
-		</license>
-	</licenses>
+    <issueManagement>
+        <url>https://github.com/viadee/camunda-kafka-polling-client/issues</url>
+        <system>GitHub</system>
+    </issueManagement>
 
-	<ciManagement>
-		<url>https://travis-ci.org/viadee/camunda-kafka-polling-client</url>
-		<system>Travis</system>
-	</ciManagement>
+    <scm>
+        <connection>https://github.com/viadee/camunda-kafka-polling-client</connection>
+        <url>GitHub</url>
+    </scm>
 
-	<issueManagement>
-		<url>https://github.com/viadee/camunda-kafka-polling-client/issues</url>
-		<system>GitHub</system>
-	</issueManagement>
+    <developers>
+        <developer>
+            <name>Michael Twelkemeier</name>
+            <email>Michael.Twelkemeier@viadee.de</email>
+            <organization>viadee Unternehmensberatung AG</organization>
+            <organizationUrl>http://www.viadee.de</organizationUrl>
+        </developer>
+        <developer>
+            <name>Jan-Philipp Friedenstab</name>
+            <email>Jan-Philipp.Friedenstab@viadee.de</email>
+            <organization>viadee Unternehmensberatung AG</organization>
+            <organizationUrl>http://www.viadee.de</organizationUrl>
+        </developer>
+        <developer>
+            <name>Sebastian Sirch</name>
+            <email>Sebastian.Sirch@viadee.de</email>
+            <organization>viadee Unternehmensberatung AG</organization>
+            <organizationUrl>http://www.viadee.de</organizationUrl>
+        </developer>
+        <developer>
+            <name>Mario Micudaj</name>
+            <email>Mario.Micudaj@viadee.de</email>
+            <organization>viadee Unternehmensberatung AG</organization>
+            <organizationUrl>http://www.viadee.de</organizationUrl>
+        </developer>
+        <developer>
+            <name>Thorben Hellweg</name>
+            <email>Thorben.Hellweg@viadee.de</email>
+            <organization>viadee Unternehmensberatung AG</organization>
+            <organizationUrl>http://www.viadee.de</organizationUrl>
+        </developer>
+        <developer>
+            <name>Caroline Methner</name>
+            <email>Caroline.Methner@viadee.de</email>
+            <organization>viadee Unternehmensberatung AG</organization>
+            <organizationUrl>http://www.viadee.de</organizationUrl>
+        </developer>
+        <developer>
+            <name>Frank Koehne</name>
+            <email>Frank.Koehne@viadee.de</email>
+            <organization>viadee Unternehmensberatung AG</organization>
+            <organizationUrl>http://www.viadee.de</organizationUrl>
+        </developer>
+    </developers>
 
-	<scm>
-		<connection>https://github.com/viadee/camunda-kafka-polling-client</connection>
-		<url>GitHub</url>
-	</scm>
+    <profiles>
+        <profile>
+            <id>release-sign-artifacts</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
-	<developers>
-		<developer>
-			<name>Michael Twelkemeier</name>
-			<email>Michael.Twelkemeier@viadee.de</email>
-			<organization>viadee Unternehmensberatung AG</organization>
-			<organizationUrl>http://www.viadee.de</organizationUrl>
-		</developer>
-		<developer>
-			<name>Jan-Philipp Friedenstab</name>
-			<email>Jan-Philipp.Friedenstab@viadee.de</email>
-			<organization>viadee Unternehmensberatung AG</organization>
-			<organizationUrl>http://www.viadee.de</organizationUrl>
-		</developer>
-		<developer>
-			<name>Sebastian Sirch</name>
-			<email>Sebastian.Sirch@viadee.de</email>
-			<organization>viadee Unternehmensberatung AG</organization>
-			<organizationUrl>http://www.viadee.de</organizationUrl>
-		</developer>
-		<developer>
-			<name>Mario Micudaj</name>
-			<email>Mario.Micudaj@viadee.de</email>
-			<organization>viadee Unternehmensberatung AG</organization>
-			<organizationUrl>http://www.viadee.de</organizationUrl>
-		</developer>
-		<developer>
-			<name>Thorben Hellweg</name>
-			<email>Thorben.Hellweg@viadee.de</email>
-			<organization>viadee Unternehmensberatung AG</organization>
-			<organizationUrl>http://www.viadee.de</organizationUrl>
-		</developer>
-		<developer>
-			<name>Caroline Methner</name>
-			<email>Caroline.Methner@viadee.de</email>
-			<organization>viadee Unternehmensberatung AG</organization>
-			<organizationUrl>http://www.viadee.de</organizationUrl>
-		</developer>
-		<developer>
-			<name>Frank Koehne</name>
-			<email>Frank.Koehne@viadee.de</email>
-			<organization>viadee Unternehmensberatung AG</organization>
-			<organizationUrl>http://www.viadee.de</organizationUrl>
-		</developer>
-	</developers>
+    <dependencies>
+        <!-- JSON -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+    </dependencies>
 
-	<profiles>
-		<profile>
-			<id>release-sign-artifacts</id>
-			<activation>
-				<property>
-					<name>performRelease</name>
-					<value>true</value>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.6</version>
-						<executions>
-							<execution>
-								<id>sign-artifacts</id>
-								<phase>verify</phase>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>net.revelc.code.formatter</groupId>
+                <artifactId>formatter-maven-plugin</artifactId>
+                <configuration>
+                    <configFile>${project.basedir}/../code-formatter.xml</configFile>
+                </configuration>
+            </plugin>
 
-	<dependencies>
-		<!-- JSON -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-annotations</artifactId>
-		</dependency>
-	
-	</dependencies>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>3.0.1</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <additionalJOption>-Xdoclint:none</additionalJOption>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.0.1</version>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-						<configuration>
-	            <additionalJOption>-Xdoclint:none</additionalJOption>
-	        	</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<skip>false</skip> <!-- reused product, deployment in a repo -->
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <skip>false</skip> <!-- reused product, deployment in a repo -->
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

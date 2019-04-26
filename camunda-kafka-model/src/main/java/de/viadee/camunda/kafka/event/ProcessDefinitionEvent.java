@@ -2,12 +2,18 @@
 package de.viadee.camunda.kafka.event;
 
 /**
- * <p>ProcessDefinitionEvent class.</p>
- *
- * @author viadee
+ * <p>
+ * ProcessDefinitionEvent class.
+ * </p>
+ *
+ * 
+ * 
+ * @author viadee
+ * 
  * @version $Id: $Id
  */
 public class ProcessDefinitionEvent extends DeploymentEvent {
+
     private String key;
     private String category;
     private String description;

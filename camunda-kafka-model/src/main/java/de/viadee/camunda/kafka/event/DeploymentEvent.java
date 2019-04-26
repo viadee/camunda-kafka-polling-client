@@ -4,12 +4,18 @@ package de.viadee.camunda.kafka.event;
 import java.util.Date;
 
 /**
- * <p>DeploymentEvent class.</p>
- *
- * @author viadee
+ * <p>
+ * DeploymentEvent class.
+ * </p>
+ *
+ * 
+ * 
+ * @author viadee
+ * 
  * @version $Id: $Id
  */
 public class DeploymentEvent {
+
     private String id;
     private String deploymentId;
     private String name;

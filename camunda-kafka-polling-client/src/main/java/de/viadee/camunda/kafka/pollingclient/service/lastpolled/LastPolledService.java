@@ -1,7 +1,9 @@
 package de.viadee.camunda.kafka.pollingclient.service.lastpolled;
 
 /**
- * <p>LastPolledService interface.</p>
+ * <p>
+ * LastPolledService interface.
+ * </p>
  *
  * @author viadee
  * @version $Id: $Id
@@ -14,12 +16,13 @@ public interface LastPolledService {
      * @return a {@link de.viadee.camunda.kafka.pollingclient.service.lastpolled.PollingTimeslice} object.
      */
     PollingTimeslice getPollingTimeslice();
-    
+
     /**
      * Update polling time slice to mark given slice as polled.
      *
-     * @param pollingTimeslice a {@link de.viadee.camunda.kafka.pollingclient.service.lastpolled.PollingTimeslice} object.
+     * @param pollingTimeslice
+     *            a {@link de.viadee.camunda.kafka.pollingclient.service.lastpolled.PollingTimeslice} object.
      */
     void updatePollingTimeslice(PollingTimeslice pollingTimeslice);
-    
+
 }

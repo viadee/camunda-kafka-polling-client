@@ -9,7 +9,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * <p>ApplicationProperties class.</p>
+ * <p>
+ * ApplicationProperties class.
+ * </p>
  *
  * @author viadee
  * @version $Id: $Id
@@ -31,9 +33,8 @@ public class ApplicationProperties {
     private PollingProperties repositoryData = new PollingProperties();
 
     /**
-     * Configuration of kafka topics to use on event type basis:
-     * Mapping of event type (event class name without "Event" suffix) to kafka topic name.
-     * Default topic of an event is the event type.
+     * Configuration of kafka topics to use on event type basis: Mapping of event type (event class name without "Event"
+     * suffix) to kafka topic name. Default topic of an event is the event type.
      */
     private Map<String, String> eventTopics = new HashMap<>();
 
@@ -48,28 +49,29 @@ public class ApplicationProperties {
         ACTIVITY_UNFINISHED,
         ACTIVITY_FINISHED,
         /**
-         * Poll variable details of finished process instances.
-         * (Only possible if finished process instances are also polled {@link #PROCESS_INSTANCE_FINISHED})
+         * Poll variable details of finished process instances. (Only possible if finished process instances are also
+         * polled {@link #PROCESS_INSTANCE_FINISHED})
          */
         VARIABLE_DETAILS_FINISHED,
         /**
-         * Poll variable details of unfinished process instances.
-         * (Only possible if unfinished process instances are also polled {@link #PROCESS_INSTANCE_UNFINISHED})
+         * Poll variable details of unfinished process instances. (Only possible if unfinished process instances are
+         * also polled {@link #PROCESS_INSTANCE_UNFINISHED})
          */
         VARIABLE_DETAILS_UNFINISHED,
         /**
-         * Poll last variable values of finished process instances.
-         * (Only possible if finished process instances are also polled {@link #PROCESS_INSTANCE_FINISHED})
+         * Poll last variable values of finished process instances. (Only possible if finished process instances are
+         * also polled {@link #PROCESS_INSTANCE_FINISHED})
          */
         VARIABLE_CURRENT_FINISHED,
         /**
-         * Poll last variable values of unfinished process instances.
-         * (Only possible if unfinished process instances are also polled {@link #PROCESS_INSTANCE_UNFINISHED})
+         * Poll last variable values of unfinished process instances. (Only possible if unfinished process instances are
+         * also polled {@link #PROCESS_INSTANCE_UNFINISHED})
          */
         VARIABLE_CURRENT_UNFINISHED,
-        PROCESS_DEFINITION
+        PROCESS_DEFINITION,
+        TASK_COMMENTS
     }
-    
+
     /**
      * Configuration for polling runtime data
      */
@@ -88,9 +90,9 @@ public class ApplicationProperties {
 
     /**
      * Configuration of kafka topics to use on event type basis:
-
+     * 
      * Mapping of event type (event class name without "Event" suffix) to kafka topic name.
-
+     * 
      * Default topic of an event is the event type.
      */
     @java.lang.SuppressWarnings("all")
@@ -124,9 +126,9 @@ public class ApplicationProperties {
 
     /**
      * Configuration of kafka topics to use on event type basis:
-
+     * 
      * Mapping of event type (event class name without "Event" suffix) to kafka topic name.
-
+     * 
      * Default topic of an event is the event type.
      */
     @java.lang.SuppressWarnings("all")

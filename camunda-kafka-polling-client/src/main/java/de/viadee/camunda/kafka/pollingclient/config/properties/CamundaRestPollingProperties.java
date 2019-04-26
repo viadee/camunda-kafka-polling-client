@@ -9,9 +9,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author viadee
  * @version $Id: $Id
  */
-
 @ConfigurationProperties(prefix = "polling.camunda.rest")
 public class CamundaRestPollingProperties {
+
+    private static final String DEFAULT_DATE_FORMAT_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     /**
      * URL of Camunda REST API
@@ -29,14 +30,26 @@ public class CamundaRestPollingProperties {
     private String password;
 
     /**
-     * <p>isAuthenticationEnabled.</p>
+     * Source Time Zone used for Date formatting
+     */
+    private String sourceTimeZone;
+
+    /**
+     * The pattern string for Date formatter.
+     */
+    private String dateFormatPattern;
+
+    /**
+     * <p>
+     * isAuthenticationEnabled.
+     * </p>
      *
      * @return a boolean.
      */
     public boolean isAuthenticationEnabled() {
         return StringUtils.isNotEmpty(username);
     }
-    
+
     /**
      * URL of Camunda REST API
      */
@@ -62,6 +75,24 @@ public class CamundaRestPollingProperties {
     }
 
     /**
+     * Source Time Zone used for Date formatting
+     */
+    @SuppressWarnings("all")
+    public String getSourceTimeZone() {
+        return sourceTimeZone;
+    }
+
+    /**
+     * The pattern string for Date formatter.
+     */
+    @java.lang.SuppressWarnings("all")
+    public String getDateFormatPattern() {
+        if (dateFormatPattern == null || dateFormatPattern.isEmpty())
+            dateFormatPattern = DEFAULT_DATE_FORMAT_PATTERN;
+        return dateFormatPattern;
+    }
+
+    /**
      * URL of Camunda REST API
      */
     @java.lang.SuppressWarnings("all")
@@ -84,4 +115,21 @@ public class CamundaRestPollingProperties {
     public void setPassword(final String password) {
         this.password = password;
     }
+
+    /**
+     * Source Time Zone used for Date formatting
+     */
+    @SuppressWarnings("all")
+    public void setSourceTimeZone(String sourceTimeZone) {
+        this.sourceTimeZone = sourceTimeZone;
+    }
+
+    /**
+     * The pattern string for Date formatter.
+     */
+    @SuppressWarnings("all")
+    public void setDateFormatPattern(String dateFormatPattern) {
+        this.dateFormatPattern = dateFormatPattern;
+    }
+
 }

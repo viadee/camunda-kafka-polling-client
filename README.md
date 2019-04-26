@@ -3,6 +3,7 @@
 [![Status](https://travis-ci.org/viadee/camunda-kafka-polling-client.svg?branch=master)](https://travis-ci.org/viadee/camunda-kafka-polling-client/branches "See test builds")
 [![Sonarcloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=de.viadee.camunda:camunda-kafka-polling-client-parent&metric=coverage)](https://sonarcloud.io/dashboard?id=de.viadee.camunda:camunda-kafka-polling-client-parent)
 [![](https://img.shields.io/docker/automated/viadee/camunda-kafka-polling-client.svg)](https://cloud.docker.com/u/viadee/repository/docker/viadee/camunda-kafka-polling-client)
+[![Maven Central](https://img.shields.io/maven-central/v/de.viadee.camunda/camunda-kafka-polling-client-parent.svg)](https://search.maven.org/search?q=g:de.viadee.camunda%20a:camunda-kafka-polling-client-parent)
 
 The Polling Client is a useful tool for the extraction of Camunda process data and their permanent storage in Apache Kafka. As such it is used in the projects [bpmn.ai](https://github.com/viadee/bpmn.ai) or [vPW](https://www.viadee.de/business-process-management/process-warehouse), that aim to open up standard process data for data mining and exploration.
 
@@ -34,6 +35,8 @@ bin/kafka-configs.sh --bootstrap-server localhost:9092 --entity-type brokers --e
 | CAMUNDA_REST_URL  | *url to camunda rest api*  | http://localhost:8080/engine-rest/ |
 | CAMUNDA_REST_USERNAME  | *(optional) username for authentication*  | demo |
 | CAMUNDA_REST_PASSWORD  | *(optional) password for authentication*  | demo |
+| CAMUNDA_REST_SOURCE_TIME_ZONE | *(optional) Time zone used for formatting timestamps provided to camunda rest api (Default: System timezone)* | CEST |
+| CAMUNDA_REST_DATE_FORMAT_PATERN | *(optional) Format string used for formatting timestamps provided to camunda rest api (Default: See example)* | yyyy-MM-dd'T'HH:mm:ss.SSSZ |
 
 #### JDBC Polling
 
@@ -54,11 +57,26 @@ bin/kafka-configs.sh --bootstrap-server localhost:9092 --entity-type brokers --e
 
 Further configurations can be made via the application.properties file, e.g. setting the polling interval (default: every 30000 ms).
 
+## Docker Tags
+There are several tags available on [docker hub](https://hub.docker.com/r/viadee/camunda-kafka-polling-client):
+
+* Version tags (e.g. 1.0.2) are build from corresponding release tags and reflect the release version which is also available from [maven central](https://search.maven.org/search?q=g:de.viadee.camunda%20a:camunda-kafka-polling-client-parent).
+* `latest` is build from `master` branch. Thus, the tag normally reflects the latest release version.
+* `snapshot` is build from `develop` branch and provides the current development version for development and testing use.
+
 ## Collaboration
 
 The project is operated and further developed by the viadee Consulting AG in Münster, Westphalia.
 * Community contributions to the project are welcome: Please open Github-Issues with suggestions (or PR), which we can then edit in the team.
 * We are also looking for further partners who have interesting process data to refine our tooling as well as partners that are simply interested in a discussion about AI and data warehouses in the context of business process automation.
+
+## Commitments
+
+This library will remain under an open source licence indefinately.
+
+We follow the semantic versioning scheme (2.0.0).
+
+In the sense of semantic versioning, the resulting JSON outputs are the only public "API" provided here. We will keep these as stable as possible.
 
 ## Roadmap
 This software component is considered to be stable and ready for production use.

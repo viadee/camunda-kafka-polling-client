@@ -4,7 +4,9 @@ import de.viadee.camunda.kafka.event.DeploymentEvent;
 import de.viadee.camunda.kafka.event.HistoryEvent;
 
 /**
- * <p>EventService interface.</p>
+ * <p>
+ * EventService interface.
+ * </p>
  *
  * @author viadee
  * @version $Id: $Id
@@ -12,16 +14,22 @@ import de.viadee.camunda.kafka.event.HistoryEvent;
 public interface EventService {
 
     /**
-     * <p>sendEvent.</p>
+     * <p>
+     * sendEvent.
+     * </p>
      *
-     * @param event a {@link de.viadee.camunda.kafka.event.HistoryEvent} object.
+     * @param event
+     *            a {@link de.viadee.camunda.kafka.event.HistoryEvent} object.
      */
     void sendEvent(HistoryEvent event);
 
     /**
-     * <p>sendEvent.</p>
+     * <p>
+     * sendEvent.
+     * </p>
      *
-     * @param event a {@link de.viadee.camunda.kafka.event.DeploymentEvent} object.
+     * @param event
+     *            a {@link de.viadee.camunda.kafka.event.DeploymentEvent} object.
      */
     void sendEvent(DeploymentEvent event);
 }
