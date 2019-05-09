@@ -64,6 +64,12 @@ There are several tags available on [docker hub](https://hub.docker.com/r/viadee
 * `latest` is build from `master` branch. Thus, the tag normally reflects the latest release version.
 * `snapshot` is build from `develop` branch and provides the current development version for development and testing use.
 
+## Extending Docker Image
+All data is stored in `/data`. This is also the working directory and the only directory with write permissions.
+
+All JAR files available in `/app/lib` are included in applications classpath. Adding e.g. an additional jdbc
+driver can thus be done by just adding the driver library to `/app/lib`.
+
 ## Collaboration
 
 The project is operated and further developed by the viadee Consulting AG in Münster, Westphalia.
