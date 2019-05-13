@@ -7,6 +7,7 @@ import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.ProcessEngineConfiguration;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -71,12 +72,15 @@ public class CamundaJdbcPollingConfiguration {
      */
     @Bean
     public ProcessEngine processEngine(DataSource dataSource) {
-        return ProcessEngineConfiguration.createStandaloneProcessEngineConfiguration()
-                                         .setDataSource(dataSource)
-                                         .setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_FALSE)
-                                         .setJobExecutorActivate(false)
-                                         .setHistory(camundaJdbcPollingProperties.getHistoryLevel())
-                                         .buildProcessEngine();
+        ProcessEngine processEngine = ProcessEngineConfiguration.createStandaloneProcessEngineConfiguration()
+                                                                .setDataSource(dataSource)
+                                                                .setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_FALSE)
+                                                                .setJobExecutorActivate(false)
+                                                                .setHistory(camundaJdbcPollingProperties.getHistoryLevel())
+                                                                .buildProcessEngine();
+        ProcessEngineConfigurationImpl configuration = (ProcessEngineConfigurationImpl) processEngine.getProcessEngineConfiguration();
+        configuration.setMetricsEnabled(false);
+        return processEngine;
     }
 
     /**
