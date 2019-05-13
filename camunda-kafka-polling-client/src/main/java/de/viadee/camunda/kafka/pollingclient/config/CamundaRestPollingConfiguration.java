@@ -3,6 +3,9 @@ package de.viadee.camunda.kafka.pollingclient.config;
 import de.viadee.camunda.kafka.pollingclient.config.properties.CamundaRestPollingProperties;
 import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
 import de.viadee.camunda.kafka.pollingclient.service.polling.rest.CamundaRestPollingServiceImpl;
+
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,12 +20,14 @@ import java.util.Collections;
  * <p>
  * CamundaRestPollingConfiguration class.
  * </p>
+ * {@link DataSourceAutoConfiguration} is disabled, since data source must not be configured if using rest.
  *
  * @author viadee
  * @version $Id: $Id
  */
 @Configuration
 @EnableConfigurationProperties(CamundaRestPollingProperties.class)
+@EnableAutoConfiguration(exclude = DataSourceAutoConfiguration.class)
 @Profile("rest")
 public class CamundaRestPollingConfiguration {
 
