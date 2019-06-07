@@ -2,7 +2,7 @@
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![Status](https://travis-ci.org/viadee/camunda-kafka-polling-client.svg?branch=master)](https://travis-ci.org/viadee/camunda-kafka-polling-client/branches "See test builds")
 [![Sonarcloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=de.viadee.camunda:camunda-kafka-polling-client-parent&metric=coverage)](https://sonarcloud.io/dashboard?id=de.viadee.camunda:camunda-kafka-polling-client-parent)
-[![](https://img.shields.io/docker/automated/viadee/camunda-kafka-polling-client.svg)](https://cloud.docker.com/u/viadee/repository/docker/viadee/camunda-kafka-polling-client)
+![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/viadee/camunda-kafka-polling-client.svg)
 [![Maven Central](https://img.shields.io/maven-central/v/de.viadee.camunda/camunda-kafka-polling-client-parent.svg)](https://search.maven.org/search?q=g:de.viadee.camunda%20a:camunda-kafka-polling-client-parent)
 
 The Polling Client is a useful tool for the extraction of Camunda process data and their permanent storage in Apache Kafka. As such it is used in the projects [bpmn.ai](https://github.com/viadee/bpmn.ai) or [vPW](https://www.viadee.de/business-process-management/process-warehouse), that aim to open up standard process data for data mining and exploration.
@@ -63,6 +63,12 @@ There are several tags available on [docker hub](https://hub.docker.com/r/viadee
 * Version tags (e.g. 1.0.2) are build from corresponding release tags and reflect the release version which is also available from [maven central](https://search.maven.org/search?q=g:de.viadee.camunda%20a:camunda-kafka-polling-client-parent).
 * `latest` is build from `master` branch. Thus, the tag normally reflects the latest release version.
 * `snapshot` is build from `develop` branch and provides the current development version for development and testing use.
+
+## Extending Docker Image
+All data is stored in `/data`. This is also the working directory and the only directory with write permissions.
+
+All JAR files available in `/app/lib` are included in applications classpath. Adding e.g. an additional jdbc
+driver can thus be done by just adding the driver library to `/app/lib`.
 
 ## Collaboration
 
