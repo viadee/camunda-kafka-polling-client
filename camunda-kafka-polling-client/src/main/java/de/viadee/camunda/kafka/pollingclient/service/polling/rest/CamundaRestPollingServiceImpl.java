@@ -365,6 +365,43 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param activityInstanceEvent
+     */
+    @Override
+    public Iterable<IdentityLinkEvent> pollIdentityLinks(final ActivityInstanceEvent activityInstanceEvent) {
+
+        final String url = camundaProperties.getUrl()
+                + "history/identity-link-log/?taskId=" + activityInstanceEvent.getTaskId();
+        try {
+            final Map<String, Object> variables = new HashMap<>();
+            LOGGER.debug("Polling identity-links for taskId: {}", activityInstanceEvent.getTaskId());
+
+            List<GetIdentityLinkResponse> result = this.restTemplate
+                                                                    .exchange(url,
+                                                                              HttpMethod.GET,
+                                                                              null,
+                                                                              new ParameterizedTypeReference<List<GetIdentityLinkResponse>>() {
+
+                                                                              }, variables)
+                                                                    .getBody();
+
+            if (result == null) {
+                return new ArrayList<>();
+            }
+
+            LOGGER.debug("Found {} identity-links for taskId: {} ", result.size(), activityInstanceEvent.getTaskId());
+
+            return result
+                         .stream()
+                         .map(getIdentityLinkResponse -> createIdentityLinkEventFromDetails(getIdentityLinkResponse))::iterator;
+        } catch (RestClientException e) {
+            throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for identity-link-log", e);
+        }
+    }
+
     private GetProcessDefinitionXmlResponse getProcessDefinitionXML(String processDefinitionId) {
         final String url = camundaProperties.getUrl()
                 + "process-definition/{processDefinitionId}/xml";
@@ -564,6 +601,26 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         event.setUserId(commentResponse.getUserId());
         event.setTimestamp(commentResponse.getTime());
         event.setMessage(commentResponse.getMessage());
+
+        return event;
+    }
+
+    private IdentityLinkEvent createIdentityLinkEventFromDetails(GetIdentityLinkResponse identityLinkResponse) {
+        final IdentityLinkEvent event = new IdentityLinkEvent();
+
+        event.setId(identityLinkResponse.getId());
+        event.setTimestamp(identityLinkResponse.getTime());
+        event.setType(identityLinkResponse.getType());
+        event.setUserId(identityLinkResponse.getUserId());
+        event.setGroupId(identityLinkResponse.getGroupId());
+        event.setTaskId(identityLinkResponse.getTaskId());
+        event.setProcessDefinitionId(identityLinkResponse.getProcessDefinitionId());
+        event.setProcessDefinitionKey(identityLinkResponse.getProcessDefinitionKey());
+        event.setOperationType(identityLinkResponse.getOperationType());
+        event.setAssignerId(identityLinkResponse.getAssignerId());
+        event.setTenantId(identityLinkResponse.getTenantId());
+        event.setRemovalTime(identityLinkResponse.getRemovalTime());
+        event.setProcessInstanceId(identityLinkResponse.getRootProcessInstanceId());
 
         return event;
     }

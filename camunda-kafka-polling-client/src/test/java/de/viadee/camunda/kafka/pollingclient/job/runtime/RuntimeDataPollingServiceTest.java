@@ -2,6 +2,7 @@ package de.viadee.camunda.kafka.pollingclient.job.runtime;
 
 import de.viadee.camunda.kafka.event.ActivityInstanceEvent;
 import de.viadee.camunda.kafka.event.CommentEvent;
+import de.viadee.camunda.kafka.event.IdentityLinkEvent;
 import de.viadee.camunda.kafka.event.HistoryEvent;
 import de.viadee.camunda.kafka.event.ProcessInstanceEvent;
 import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties;
@@ -10,9 +11,11 @@ import de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledServic
 import de.viadee.camunda.kafka.pollingclient.service.lastpolled.PollingTimeslice;
 import de.viadee.camunda.kafka.pollingclient.service.polling.jdbc.CamundaJdbcPollingServiceImpl;
 import org.apache.ibatis.logging.LogFactory;
+import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.ProcessEngineConfiguration;
 import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.history.HistoricIdentityLinkLog;
 import org.camunda.bpm.engine.impl.util.ClockUtil;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Comment;
@@ -498,6 +501,96 @@ public class RuntimeDataPollingServiceTest {
     }
 
     static Stream<Arguments> pollTaskComments() {
+        // @formatter:off
+        return Stream.of(
+                //        Process start             Should be polled?
+                arguments(BEFORE_CUTOFF,            false),
+                arguments(CUTOFF_TIME,              false),
+                arguments(WITHIN_PAST_TIMESLICE,    false),
+                arguments(START_TIME,               true),
+                arguments(WITHIN_TIMESLICE,         true),
+                arguments(END_TIME,                 false),
+                arguments(AFTER_TIMESLICE,          false)
+        );
+        // @formatter:on
+    }
+
+    @ParameterizedTest(name = "{index}: task claimed {0} => should be polled={1}")
+    @MethodSource
+    @DisplayName("Polling of Identity Links ")
+    public void pollIdentityLinks(PointOfTime processStart, boolean shouldBePolled) {
+
+        // create testdata
+        setCurrentTime(BEFORE_CUTOFF);
+
+        // create process model
+        final String processId = "simpleProcess";
+        BpmnModelInstance modelInstance = Bpmn.createExecutableProcess(processId)
+                                              .startEvent()
+                                              .userTask()
+                                              .endEvent()
+                                              .done();
+
+        // deploy process model
+        processEngine.getRepositoryService()
+                     .createDeployment()
+                     .addModelInstance(processId + ".bpmn", modelInstance)
+                     .deploy();
+
+        setCurrentTime(processStart);
+
+        processEngine.getRuntimeService().startProcessInstanceByKey(processId);
+
+        // obtain task
+        TaskService taskService = processEngine.getTaskService();
+        Task task = taskService.createTaskQuery().singleResult();
+        String taskId = task.getId();
+
+        taskService.claim(taskId, "admin");
+
+        // prepare expectations for test
+        HistoryService historyService = processEngine.getHistoryService();
+        List<HistoricIdentityLinkLog> expectedHistoricIdentityLinks = historyService.createHistoricIdentityLinkLogQuery()
+                                                                                    .taskId(taskId)
+                                                                                    .list();
+
+        assertEquals(expectedHistoricIdentityLinks.size(), 1);
+
+        // define polling cycle
+        when(lastPolledService.getPollingTimeslice())
+                                                     .thenReturn(new PollingTimeslice(CUTOFF_TIME.date, START_TIME.date,
+                                                                                      END_TIME.date));
+
+        // perform polling
+        pollingService.run();
+
+        // Verify identity-link event
+        final ArgumentCaptor<HistoryEvent> identityLinkEventCaptor = ArgumentCaptor.forClass(IdentityLinkEvent.class);
+        verify(eventSendService, atLeast(shouldBePolled ? 1 : 0))
+                                                                 .sendEvent(identityLinkEventCaptor.capture());
+
+        List<IdentityLinkEvent> polledIdentityLinks = identityLinkEventCaptor.getAllValues()
+                                                                             .stream()
+                                                                             .filter(event -> event instanceof IdentityLinkEvent)
+                                                                             .map(historyEvent -> ((IdentityLinkEvent) historyEvent))
+                                                                             .collect(toList());
+
+        assertEquals(shouldBePolled ? expectedHistoricIdentityLinks.size() : 0, polledIdentityLinks.size());
+        if (shouldBePolled) {
+            HistoricIdentityLinkLog expectedHistoricIdentityLink = expectedHistoricIdentityLinks.get(0);
+            IdentityLinkEvent polledIdentityLink = polledIdentityLinks.get(0);
+
+            assertEquals(expectedHistoricIdentityLink.getType(), polledIdentityLink.getType());
+            assertEquals(expectedHistoricIdentityLink.getUserId(), polledIdentityLink.getUserId());
+            assertEquals(expectedHistoricIdentityLink.getGroupId(), polledIdentityLink.getGroupId());
+            assertEquals(expectedHistoricIdentityLink.getOperationType(), polledIdentityLink.getOperationType());
+            assertEquals(expectedHistoricIdentityLink.getAssignerId(), polledIdentityLink.getAssignerId());
+            assertEquals(expectedHistoricIdentityLink.getRemovalTime(), polledIdentityLink.getRemovalTime());
+
+        }
+    }
+
+    static Stream<Arguments> pollIdentityLinks() {
         // @formatter:off
         return Stream.of(
                 //        Process start             Should be polled?

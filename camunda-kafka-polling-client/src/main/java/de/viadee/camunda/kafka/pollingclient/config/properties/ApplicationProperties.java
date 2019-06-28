@@ -69,7 +69,10 @@ public class ApplicationProperties {
          */
         VARIABLE_CURRENT_UNFINISHED,
         PROCESS_DEFINITION,
-        TASK_COMMENTS
+        TASK_COMMENTS,
+
+        // TODO see https://github.com/viadee/camunda-kafka-polling-client/issues/34#issuecomment-503677011
+        IDENTITY_LINKS
     }
 
     /**
