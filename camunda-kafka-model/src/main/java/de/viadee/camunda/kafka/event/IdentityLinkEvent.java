@@ -12,10 +12,14 @@ import java.util.Date;
  */
 public class IdentityLinkEvent extends DetailEvent {
 
+    public enum OperationType {
+        add, delete
+    }
+
     private String type;
     private String userId;
     private String groupId;
-    private String operationType;
+    private OperationType operationType;
     private String assignerId;
     private Date removalTime;
 
@@ -43,11 +47,11 @@ public class IdentityLinkEvent extends DetailEvent {
         this.groupId = groupId;
     }
 
-    public String getOperationType() {
+    public OperationType getOperationType() {
         return operationType;
     }
 
-    public void setOperationType(String operationType) {
+    public void setOperationType(OperationType operationType) {
         this.operationType = operationType;
     }
 

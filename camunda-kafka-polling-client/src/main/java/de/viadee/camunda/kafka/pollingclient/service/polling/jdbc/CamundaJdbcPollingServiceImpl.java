@@ -340,7 +340,7 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
         event.setTaskId(historicIdentityLinkLog.getTaskId());
         event.setProcessDefinitionId(historicIdentityLinkLog.getProcessDefinitionId());
         event.setProcessDefinitionKey(historicIdentityLinkLog.getProcessDefinitionKey());
-        event.setOperationType(historicIdentityLinkLog.getOperationType());
+        event.setOperationType(IdentityLinkEvent.OperationType.valueOf(historicIdentityLinkLog.getOperationType()));
         event.setAssignerId(historicIdentityLinkLog.getAssignerId());
         event.setTenantId(historicIdentityLinkLog.getTenantId());
         event.setRemovalTime(historicIdentityLinkLog.getRemovalTime());

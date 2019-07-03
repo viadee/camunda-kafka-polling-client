@@ -39,6 +39,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     private static final String ACTIVITY_INSTANCE_ID = "activityInstanceId";
     private static final String PROCESS_DEFINITION_ID = "processDefinitionId";
     private static final String DEPLOYMENT_ID = "deploymentId";
+    private static final String TASK_ID = "taskId";
 
     private final ObjectMapper objectMapper;
 
@@ -336,10 +337,11 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     public Iterable<CommentEvent> pollComments(final ActivityInstanceEvent activityInstanceEvent) {
 
         final String url = camundaProperties.getUrl()
-                + "task/" + activityInstanceEvent.getTaskId() + "/comment";
+                + "task/{taskId}/comment";
         try {
             final Map<String, Object> variables = new HashMap<>();
-            LOGGER.debug("Polling comments for taskId: {}", activityInstanceEvent.getTaskId());
+            variables.put(TASK_ID, activityInstanceEvent.getTaskId() );
+            LOGGER.debug("Polling comments from {} ({})", url, variables);
 
             List<GetCommentResponse> result = this.restTemplate
                                                                .exchange(url,
@@ -374,10 +376,11 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     public Iterable<IdentityLinkEvent> pollIdentityLinks(final ActivityInstanceEvent activityInstanceEvent) {
 
         final String url = camundaProperties.getUrl()
-                + "history/identity-link-log/?taskId=" + activityInstanceEvent.getTaskId();
+                + "history/identity-link-log/?taskId={taskId}";
         try {
             final Map<String, Object> variables = new HashMap<>();
-            LOGGER.debug("Polling identity-links for taskId: {}", activityInstanceEvent.getTaskId());
+            variables.put(TASK_ID, activityInstanceEvent.getTaskId() );
+            LOGGER.debug("Polling identity-links from {} ({})", url, variables);
 
             List<GetIdentityLinkResponse> result = this.restTemplate
                                                                     .exchange(url,
@@ -616,7 +619,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         event.setTaskId(identityLinkResponse.getTaskId());
         event.setProcessDefinitionId(identityLinkResponse.getProcessDefinitionId());
         event.setProcessDefinitionKey(identityLinkResponse.getProcessDefinitionKey());
-        event.setOperationType(identityLinkResponse.getOperationType());
+        event.setOperationType(IdentityLinkEvent.OperationType.valueOf(identityLinkResponse.getOperationType()));
         event.setAssignerId(identityLinkResponse.getAssignerId());
         event.setTenantId(identityLinkResponse.getTenantId());
         event.setRemovalTime(identityLinkResponse.getRemovalTime());
