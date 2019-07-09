@@ -151,7 +151,7 @@ public class RuntimeDataPollingService implements Runnable {
                 }
 
                 if (properties.getPollingEvents()
-                              .contains(ApplicationProperties.PollingEvents.IDENTITY_LINKS)
+                              .contains(ApplicationProperties.PollingEvents.IDENTITY_LINKS_UNFINISHED_ACTIVITIES)
                         && activityInstanceEvent.getActivityType().equals("userTask")) {
                     pollIdentityLinks(activityInstanceEvent);
                 }
@@ -184,7 +184,7 @@ public class RuntimeDataPollingService implements Runnable {
                 }
 
                 if (properties.getPollingEvents()
-                              .contains(ApplicationProperties.PollingEvents.IDENTITY_LINKS)
+                              .contains(ApplicationProperties.PollingEvents.IDENTITY_LINKS_FINISHED_ACTIVITIES)
                         && activityInstanceEvent.getActivityType().equals("userTask")) {
                     pollIdentityLinks(activityInstanceEvent);
                 }

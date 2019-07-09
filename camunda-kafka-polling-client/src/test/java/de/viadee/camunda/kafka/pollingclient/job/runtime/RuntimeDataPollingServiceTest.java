@@ -583,7 +583,7 @@ public class RuntimeDataPollingServiceTest {
             assertEquals(expectedHistoricIdentityLink.getType(), polledIdentityLink.getType());
             assertEquals(expectedHistoricIdentityLink.getUserId(), polledIdentityLink.getUserId());
             assertEquals(expectedHistoricIdentityLink.getGroupId(), polledIdentityLink.getGroupId());
-            assertEquals(expectedHistoricIdentityLink.getOperationType(), polledIdentityLink.getOperationType());
+            assertEquals(expectedHistoricIdentityLink.getOperationType(), polledIdentityLink.getOperationType().name());
             assertEquals(expectedHistoricIdentityLink.getAssignerId(), polledIdentityLink.getAssignerId());
             assertEquals(expectedHistoricIdentityLink.getRemovalTime(), polledIdentityLink.getRemovalTime());
 

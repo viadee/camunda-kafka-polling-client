@@ -340,7 +340,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                 + "task/{taskId}/comment";
         try {
             final Map<String, Object> variables = new HashMap<>();
-            variables.put(TASK_ID, activityInstanceEvent.getTaskId() );
+            variables.put(TASK_ID, activityInstanceEvent.getTaskId());
             LOGGER.debug("Polling comments from {} ({})", url, variables);
 
             List<GetCommentResponse> result = this.restTemplate
@@ -379,7 +379,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                 + "history/identity-link-log/?taskId={taskId}";
         try {
             final Map<String, Object> variables = new HashMap<>();
-            variables.put(TASK_ID, activityInstanceEvent.getTaskId() );
+            variables.put(TASK_ID, activityInstanceEvent.getTaskId());
             LOGGER.debug("Polling identity-links from {} ({})", url, variables);
 
             List<GetIdentityLinkResponse> result = this.restTemplate
