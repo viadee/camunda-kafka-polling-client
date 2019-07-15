@@ -69,7 +69,9 @@ public class ApplicationProperties {
          */
         VARIABLE_CURRENT_UNFINISHED,
         PROCESS_DEFINITION,
-        TASK_COMMENTS
+        TASK_COMMENTS,
+        IDENTITY_LINKS_UNFINISHED_ACTIVITIES,
+        IDENTITY_LINKS_FINISHED_ACTIVITIES
     }
 
     /**

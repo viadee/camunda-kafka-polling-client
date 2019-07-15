@@ -39,6 +39,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     private static final String ACTIVITY_INSTANCE_ID = "activityInstanceId";
     private static final String PROCESS_DEFINITION_ID = "processDefinitionId";
     private static final String DEPLOYMENT_ID = "deploymentId";
+    private static final String TASK_ID = "taskId";
 
     private final ObjectMapper objectMapper;
 
@@ -336,10 +337,11 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     public Iterable<CommentEvent> pollComments(final ActivityInstanceEvent activityInstanceEvent) {
 
         final String url = camundaProperties.getUrl()
-                + "task/" + activityInstanceEvent.getTaskId() + "/comment";
+                + "task/{taskId}/comment";
         try {
             final Map<String, Object> variables = new HashMap<>();
-            LOGGER.debug("Polling comments for taskId: {}", activityInstanceEvent.getTaskId());
+            variables.put(TASK_ID, activityInstanceEvent.getTaskId());
+            LOGGER.debug("Polling comments from {} ({})", url, variables);
 
             List<GetCommentResponse> result = this.restTemplate
                                                                .exchange(url,
@@ -362,6 +364,44 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                                                                                   activityInstanceEvent))::iterator;
         } catch (RestClientException e) {
             throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for comments", e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param activityInstanceEvent
+     */
+    @Override
+    public Iterable<IdentityLinkEvent> pollIdentityLinks(final ActivityInstanceEvent activityInstanceEvent) {
+
+        final String url = camundaProperties.getUrl()
+                + "history/identity-link-log/?taskId={taskId}";
+        try {
+            final Map<String, Object> variables = new HashMap<>();
+            variables.put(TASK_ID, activityInstanceEvent.getTaskId());
+            LOGGER.debug("Polling identity-links from {} ({})", url, variables);
+
+            List<GetIdentityLinkResponse> result = this.restTemplate
+                                                                    .exchange(url,
+                                                                              HttpMethod.GET,
+                                                                              null,
+                                                                              new ParameterizedTypeReference<List<GetIdentityLinkResponse>>() {
+
+                                                                              }, variables)
+                                                                    .getBody();
+
+            if (result == null) {
+                return new ArrayList<>();
+            }
+
+            LOGGER.debug("Found {} identity-links for taskId: {} ", result.size(), activityInstanceEvent.getTaskId());
+
+            return result
+                         .stream()
+                         .map(getIdentityLinkResponse -> createIdentityLinkEventFromDetails(getIdentityLinkResponse))::iterator;
+        } catch (RestClientException e) {
+            throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for identity-link-log", e);
         }
     }
 
@@ -564,6 +604,26 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         event.setUserId(commentResponse.getUserId());
         event.setTimestamp(commentResponse.getTime());
         event.setMessage(commentResponse.getMessage());
+
+        return event;
+    }
+
+    private IdentityLinkEvent createIdentityLinkEventFromDetails(GetIdentityLinkResponse identityLinkResponse) {
+        final IdentityLinkEvent event = new IdentityLinkEvent();
+
+        event.setId(identityLinkResponse.getId());
+        event.setTimestamp(identityLinkResponse.getTime());
+        event.setType(identityLinkResponse.getType());
+        event.setUserId(identityLinkResponse.getUserId());
+        event.setGroupId(identityLinkResponse.getGroupId());
+        event.setTaskId(identityLinkResponse.getTaskId());
+        event.setProcessDefinitionId(identityLinkResponse.getProcessDefinitionId());
+        event.setProcessDefinitionKey(identityLinkResponse.getProcessDefinitionKey());
+        event.setOperationType(IdentityLinkEvent.OperationType.valueOf(identityLinkResponse.getOperationType()));
+        event.setAssignerId(identityLinkResponse.getAssignerId());
+        event.setTenantId(identityLinkResponse.getTenantId());
+        event.setRemovalTime(identityLinkResponse.getRemovalTime());
+        event.setProcessInstanceId(identityLinkResponse.getRootProcessInstanceId());
 
         return event;
     }

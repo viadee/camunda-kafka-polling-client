@@ -2,6 +2,7 @@ package de.viadee.camunda.kafka.pollingclient.job.runtime;
 
 import de.viadee.camunda.kafka.event.ActivityInstanceEvent;
 import de.viadee.camunda.kafka.event.CommentEvent;
+import de.viadee.camunda.kafka.event.IdentityLinkEvent;
 import de.viadee.camunda.kafka.event.ProcessInstanceEvent;
 import de.viadee.camunda.kafka.event.VariableUpdateEvent;
 import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties;
@@ -148,6 +149,12 @@ public class RuntimeDataPollingService implements Runnable {
                         && activityInstanceEvent.getActivityType().equals("userTask")) {
                     pollComments(activityInstanceEvent);
                 }
+
+                if (properties.getPollingEvents()
+                              .contains(ApplicationProperties.PollingEvents.IDENTITY_LINKS_UNFINISHED_ACTIVITIES)
+                        && activityInstanceEvent.getActivityType().equals("userTask")) {
+                    pollIdentityLinks(activityInstanceEvent);
+                }
             }
         }
     }
@@ -175,6 +182,12 @@ public class RuntimeDataPollingService implements Runnable {
                         && activityInstanceEvent.getActivityType().equals("userTask")) {
                     pollComments(activityInstanceEvent);
                 }
+
+                if (properties.getPollingEvents()
+                              .contains(ApplicationProperties.PollingEvents.IDENTITY_LINKS_FINISHED_ACTIVITIES)
+                        && activityInstanceEvent.getActivityType().equals("userTask")) {
+                    pollIdentityLinks(activityInstanceEvent);
+                }
             }
         }
     }
@@ -197,6 +210,13 @@ public class RuntimeDataPollingService implements Runnable {
         for (final CommentEvent commentEvent : pollingService
                                                              .pollComments(activityInstanceEvent)) {
             eventService.sendEvent(commentEvent);
+        }
+    }
+
+    private void pollIdentityLinks(final ActivityInstanceEvent activityInstanceEvent) {
+        for (final IdentityLinkEvent identityLinkEvent : pollingService
+                                                                       .pollIdentityLinks(activityInstanceEvent)) {
+            eventService.sendEvent(identityLinkEvent);
         }
     }
 
