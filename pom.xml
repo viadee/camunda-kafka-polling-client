@@ -24,7 +24,7 @@
         <spring-boot.version>2.1.5.RELEASE</spring-boot.version>
         <camunda.version>7.10.0</camunda.version>
         <kafka.version>1.0.0</kafka.version>
-        <jackson.version>2.9.9</jackson.version>
+        <jackson.version>2.10.0.pr1</jackson.version>
         <postgresql.version>42.2.5</postgresql.version>
         <junit.version>5.4.0</junit.version>
         <mockito.version>2.25.0</mockito.version>
