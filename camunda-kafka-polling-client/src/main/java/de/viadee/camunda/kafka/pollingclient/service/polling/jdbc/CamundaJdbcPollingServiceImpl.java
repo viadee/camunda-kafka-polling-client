@@ -11,6 +11,7 @@ import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
 import org.camunda.bpm.engine.history.HistoricDetail;
+import org.camunda.bpm.engine.history.HistoricIdentityLinkLog;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
 import org.camunda.bpm.engine.impl.persistence.entity.HistoricDetailVariableInstanceUpdateEntity;
@@ -228,6 +229,16 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
                           .map(comment -> createCommentEventFromDetails(comment, activityInstanceEvent))::iterator;
     }
 
+    @Override
+    public Iterable<IdentityLinkEvent> pollIdentityLinks(ActivityInstanceEvent activityInstanceEvent) {
+
+        return historyService.createHistoricIdentityLinkLogQuery()
+                             .taskId(activityInstanceEvent.getTaskId())
+                             .list()
+                             .stream()
+                             .map(historicIdentityLinkLog -> createIdentityLinkEventFromDetails(historicIdentityLinkLog))::iterator;
+    }
+
     private ProcessDefinitionEvent createProcessDefinitionEvent(Deployment d, ProcessDefinition pd) {
 
         ProcessDefinitionEvent e = new ProcessDefinitionEvent();
@@ -313,6 +324,27 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
         event.setUserId(comment.getUserId());
         event.setTimestamp(comment.getTime());
         event.setMessage(comment.getFullMessage());
+
+        return event;
+    }
+
+    private IdentityLinkEvent createIdentityLinkEventFromDetails(HistoricIdentityLinkLog historicIdentityLinkLog) {
+
+        final IdentityLinkEvent event = new IdentityLinkEvent();
+
+        event.setId(historicIdentityLinkLog.getId());
+        event.setTimestamp(historicIdentityLinkLog.getTime());
+        event.setType(historicIdentityLinkLog.getType());
+        event.setUserId(historicIdentityLinkLog.getUserId());
+        event.setGroupId(historicIdentityLinkLog.getGroupId());
+        event.setTaskId(historicIdentityLinkLog.getTaskId());
+        event.setProcessDefinitionId(historicIdentityLinkLog.getProcessDefinitionId());
+        event.setProcessDefinitionKey(historicIdentityLinkLog.getProcessDefinitionKey());
+        event.setOperationType(IdentityLinkEvent.OperationType.valueOf(historicIdentityLinkLog.getOperationType()));
+        event.setAssignerId(historicIdentityLinkLog.getAssignerId());
+        event.setTenantId(historicIdentityLinkLog.getTenantId());
+        event.setRemovalTime(historicIdentityLinkLog.getRemovalTime());
+        event.setProcessInstanceId(historicIdentityLinkLog.getRootProcessInstanceId());
 
         return event;
     }

@@ -107,4 +107,12 @@ public interface PollingService {
      * @return a {@link java.lang.Iterable} object.
      */
     Iterable<CommentEvent> pollComments(ActivityInstanceEvent activityInstanceEvent);
+
+    /**
+     * Poll Identity-Links for specified task
+     *
+     * @param activityInstanceEvent
+     * @return a {@link java.lang.Iterable} object.
+     */
+    Iterable<IdentityLinkEvent> pollIdentityLinks(ActivityInstanceEvent activityInstanceEvent);
 }
