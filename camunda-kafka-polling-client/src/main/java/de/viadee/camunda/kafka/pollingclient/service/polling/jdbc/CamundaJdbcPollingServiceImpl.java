@@ -200,7 +200,8 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
 
                 // query xml
                 try {
-                    String xml = IOUtils.toString(repositoryService.getResourceAsStream(processDefinition.getDeploymentId(), processDefinition.getResourceName()));
+                    String xml = IOUtils.toString(repositoryService.getResourceAsStream(processDefinition.getDeploymentId(),
+                                                                                        processDefinition.getResourceName()));
                     processDefinitionEvent.setXml(xml);
                 } catch (IOException e) {
                     throw new RuntimeException(
