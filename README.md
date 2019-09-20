@@ -73,8 +73,9 @@ driver can thus be done by just adding the driver library to `/app/lib`.
 ## Collaboration
 
 The project is operated and further developed by the viadee Consulting AG in Münster, Westphalia.
-* Community contributions to the project are welcome: Please open Github-Issues with suggestions (or PR), which we can then edit in the team.
+* Community contributions to the project are welcome: Please open Github-Issues with suggestions (or PR), which we can then edit in the team. For contribution please take account of our [contributing guidelines](https://github.com/viadee/camunda-kafka-polling-client/blob/master/CONTRIBUTING.md).
 * We are also looking for further partners who have interesting process data to refine our tooling as well as partners that are simply interested in a discussion about AI and data warehouses in the context of business process automation.
+
 
 ## Commitments
 
@@ -87,3 +88,6 @@ In the sense of semantic versioning, the resulting JSON outputs are the only pub
 ## Roadmap
 This software component is considered to be stable and ready for production use.
 However, we plan to extend on it if there is demand or if the Camunda APIs change.
+
+## License
+This project is licensed under the BSD 3-Clause "New" or "Revised" License - see the [LICENSE](https://github.com/viadee/camunda-kafka-polling-client/blob/master/LICENSE) file for details.
