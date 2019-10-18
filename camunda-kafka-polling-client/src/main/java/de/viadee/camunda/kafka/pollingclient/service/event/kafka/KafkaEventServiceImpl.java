@@ -10,6 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import static org.apache.commons.lang3.StringUtils.removeEnd;
 import static org.apache.commons.lang3.StringUtils.uncapitalize;
 
@@ -30,7 +34,6 @@ public class KafkaEventServiceImpl implements EventService {
 
     private final ApplicationProperties properties;
 
-    @Autowired
     /**
      * <p>
      * Constructor for KafkaEventServiceImpl.
@@ -41,32 +44,43 @@ public class KafkaEventServiceImpl implements EventService {
      * @param properties
      *            a {@link de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties} object.
      */
+    @Autowired
     public KafkaEventServiceImpl(KafkaTemplate<String, String> kafkaTemplate, ApplicationProperties properties) {
         this.kafkaTemplate = kafkaTemplate;
         this.properties = properties;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void sendEvent(HistoryEvent event) {
         try {
             final String payload = this.objectMapper.writeValueAsString(event);
 
-            kafkaTemplate.send(getTopicName(event), event.getId(), payload);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Could not convert history event to json", e);
+            kafkaTemplate.send(getTopicName(event), event.getId(), payload)
+                         .get(properties.getKafkaSendTimeoutInSeconds(), TimeUnit.SECONDS);
+        } catch (JsonProcessingException | ExecutionException e) {
+            throw new RuntimeException("Error sending history event to kafka", e);
+        } catch (InterruptedException | TimeoutException e) {
+            throw new RuntimeException("Waiting for history event being send to kafka interrupted / timed out", e);
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void sendEvent(final DeploymentEvent event) {
         try {
             final String payload = this.objectMapper.writeValueAsString(event);
 
-            kafkaTemplate.send(getTopicName(event), event.getId(), payload);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Could not convert deployment event to json", e);
+            kafkaTemplate.send(getTopicName(event), event.getId(), payload)
+                         .get(properties.getKafkaSendTimeoutInSeconds(), TimeUnit.SECONDS);
+        } catch (JsonProcessingException | ExecutionException e) {
+            throw new RuntimeException("Error sending deployment event to kafka", e);
+        } catch (InterruptedException | TimeoutException e) {
+            throw new RuntimeException("Waiting for deployment event being send to kafka interrupted / timed out", e);
         }
     }
 
