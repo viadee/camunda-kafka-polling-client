@@ -6,7 +6,7 @@
 
     <groupId>de.viadee.camunda</groupId>
     <artifactId>camunda-kafka-polling-client-parent</artifactId>
-    <version>1.2.1-SNAPSHOT</version>
+    <version>1.2.1</version>
     <packaging>pom</packaging>
 
     <modules>
