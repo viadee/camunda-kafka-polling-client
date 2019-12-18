@@ -9,11 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.TaskService;
-import org.camunda.bpm.engine.history.HistoricActivityInstance;
-import org.camunda.bpm.engine.history.HistoricDetail;
-import org.camunda.bpm.engine.history.HistoricIdentityLinkLog;
-import org.camunda.bpm.engine.history.HistoricProcessInstance;
-import org.camunda.bpm.engine.history.HistoricVariableInstance;
+import org.camunda.bpm.engine.history.*;
 import org.camunda.bpm.engine.impl.persistence.entity.HistoricDetailVariableInstanceUpdateEntity;
 import org.camunda.bpm.engine.impl.persistence.entity.HistoricVariableInstanceEntity;
 import org.camunda.bpm.engine.repository.Deployment;
@@ -204,7 +200,8 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
 
                 // query xml
                 try {
-                    String xml = IOUtils.toString(repositoryService.getProcessModel(processDefinition.getId()));
+                    String xml = IOUtils.toString(repositoryService.getResourceAsStream(processDefinition.getDeploymentId(),
+                                                                                        processDefinition.getResourceName()));
                     processDefinitionEvent.setXml(xml);
                 } catch (IOException e) {
                     throw new RuntimeException(

@@ -16,7 +16,6 @@ import java.util.Set;
  * @author viadee
  * @version $Id: $Id
  */
-
 @ConfigurationProperties(prefix = "polling")
 public class ApplicationProperties {
 
@@ -42,6 +41,11 @@ public class ApplicationProperties {
      * Configuration of events to poll
      */
     private Set<PollingEvents> pollingEvents = new HashSet<>();
+
+    /**
+     * Timeout to wait while sending an polling event to kafka
+     */
+    private long kafkaSendTimeoutInSeconds = 60;
 
     public enum PollingEvents {
         PROCESS_INSTANCE_UNFINISHED,
@@ -74,75 +78,43 @@ public class ApplicationProperties {
         IDENTITY_LINKS_FINISHED_ACTIVITIES
     }
 
-    /**
-     * Configuration for polling runtime data
-     */
-    @java.lang.SuppressWarnings("all")
+    public long getKafkaSendTimeoutInSeconds() {
+        return kafkaSendTimeoutInSeconds;
+    }
+
+    public void setKafkaSendTimeoutInSeconds(long kafkaSendTimeoutInSeconds) {
+        this.kafkaSendTimeoutInSeconds = kafkaSendTimeoutInSeconds;
+    }
+
     public PollingProperties getRuntimeData() {
-        return this.runtimeData;
+        return runtimeData;
     }
 
-    /**
-     * Configuration for polling repository data
-     */
-    @java.lang.SuppressWarnings("all")
-    public PollingProperties getRepositoryData() {
-        return this.repositoryData;
-    }
-
-    /**
-     * Configuration of kafka topics to use on event type basis:
-     * 
-     * Mapping of event type (event class name without "Event" suffix) to kafka topic name.
-     * 
-     * Default topic of an event is the event type.
-     */
-    @java.lang.SuppressWarnings("all")
-    public Map<String, String> getEventTopics() {
-        return this.eventTopics;
-    }
-
-    /**
-     * Configuration of events to poll
-     */
-    @java.lang.SuppressWarnings("all")
-    public Set<PollingEvents> getPollingEvents() {
-        return this.pollingEvents;
-    }
-
-    /**
-     * Configuration for polling runtime data
-     */
-    @java.lang.SuppressWarnings("all")
-    public void setRuntimeData(final PollingProperties runtimeData) {
+    public void setRuntimeData(PollingProperties runtimeData) {
         this.runtimeData = runtimeData;
     }
 
-    /**
-     * Configuration for polling repository data
-     */
-    @java.lang.SuppressWarnings("all")
-    public void setRepositoryData(final PollingProperties repositoryData) {
+    public PollingProperties getRepositoryData() {
+        return repositoryData;
+    }
+
+    public void setRepositoryData(PollingProperties repositoryData) {
         this.repositoryData = repositoryData;
     }
 
-    /**
-     * Configuration of kafka topics to use on event type basis:
-     * 
-     * Mapping of event type (event class name without "Event" suffix) to kafka topic name.
-     * 
-     * Default topic of an event is the event type.
-     */
-    @java.lang.SuppressWarnings("all")
-    public void setEventTopics(final Map<String, String> eventTopics) {
+    public Map<String, String> getEventTopics() {
+        return eventTopics;
+    }
+
+    public void setEventTopics(Map<String, String> eventTopics) {
         this.eventTopics = eventTopics;
     }
 
-    /**
-     * Configuration of events to poll
-     */
-    @java.lang.SuppressWarnings("all")
-    public void setPollingEvents(final Set<PollingEvents> pollingEvents) {
+    public Set<PollingEvents> getPollingEvents() {
+        return pollingEvents;
+    }
+
+    public void setPollingEvents(Set<PollingEvents> pollingEvents) {
         this.pollingEvents = pollingEvents;
     }
 }
