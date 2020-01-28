@@ -69,6 +69,7 @@ public class RuntimeDataPollingService implements Runnable {
         LOGGER.info("Start polling runtime data: {}", pollingTimeslice);
 
         pollUnfinishedProcessInstances(pollingTimeslice);
+
         pollFinishedProcessInstances(pollingTimeslice);
 
         lastPolledService.updatePollingTimeslice(pollingTimeslice);

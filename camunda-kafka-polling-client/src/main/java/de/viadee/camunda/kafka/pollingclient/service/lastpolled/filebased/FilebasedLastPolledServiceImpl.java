@@ -36,14 +36,15 @@ public class FilebasedLastPolledServiceImpl implements LastPolledService {
      * Constructor for FilebasedLastPolledServiceImpl.
      * </p>
      *
-     * @param pollingProperties
-     *            a {@link de.viadee.camunda.kafka.pollingclient.config.properties.PollingProperties} object.
+     * @param pollingProperties a {@link de.viadee.camunda.kafka.pollingclient.config.properties.PollingProperties} object.
      */
     public FilebasedLastPolledServiceImpl(final PollingProperties pollingProperties) {
         this.pollingProperties = pollingProperties;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PollingTimeslice getPollingTimeslice() {
         final Properties properties = readProperties();
@@ -68,7 +69,7 @@ public class FilebasedLastPolledServiceImpl implements LastPolledService {
             }
         }
 
-        Date endTimestamp = new Date();
+        Date endTimestamp = new Date(new Date().getTime() - pollingProperties.getBackwardOffsetInMs());
         if (endTimestamp.compareTo(startTimestamp) < 0) {
             endTimestamp = startTimestamp;
         }
@@ -93,7 +94,9 @@ public class FilebasedLastPolledServiceImpl implements LastPolledService {
         return properties;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void updatePollingTimeslice(final PollingTimeslice pollingTimeslice) {
         final File lastPolledFile = pollingProperties.getLastPolledFile();

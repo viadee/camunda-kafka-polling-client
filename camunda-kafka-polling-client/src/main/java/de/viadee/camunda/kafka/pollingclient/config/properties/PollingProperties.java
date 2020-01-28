@@ -38,6 +38,12 @@ public class PollingProperties {
      */
     private boolean enabled;
 
+
+    /**
+     * The ms polling slice ends before the current time stamp
+     */
+    private long backwardOffsetInMs;
+
     /**
      * Initial timestamp to start polling with in case no polling has been performed before. (Default: Start timestamp
      * of polling client)
@@ -103,4 +109,21 @@ public class PollingProperties {
     public void setEnabled(final boolean enabled) {
         this.enabled = enabled;
     }
+
+    /**
+     * The ms polling slice ends before the current time stamp
+     */
+    @java.lang.SuppressWarnings("all")
+    public long getBackwardOffsetInMs() {
+        return backwardOffsetInMs;
+    }
+
+    /**
+     * The ms polling slice ends before the current time stamp
+     */
+    @java.lang.SuppressWarnings("all")
+    public void setBackwardOffsetInMs(long backwardOffsetInMs) {
+        this.backwardOffsetInMs = backwardOffsetInMs;
+    }
+
 }
