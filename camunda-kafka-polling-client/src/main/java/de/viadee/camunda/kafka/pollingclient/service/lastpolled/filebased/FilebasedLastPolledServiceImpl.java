@@ -68,7 +68,7 @@ public class FilebasedLastPolledServiceImpl implements LastPolledService {
             }
         }
 
-        Date endTimestamp = new Date();
+        Date endTimestamp = new Date(new Date().getTime() - pollingProperties.getBackwardOffsetInMs());
         if (endTimestamp.compareTo(startTimestamp) < 0) {
             endTimestamp = startTimestamp;
         }
