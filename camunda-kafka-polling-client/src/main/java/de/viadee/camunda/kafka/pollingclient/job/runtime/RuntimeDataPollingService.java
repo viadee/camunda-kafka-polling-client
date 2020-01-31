@@ -1,10 +1,6 @@
 package de.viadee.camunda.kafka.pollingclient.job.runtime;
 
-import de.viadee.camunda.kafka.event.ActivityInstanceEvent;
-import de.viadee.camunda.kafka.event.CommentEvent;
-import de.viadee.camunda.kafka.event.IdentityLinkEvent;
-import de.viadee.camunda.kafka.event.ProcessInstanceEvent;
-import de.viadee.camunda.kafka.event.VariableUpdateEvent;
+import de.viadee.camunda.kafka.event.*;
 import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties;
 import de.viadee.camunda.kafka.pollingclient.service.event.EventService;
 import de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledService;
@@ -69,7 +65,6 @@ public class RuntimeDataPollingService implements Runnable {
         LOGGER.info("Start polling runtime data: {}", pollingTimeslice);
 
         pollUnfinishedProcessInstances(pollingTimeslice);
-
         pollFinishedProcessInstances(pollingTimeslice);
 
         lastPolledService.updatePollingTimeslice(pollingTimeslice);
