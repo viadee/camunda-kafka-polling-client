@@ -38,7 +38,6 @@ public class PollingProperties {
      */
     private boolean enabled;
 
-
     /**
      * The ms polling slice ends before the current time stamp
      */
