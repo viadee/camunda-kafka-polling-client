@@ -4,8 +4,8 @@ addons:
   sonarcloud:
     organization: "viadee"
     # token is provided by the environment variable SONAR_TOKEN in travis settings
-    token:
-      secure: $SONAR_TOKEN
+    # Please note the syntax change as of March 2020 (https://community.sonarsource.com/t/error-not-authorized-please-check-the-properties-sonar-login-and-sonar-password/21076/7)
+    token: $SONAR_TOKEN
 # the following command line builds the project, runs the tests with coverage and then executes the SonarCloud analysis.
 # In case of external pull requests, no SONAR_SCANNER_HOME is defined, and SonarCloud analysis is not possible.
 # (https://community.sonarsource.com/t/travis-plugin-is-failing-on-external-pull-request/807/3)
