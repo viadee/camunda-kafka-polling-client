@@ -434,6 +434,8 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     @Override
     public Iterable<DecisionInstanceEvent> pollDecisionInstances(String processInstanceId) {
 
+        //REVIEW: Why do you include input and output here, when you poll them separately later? do not use up unnecessary resources!
+        //Also: why do you not poll everything at once, why do you poll the inputs and outputs separately? Please comment, because it is more expensive and requires an explanation
         final String url = camundaProperties.getUrl()
                 + "history/decision-instance?processInstanceId={processInstanceId}&includeInputs=true&includeOutputs=true&disableBinaryFetching=true&disableCustomObjectDeserialization=true";
         try {

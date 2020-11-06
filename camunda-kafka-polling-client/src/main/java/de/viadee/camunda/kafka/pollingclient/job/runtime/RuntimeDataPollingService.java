@@ -93,6 +93,11 @@ public class RuntimeDataPollingService implements Runnable {
 
                     // To send decision instances only once, decision instances are polled via already filtered
                     // ProcessInstances
+
+                    //REVIEW: Why not same as Activities?
+                    // Thus, when the process starts before this time slice but the decision instance event occurred during this time slice, then it is not polled.
+                    // Prevents the idea of near-realtime. Should probably change.
+                    // And: What is the difference to variable events? why not polled within activity-polling-functions?
                     pollDecisionInstances(processInstanceEvent.getProcessInstanceId(), pollingTimeslice);
 
                 }
@@ -101,48 +106,6 @@ public class RuntimeDataPollingService implements Runnable {
                 pollFinishedActivities(processInstanceEvent.getProcessInstanceId(), pollingTimeslice);
 
             }
-        }
-    }
-
-    private void pollDecisionInstances(final String processInstanceId, final PollingTimeslice pollingTimeslice) {
-
-        if (properties.getPollingEvents()
-                      .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE)) {
-
-            // Select all decision instances, which have been active during polled process instances.
-            for (final DecisionInstanceEvent decisionInstanceEvent : pollingService.pollDecisionInstances(processInstanceId)) {
-
-                eventService.sendEvent(decisionInstanceEvent);
-
-                // Inputs and Outputs are polled separated
-                if (properties.getPollingEvents()
-                              .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_INPUTS)) {
-                    pollDecisionInputInstance(decisionInstanceEvent);
-                }
-
-                if (properties.getPollingEvents()
-                              .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_OUTPUTS)) {
-                    pollDecisionOutputInstance(decisionInstanceEvent);
-                }
-
-            }
-
-        }
-    }
-
-    private void pollDecisionOutputInstance(final DecisionInstanceEvent decisionInstanceEvent) {
-
-        for (final DecisionInstanceOutputEvent decisionInstanceOutputEvent : pollingService.pollDecisionInstanceOutputs(decisionInstanceEvent)) {
-            eventService.sendEvent(decisionInstanceOutputEvent);
-
-        }
-
-    }
-
-    private void pollDecisionInputInstance(final DecisionInstanceEvent decisionInstanceEvent) {
-
-        for (final DecisionInstanceInputEvent decisionInstanceInputEvent : pollingService.pollDecisionInstanceInputs(decisionInstanceEvent)) {
-            eventService.sendEvent(decisionInstanceInputEvent);
         }
     }
 
@@ -165,13 +128,57 @@ public class RuntimeDataPollingService implements Runnable {
                                                          pollingTimeslice.getEndTime())) {
                     eventService.sendEvent(processInstanceEvent);
 
-                    // use prefiltered process instances to prevent sending to many decision instances
+                    // use prefiltered process instances to prevent sending too many decision instances
+                    // REVIEW: here it is probably okay, but please add a sentence regarding difference to activities (decision instance including input and output are saved and polled in one transaction, it cannot last over two or more time slices)
                     pollDecisionInstances(processInstanceEvent.getProcessInstanceId(), pollingTimeslice);
 
                 }
 
                 pollFinishedActivities(processInstanceEvent.getProcessInstanceId(), pollingTimeslice);
             }
+        }
+    }
+
+    //REVIEW: How is the parameter pollingTimeslice here relevant? Delete, if not required.
+    private void pollDecisionInstances(final String processInstanceId, final PollingTimeslice pollingTimeslice) {
+
+        if (properties.getPollingEvents()
+                .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE)) {
+
+            // Select all decision instances, which have been active during polled process instances.
+            for (final DecisionInstanceEvent decisionInstanceEvent : pollingService.pollDecisionInstances(processInstanceId)) {
+
+                eventService.sendEvent(decisionInstanceEvent);
+
+                // Inputs and Outputs are polled separately
+                if (properties.getPollingEvents()
+                        .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_INPUTS)) {
+                    pollDecisionInputInstance(decisionInstanceEvent);
+                }
+
+                if (properties.getPollingEvents()
+                        .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_OUTPUTS)) {
+                    pollDecisionOutputInstance(decisionInstanceEvent);
+                }
+
+            }
+
+        }
+    }
+
+    private void pollDecisionOutputInstance(final DecisionInstanceEvent decisionInstanceEvent) {
+
+        for (final DecisionInstanceOutputEvent decisionInstanceOutputEvent : pollingService.pollDecisionInstanceOutputs(decisionInstanceEvent)) {
+            eventService.sendEvent(decisionInstanceOutputEvent);
+
+        }
+
+    }
+
+    private void pollDecisionInputInstance(final DecisionInstanceEvent decisionInstanceEvent) {
+
+        for (final DecisionInstanceInputEvent decisionInstanceInputEvent : pollingService.pollDecisionInstanceInputs(decisionInstanceEvent)) {
+            eventService.sendEvent(decisionInstanceInputEvent);
         }
     }
 
