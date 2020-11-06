@@ -115,4 +115,13 @@ public interface PollingService {
      * @return a {@link java.lang.Iterable} object.
      */
     Iterable<IdentityLinkEvent> pollIdentityLinks(ActivityInstanceEvent activityInstanceEvent);
+
+    Iterable<DecisionDefinitionEvent> pollDecisionDefinitions(Date deploymentAfter, Date deploymentBefore);
+
+    Iterable<DecisionInstanceEvent> pollDecisionInstances(String processInstanceId);
+
+    Iterable<DecisionInstanceInputEvent> pollDecisionInstanceInputs(DecisionInstanceEvent decisionInstanceEvent);
+
+    Iterable<DecisionInstanceOutputEvent> pollDecisionInstanceOutputs(DecisionInstanceEvent decisionInstanceEvent);
+
 }

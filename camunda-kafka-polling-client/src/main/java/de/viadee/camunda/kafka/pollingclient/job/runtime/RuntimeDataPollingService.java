@@ -6,9 +6,11 @@ import de.viadee.camunda.kafka.pollingclient.service.event.EventService;
 import de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledService;
 import de.viadee.camunda.kafka.pollingclient.service.lastpolled.PollingTimeslice;
 import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
+import org.camunda.bpm.model.bpmn.impl.instance.To;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
 import java.util.Date;
 
 /**
@@ -86,13 +88,61 @@ public class RuntimeDataPollingService implements Runnable {
                 // limit event to the polling cycle where the process has been started.
                 if (isProcessInstanceStartedBetween(processInstanceEvent, pollingTimeslice.getStartTime(),
                                                     pollingTimeslice.getEndTime())) {
-                    // Send process event only once if started during polling intervall
+                    // Send process event only once if started during polling interval
                     eventService.sendEvent(processInstanceEvent);
+
+                    // To send decision instances only once, decision instances are polled via already filtered
+                    // ProcessInstances
+                    pollDecisionInstances(processInstanceEvent.getProcessInstanceId(), pollingTimeslice);
+
                 }
 
                 pollUnfinishedActivities(processInstanceEvent.getProcessInstanceId(), pollingTimeslice);
                 pollFinishedActivities(processInstanceEvent.getProcessInstanceId(), pollingTimeslice);
+
             }
+        }
+    }
+
+    private void pollDecisionInstances(final String processInstanceId, final PollingTimeslice pollingTimeslice) {
+
+        if (properties.getPollingEvents()
+                      .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE)) {
+
+            // Select all decision instances, which have been active during polled process instances.
+            for (final DecisionInstanceEvent decisionInstanceEvent : pollingService.pollDecisionInstances(processInstanceId)) {
+
+                eventService.sendEvent(decisionInstanceEvent);
+
+                // Inputs and Outputs are polled separated
+                if (properties.getPollingEvents()
+                              .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_INPUTS)) {
+                    pollDecisionInputInstance(decisionInstanceEvent);
+                }
+
+                if (properties.getPollingEvents()
+                              .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_OUTPUTS)) {
+                    pollDecisionOutputInstance(decisionInstanceEvent);
+                }
+
+            }
+
+        }
+    }
+
+    private void pollDecisionOutputInstance(final DecisionInstanceEvent decisionInstanceEvent) {
+
+        for (final DecisionInstanceOutputEvent decisionInstanceOutputEvent : pollingService.pollDecisionInstanceOutputs(decisionInstanceEvent)) {
+            eventService.sendEvent(decisionInstanceOutputEvent);
+
+        }
+
+    }
+
+    private void pollDecisionInputInstance(final DecisionInstanceEvent decisionInstanceEvent) {
+
+        for (final DecisionInstanceInputEvent decisionInstanceInputEvent : pollingService.pollDecisionInstanceInputs(decisionInstanceEvent)) {
+            eventService.sendEvent(decisionInstanceInputEvent);
         }
     }
 
@@ -114,6 +164,10 @@ public class RuntimeDataPollingService implements Runnable {
                         || isProcessInstanceEndedBetween(processInstanceEvent, pollingTimeslice.getStartTime(),
                                                          pollingTimeslice.getEndTime())) {
                     eventService.sendEvent(processInstanceEvent);
+
+                    // use prefiltered process instances to prevent sending to many decision instances
+                    pollDecisionInstances(processInstanceEvent.getProcessInstanceId(), pollingTimeslice);
+
                 }
 
                 pollFinishedActivities(processInstanceEvent.getProcessInstanceId(), pollingTimeslice);

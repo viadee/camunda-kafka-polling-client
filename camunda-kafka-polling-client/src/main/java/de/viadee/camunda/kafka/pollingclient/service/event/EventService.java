@@ -1,7 +1,13 @@
 package de.viadee.camunda.kafka.pollingclient.service.event;
 
+import de.viadee.camunda.kafka.event.DecisionInstanceEvent;
+import de.viadee.camunda.kafka.event.DecisionInstanceInputEvent;
 import de.viadee.camunda.kafka.event.DeploymentEvent;
 import de.viadee.camunda.kafka.event.HistoryEvent;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * <p>

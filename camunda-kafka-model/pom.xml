@@ -171,6 +171,7 @@
                         </goals>
                         <configuration>
                             <additionalJOption>-Xdoclint:none</additionalJOption>
+                            <failOnError>false</failOnError>
                         </configuration>
                     </execution>
                 </executions>

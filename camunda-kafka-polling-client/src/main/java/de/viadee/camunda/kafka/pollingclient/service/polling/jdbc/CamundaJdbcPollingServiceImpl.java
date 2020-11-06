@@ -236,6 +236,28 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
                              .map(historicIdentityLinkLog -> createIdentityLinkEventFromDetails(historicIdentityLinkLog))::iterator;
     }
 
+    @Override
+    public Iterable<DecisionDefinitionEvent> pollDecisionDefinitions(Date deploymentAfter, Date deploymentBefore) {
+        // TODO implement
+        return null;
+    }
+
+    @Override
+    public Iterable<DecisionInstanceEvent> pollDecisionInstances(String processInstanceId) {
+        // TODO implement
+        return null;
+    }
+
+    public Iterable<DecisionInstanceInputEvent> pollDecisionInstanceInputs(DecisionInstanceEvent decisionInstanceEvent) {
+        // TODO implement
+        return null;
+    }
+
+    public Iterable<DecisionInstanceOutputEvent> pollDecisionInstanceOutputs(DecisionInstanceEvent decisionInstanceEvent) {
+        // TODO implement
+        return null;
+    }
+
     private ProcessDefinitionEvent createProcessDefinitionEvent(Deployment d, ProcessDefinition pd) {
 
         ProcessDefinitionEvent e = new ProcessDefinitionEvent();
