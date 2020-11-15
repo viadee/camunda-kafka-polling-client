@@ -243,7 +243,7 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
     }
 
     @Override
-    public Iterable<DecisionInstanceEvent> pollDecisionInstances(String processInstanceId) {
+    public Iterable<DecisionInstanceEvent> pollDecisionInstances(ActivityInstanceEvent activityInstanceEvent) {
         // TODO implement
         return null;
     }

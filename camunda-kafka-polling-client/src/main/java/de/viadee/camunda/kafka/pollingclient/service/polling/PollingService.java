@@ -118,7 +118,7 @@ public interface PollingService {
 
     Iterable<DecisionDefinitionEvent> pollDecisionDefinitions(Date deploymentAfter, Date deploymentBefore);
 
-    Iterable<DecisionInstanceEvent> pollDecisionInstances(String processInstanceId);
+    Iterable<DecisionInstanceEvent> pollDecisionInstances(ActivityInstanceEvent activityInstanceEvent);
 
     Iterable<DecisionInstanceInputEvent> pollDecisionInstanceInputs(DecisionInstanceEvent decisionInstanceEvent);
 

@@ -6,11 +6,9 @@ import de.viadee.camunda.kafka.pollingclient.service.event.EventService;
 import de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledService;
 import de.viadee.camunda.kafka.pollingclient.service.lastpolled.PollingTimeslice;
 import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
-import org.camunda.bpm.model.bpmn.impl.instance.To;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
 import java.util.Date;
 
 /**
@@ -91,17 +89,7 @@ public class RuntimeDataPollingService implements Runnable {
                     // Send process event only once if started during polling interval
                     eventService.sendEvent(processInstanceEvent);
 
-                    // To send decision instances only once, decision instances are polled via already filtered
-                    // ProcessInstances
-
-                    //REVIEW: Why not same as Activities?
-                    // Thus, when the process starts before this time slice but the decision instance event occurred during this time slice, then it is not polled.
-                    // Prevents the idea of near-realtime. Should probably change.
-                    // And: What is the difference to variable events? why not polled within activity-polling-functions?
-                    pollDecisionInstances(processInstanceEvent.getProcessInstanceId(), pollingTimeslice);
-
                 }
-
                 pollUnfinishedActivities(processInstanceEvent.getProcessInstanceId(), pollingTimeslice);
                 pollFinishedActivities(processInstanceEvent.getProcessInstanceId(), pollingTimeslice);
 
@@ -128,10 +116,6 @@ public class RuntimeDataPollingService implements Runnable {
                                                          pollingTimeslice.getEndTime())) {
                     eventService.sendEvent(processInstanceEvent);
 
-                    // use prefiltered process instances to prevent sending too many decision instances
-                    // REVIEW: here it is probably okay, but please add a sentence regarding difference to activities (decision instance including input and output are saved and polled in one transaction, it cannot last over two or more time slices)
-                    pollDecisionInstances(processInstanceEvent.getProcessInstanceId(), pollingTimeslice);
-
                 }
 
                 pollFinishedActivities(processInstanceEvent.getProcessInstanceId(), pollingTimeslice);
@@ -139,25 +123,27 @@ public class RuntimeDataPollingService implements Runnable {
         }
     }
 
-    //REVIEW: How is the parameter pollingTimeslice here relevant? Delete, if not required.
-    private void pollDecisionInstances(final String processInstanceId, final PollingTimeslice pollingTimeslice) {
+    // REVIEW: How is the parameter pollingTimeslice here relevant? Delete, if not required.
+    // deleted.
+    private void pollDecisionInstances(final ActivityInstanceEvent activityInstanceEvent) {
 
         if (properties.getPollingEvents()
-                .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE)) {
+                      .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE)) {
 
-            // Select all decision instances, which have been active during polled process instances.
-            for (final DecisionInstanceEvent decisionInstanceEvent : pollingService.pollDecisionInstances(processInstanceId)) {
+            // Select all decision instances, based on received activityInstanceEvent.
+            for (final DecisionInstanceEvent decisionInstanceEvent : pollingService.pollDecisionInstances(activityInstanceEvent)) {
 
                 eventService.sendEvent(decisionInstanceEvent);
 
-                // Inputs and Outputs are polled separately
+                // decision instances, inputs and outputs are polled separately to provide kafka with unnested objects
+                // this is necessary to allow analyzes like aggregations on all inputs
                 if (properties.getPollingEvents()
-                        .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_INPUTS)) {
+                              .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_INPUTS)) {
                     pollDecisionInputInstance(decisionInstanceEvent);
                 }
 
                 if (properties.getPollingEvents()
-                        .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_OUTPUTS)) {
+                              .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_OUTPUTS)) {
                     pollDecisionOutputInstance(decisionInstanceEvent);
                 }
 
@@ -212,6 +198,13 @@ public class RuntimeDataPollingService implements Runnable {
                         && activityInstanceEvent.getActivityType().equals("userTask")) {
                     pollIdentityLinks(activityInstanceEvent);
                 }
+
+                // new approach: poll decision instances by activity "businessRuleTask"
+                if (properties.getPollingEvents()
+                              .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE)
+                        && activityInstanceEvent.getActivityType().equals("businessRuleTask")) {
+                    pollDecisionInstances(activityInstanceEvent);
+                }
             }
         }
     }
@@ -244,6 +237,14 @@ public class RuntimeDataPollingService implements Runnable {
                               .contains(ApplicationProperties.PollingEvents.IDENTITY_LINKS_FINISHED_ACTIVITIES)
                         && activityInstanceEvent.getActivityType().equals("userTask")) {
                     pollIdentityLinks(activityInstanceEvent);
+                }
+
+                // new approach: poll decision instances by activity "businessRuleTask"
+                if (properties.getPollingEvents()
+                              .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE)
+                        && activityInstanceEvent.getActivityType().equals("businessRuleTask")) {
+                    pollDecisionInstances(activityInstanceEvent);
+
                 }
             }
         }
