@@ -123,50 +123,6 @@ public class RuntimeDataPollingService implements Runnable {
         }
     }
 
-    // REVIEW: How is the parameter pollingTimeslice here relevant? Delete, if not required.
-    // deleted.
-    private void pollDecisionInstances(final ActivityInstanceEvent activityInstanceEvent) {
-
-        if (properties.getPollingEvents()
-                      .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE)) {
-
-            // Select all decision instances, based on received activityInstanceEvent.
-            for (final DecisionInstanceEvent decisionInstanceEvent : pollingService.pollDecisionInstances(activityInstanceEvent)) {
-
-                eventService.sendEvent(decisionInstanceEvent);
-
-                // decision instances, inputs and outputs are polled separately to provide kafka with unnested objects
-                // this is necessary to allow analyzes like aggregations on all inputs
-                if (properties.getPollingEvents()
-                              .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_INPUTS)) {
-                    pollDecisionInputInstance(decisionInstanceEvent);
-                }
-
-                if (properties.getPollingEvents()
-                              .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_OUTPUTS)) {
-                    pollDecisionOutputInstance(decisionInstanceEvent);
-                }
-
-            }
-
-        }
-    }
-
-    private void pollDecisionOutputInstance(final DecisionInstanceEvent decisionInstanceEvent) {
-
-        for (final DecisionInstanceOutputEvent decisionInstanceOutputEvent : pollingService.pollDecisionInstanceOutputs(decisionInstanceEvent)) {
-            eventService.sendEvent(decisionInstanceOutputEvent);
-
-        }
-
-    }
-
-    private void pollDecisionInputInstance(final DecisionInstanceEvent decisionInstanceEvent) {
-
-        for (final DecisionInstanceInputEvent decisionInstanceInputEvent : pollingService.pollDecisionInstanceInputs(decisionInstanceEvent)) {
-            eventService.sendEvent(decisionInstanceInputEvent);
-        }
-    }
 
     private void pollUnfinishedActivities(final String processInstanceId, final PollingTimeslice pollingTimeslice) {
         if (properties.getPollingEvents()
@@ -199,7 +155,7 @@ public class RuntimeDataPollingService implements Runnable {
                     pollIdentityLinks(activityInstanceEvent);
                 }
 
-                // new approach: poll decision instances by activity "businessRuleTask"
+                // poll decision instances by activity "businessRuleTask"
                 if (properties.getPollingEvents()
                               .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE)
                         && activityInstanceEvent.getActivityType().equals("businessRuleTask")) {
@@ -239,7 +195,7 @@ public class RuntimeDataPollingService implements Runnable {
                     pollIdentityLinks(activityInstanceEvent);
                 }
 
-                // new approach: poll decision instances by activity "businessRuleTask"
+                // poll decision instances by activity "businessRuleTask"
                 if (properties.getPollingEvents()
                               .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE)
                         && activityInstanceEvent.getActivityType().equals("businessRuleTask")) {
@@ -275,6 +231,49 @@ public class RuntimeDataPollingService implements Runnable {
         for (final IdentityLinkEvent identityLinkEvent : pollingService
                                                                        .pollIdentityLinks(activityInstanceEvent)) {
             eventService.sendEvent(identityLinkEvent);
+        }
+    }
+
+    private void pollDecisionInstances(final ActivityInstanceEvent activityInstanceEvent) {
+
+        if (properties.getPollingEvents()
+                .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE)) {
+
+            // Select all decision instances, based on received activityInstanceEvent.
+            for (final DecisionInstanceEvent decisionInstanceEvent : pollingService.pollDecisionInstances(activityInstanceEvent)) {
+
+                eventService.sendEvent(decisionInstanceEvent);
+
+                // decision instances, inputs and outputs are polled separately to provide kafka with unnested objects
+                // this is necessary to allow analyzes like aggregations on all inputs
+                if (properties.getPollingEvents()
+                        .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_INPUTS)) {
+                    pollDecisionInputInstance(decisionInstanceEvent);
+                }
+
+                if (properties.getPollingEvents()
+                        .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_OUTPUTS)) {
+                    pollDecisionOutputInstance(decisionInstanceEvent);
+                }
+
+            }
+
+        }
+    }
+
+    private void pollDecisionOutputInstance(final DecisionInstanceEvent decisionInstanceEvent) {
+
+        for (final DecisionInstanceOutputEvent decisionInstanceOutputEvent : pollingService.pollDecisionInstanceOutputs(decisionInstanceEvent)) {
+            eventService.sendEvent(decisionInstanceOutputEvent);
+
+        }
+
+    }
+
+    private void pollDecisionInputInstance(final DecisionInstanceEvent decisionInstanceEvent) {
+
+        for (final DecisionInstanceInputEvent decisionInstanceInputEvent : pollingService.pollDecisionInstanceInputs(decisionInstanceEvent)) {
+            eventService.sendEvent(decisionInstanceInputEvent);
         }
     }
 

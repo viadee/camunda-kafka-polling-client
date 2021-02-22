@@ -509,6 +509,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
             String processDefinitionId = decisionInstanceEvent.getProcessDefinitionId();
 
             // extracted Inputs are missing a timestamp, therefore take time from decisionInstanceEvent
+            //REVIEW: Why the evaluationtime? is this relevant for the input? Why not the timestamp (decisionInstanceEvent.getTimestamp())? What is the difference?
             Date evaluationTime = decisionInstanceEvent.getEvaluationTime();
 
             // extract inputs from list result
@@ -602,6 +603,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         event.setProcessInstanceId(processInstanceId);
         event.setProcessDefinitionId(processDefinitionId);
 
+        //REVIEW: See before, why is the timestamp the evaluation time and not the timestamp of the decision event?
         event.setTimestamp(evaluationTime);
 
         setInputValue(event,

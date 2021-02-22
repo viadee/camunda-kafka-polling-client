@@ -116,12 +116,43 @@ public interface PollingService {
      */
     Iterable<IdentityLinkEvent> pollIdentityLinks(ActivityInstanceEvent activityInstanceEvent);
 
+    /**
+     * Poll decision definitions
+     *
+     * @param deploymentAfter
+     *            inclusive
+     * @param deploymentBefore
+     *            exclusive
+     * @return a {@link java.lang.Iterable} object.
+     */
     Iterable<DecisionDefinitionEvent> pollDecisionDefinitions(Date deploymentAfter, Date deploymentBefore);
 
+
+    /**
+     * Poll decision instances.
+     *
+     * @param activityInstanceEvent
+     *            inclusive
+     * @return a {@link java.lang.Iterable} object.
+     */
     Iterable<DecisionInstanceEvent> pollDecisionInstances(ActivityInstanceEvent activityInstanceEvent);
 
+    /**
+     * Poll decision instance input.
+     *
+     * @param decisionInstanceEvent
+
+     * @return a {@link java.lang.Iterable} object.
+     */
     Iterable<DecisionInstanceInputEvent> pollDecisionInstanceInputs(DecisionInstanceEvent decisionInstanceEvent);
 
+    /**
+     * Poll decision instance output.
+     *
+     * @param decisionInstanceEvent
+
+     * @return a {@link java.lang.Iterable} object.
+     */
     Iterable<DecisionInstanceOutputEvent> pollDecisionInstanceOutputs(DecisionInstanceEvent decisionInstanceEvent);
 
 }
