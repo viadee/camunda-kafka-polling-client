@@ -115,14 +115,12 @@ public class RuntimeDataPollingService implements Runnable {
                         || isProcessInstanceEndedBetween(processInstanceEvent, pollingTimeslice.getStartTime(),
                                                          pollingTimeslice.getEndTime())) {
                     eventService.sendEvent(processInstanceEvent);
-
                 }
 
                 pollFinishedActivities(processInstanceEvent.getProcessInstanceId(), pollingTimeslice);
             }
         }
     }
-
 
     private void pollUnfinishedActivities(final String processInstanceId, final PollingTimeslice pollingTimeslice) {
         if (properties.getPollingEvents()
@@ -237,43 +235,33 @@ public class RuntimeDataPollingService implements Runnable {
     private void pollDecisionInstances(final ActivityInstanceEvent activityInstanceEvent) {
 
         if (properties.getPollingEvents()
-                .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE)) {
+                      .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE)) {
 
             // Select all decision instances, based on received activityInstanceEvent.
             for (final DecisionInstanceEvent decisionInstanceEvent : pollingService.pollDecisionInstances(activityInstanceEvent)) {
 
                 eventService.sendEvent(decisionInstanceEvent);
 
-                // decision instances, inputs and outputs are polled separately to provide kafka with unnested objects
+                // decision instances, inputs and outputs are sent separately to provide kafka with unnested objects
                 // this is necessary to allow analyzes like aggregations on all inputs
                 if (properties.getPollingEvents()
-                        .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_INPUTS)) {
-                    pollDecisionInputInstance(decisionInstanceEvent);
+                              .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_INPUTS)) {
+
+                    for (final DecisionInstanceInputEvent decisionInstanceInputEvent : decisionInstanceEvent.getInputs()) {
+                        eventService.sendEvent(decisionInstanceInputEvent);
+                    }
                 }
 
                 if (properties.getPollingEvents()
-                        .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_OUTPUTS)) {
-                    pollDecisionOutputInstance(decisionInstanceEvent);
+                              .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_OUTPUTS)) {
+
+                    for (final DecisionInstanceOutputEvent decisionInstanceOutputEvent : decisionInstanceEvent.getOutputs()) {
+                        eventService.sendEvent(decisionInstanceOutputEvent);
+                    }
                 }
 
             }
 
-        }
-    }
-
-    private void pollDecisionOutputInstance(final DecisionInstanceEvent decisionInstanceEvent) {
-
-        for (final DecisionInstanceOutputEvent decisionInstanceOutputEvent : pollingService.pollDecisionInstanceOutputs(decisionInstanceEvent)) {
-            eventService.sendEvent(decisionInstanceOutputEvent);
-
-        }
-
-    }
-
-    private void pollDecisionInputInstance(final DecisionInstanceEvent decisionInstanceEvent) {
-
-        for (final DecisionInstanceInputEvent decisionInstanceInputEvent : pollingService.pollDecisionInstanceInputs(decisionInstanceEvent)) {
-            eventService.sendEvent(decisionInstanceInputEvent);
         }
     }
 
