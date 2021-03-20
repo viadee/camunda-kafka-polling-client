@@ -434,17 +434,11 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     @Override
     public Iterable<DecisionInstanceEvent> pollDecisionInstances(ActivityInstanceEvent activityInstanceEvent) {
 
-        // REVIEW: Why do you include input and output here, when you poll them separately later? do not use up
-        // unnecessary resources!
-        // polling of inputs and outputs at this point was removed
-
-        // Also: why do you not poll everything at once, why do you poll the inputs and outputs separately? Please
-        // comment, because it is more expensive and requires an explanation
-        // decision inputs and outputs are nested objects inside of one decision instance. To be analyzed later one,
-        // they must be polled (and further sent to kafka) separately
-        // example for such analysis: Aggregation on certain input-value
+        // decision inputs and outputs are nested objects within a decision instance. To be analyzed later,
+        // they must be sent separately to kafka
+        // example of such analysis: Aggregation on specific input values
         final String url = camundaProperties.getUrl()
-                + "history/decision-instance?activityInstanceIdIn={activityInstanceId}";
+                + "history/decision-instance?includeOutputs=true&includeInputs=true&activityInstanceIdIn={activityInstanceId}&disableBinaryFetching=true&disableCustomObjectDeserialization=true";
         try {
             final Map<String, Object> variables = new HashMap<>();
             variables.put(ACTIVITY_INSTANCE_ID, activityInstanceEvent.getId());
@@ -476,135 +470,36 @@ public class CamundaRestPollingServiceImpl implements PollingService {
 
     }
 
-    public Iterable<DecisionInstanceInputEvent> pollDecisionInstanceInputs(DecisionInstanceEvent decisionInstanceEvent) {
-
-        final String url = camundaProperties.getUrl()
-                + "history/decision-instance?decisionInstanceId={decisionInstanceId}&includeInputs=true&disableBinaryFetching=true&disableCustomObjectDeserialization=true";
-        try {
-
-            String decisionInstanceId = decisionInstanceEvent.getId();
-            final Map<String, Object> variables = new HashMap<>();
-            variables.put(DECISION_INSTANCE_ID, decisionInstanceId);
-
-            LOGGER.debug("Polling finished decision input instances from {} ({})", url, variables);
-
-            // To extract inputs from decision instance, whole nested DecisionInstance must be polled first
-            List<GetHistoricDecisionInstanceResponse> result = this.restTemplate
-                                                                                .exchange(url,
-                                                                                          HttpMethod.GET,
-                                                                                          null,
-                                                                                          new ParameterizedTypeReference<List<GetHistoricDecisionInstanceResponse>>() {
-                                                                                          },
-                                                                                          variables)
-                                                                                .getBody();
-
-            if (result == null) {
-                return new ArrayList<>();
-            }
-
-            // get process instance id so extracted input can be assigned to parent process instance
-            String processInstanceId = decisionInstanceEvent.getProcessInstanceId();
-
-            // get process definition id as well
-            String processDefinitionId = decisionInstanceEvent.getProcessDefinitionId();
-
-            // extracted Inputs are missing a timestamp, therefore take time from decisionInstanceEvent
-            //REVIEW: Why the evaluationtime? is this relevant for the input? Why not the timestamp (decisionInstanceEvent.getTimestamp())? What is the difference?
-            Date evaluationTime = decisionInstanceEvent.getEvaluationTime();
-
-            // extract inputs from list result
-            List<GetHistoricDecisionInstanceInputResponse> inputs = new ArrayList<>();
-            result.forEach(r -> inputs.addAll(r.getInputs()));
-
-            LOGGER.debug("Found {} finished decision instance inputs from {} ({})", inputs.size(), url, variables);
-
-            return () -> inputs
-                               .stream()
-                               .map(getHistoricDecisionInstanceInputResponse -> createDecisionInstanceInputEvent(getHistoricDecisionInstanceInputResponse,
-                                                                                                                 processInstanceId,
-                                                                                                                 processDefinitionId,
-                                                                                                                 evaluationTime))
-                               .iterator();
-
-        } catch (RestClientException e) {
-            throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for decision instance inputs",
-                                       e);
-        }
-    }
-
-    public Iterable<DecisionInstanceOutputEvent> pollDecisionInstanceOutputs(DecisionInstanceEvent decisionInstanceEvent) {
-
-        final String url = camundaProperties.getUrl()
-                + "history/decision-instance?decisionInstanceId={decisionInstanceId}&includeOutputs=true&disableBinaryFetching=true&disableCustomObjectDeserialization=true";
-        try {
-
-            String decisionInstanceId = decisionInstanceEvent.getId();
-            final Map<String, Object> variables = new HashMap<>();
-            variables.put(DECISION_INSTANCE_ID, decisionInstanceId);
-
-            LOGGER.debug("Polling finished decision output instances from {} ({})", url, variables);
-
-            List<GetHistoricDecisionInstanceResponse> result = this.restTemplate
-                                                                                .exchange(url,
-                                                                                          HttpMethod.GET,
-                                                                                          null,
-                                                                                          new ParameterizedTypeReference<List<GetHistoricDecisionInstanceResponse>>() {
-                                                                                          },
-                                                                                          variables)
-                                                                                .getBody();
-
-            if (result == null) {
-                return new ArrayList<>();
-            }
-
-            // get process instance id so extracted input can be assigned to parent process instance
-            String processInstanceId = decisionInstanceEvent.getProcessInstanceId();
-
-            // get process definition id as well
-            String processDefinitionId = decisionInstanceEvent.getProcessDefinitionId();
-
-            // extracted Inputs are missing a timestamp, therefore take time from decisionInstanceEvent
-            Date evaluationTime = decisionInstanceEvent.getEvaluationTime();
-
-            // extract inputs from list result
-            List<GetHistoricDecisionInstanceOutputResponse> outputs = new ArrayList<>();
-            result.forEach(r -> outputs.addAll(r.getOutputs()));
-
-            LOGGER.debug("Found {} finished decision instance outputs from {} ({})", outputs.size(), url, variables);
-
-            return () -> outputs
-                                .stream()
-                                .map(getHistoricDecisionInstanceOutputResponse -> createDecisionInstanceOutputEvent(getHistoricDecisionInstanceOutputResponse,
-                                                                                                                    processInstanceId,
-                                                                                                                    processDefinitionId,
-                                                                                                                    evaluationTime))
-                                .iterator();
-        } catch (RestClientException e) {
-            throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for decision instance inputs",
-                                       e);
-        }
-    }
-
     private DecisionInstanceEvent createDecisionInstanceEvent(GetHistoricDecisionInstanceResponse getHistoricDecisionInstanceResponse) {
 
         final DecisionInstanceEvent e = new DecisionInstanceEvent();
         BeanUtils.copyProperties(getHistoricDecisionInstanceResponse, e);
+        e.setTimestamp(getHistoricDecisionInstanceResponse.getEvaluationTime());
+        // extract all Inputs from response
+        List<GetHistoricDecisionInstanceInputResponse> respInputs = getHistoricDecisionInstanceResponse.getInputs();
+
+        // map response to InputEvent
+        List<DecisionInstanceInputEvent> inputs = new ArrayList<>();
+        respInputs.forEach(r -> inputs.add(createDecisionInstanceInputEvent(r)));
+        e.setInputs(inputs);
+
+
+        //extract all Outputs from response
+        List<GetHistoricDecisionInstanceOutputResponse> respOutputs = getHistoricDecisionInstanceResponse.getOutputs();
+
+        // map response to OutputEvent
+        List<DecisionInstanceOutputEvent> outputs = new ArrayList<>();
+        respOutputs.forEach(r -> outputs.add(createDecisionInstanceOutputEvent(r)));
+        e.setOutputs(outputs);
 
         return e;
     }
 
-    private DecisionInstanceInputEvent createDecisionInstanceInputEvent(GetHistoricDecisionInstanceInputResponse getHistoricDecisionInstanceInputResponse,
-                                                                        String processInstanceId,
-                                                                        String processDefinitionId,
-                                                                        Date evaluationTime) {
+    private DecisionInstanceInputEvent createDecisionInstanceInputEvent(GetHistoricDecisionInstanceInputResponse getHistoricDecisionInstanceInputResponse) {
 
         final DecisionInstanceInputEvent event = new DecisionInstanceInputEvent();
         BeanUtils.copyProperties(getHistoricDecisionInstanceInputResponse, event);
-        event.setProcessInstanceId(processInstanceId);
-        event.setProcessDefinitionId(processDefinitionId);
-
-        //REVIEW: See before, why is the timestamp the evaluation time and not the timestamp of the decision event?
-        event.setTimestamp(evaluationTime);
+        event.setTimestamp(getHistoricDecisionInstanceInputResponse.getCreateTime());
 
         setInputValue(event,
                       getHistoricDecisionInstanceInputResponse.getValue(),
@@ -612,19 +507,13 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                       getHistoricDecisionInstanceInputResponse.getValueInfoEntry("serializationDataFormat"));
 
         return event;
-
     }
 
-    private DecisionInstanceOutputEvent createDecisionInstanceOutputEvent(GetHistoricDecisionInstanceOutputResponse getHistoricDecisionInstanceOutputResponse,
-                                                                          String processInstanceId,
-                                                                          String processDefinitionId,
-                                                                          Date evaluationTime) {
+    private DecisionInstanceOutputEvent createDecisionInstanceOutputEvent(GetHistoricDecisionInstanceOutputResponse getHistoricDecisionInstanceOutputResponse) {
 
         final DecisionInstanceOutputEvent event = new DecisionInstanceOutputEvent();
         BeanUtils.copyProperties(getHistoricDecisionInstanceOutputResponse, event);
-        event.setProcessInstanceId(processInstanceId);
-        event.setProcessDefinitionId(processDefinitionId);
-        event.setTimestamp(evaluationTime);
+        event.setTimestamp(getHistoricDecisionInstanceOutputResponse.getCreateTime());
 
         setOutputValue(event,
                        getHistoricDecisionInstanceOutputResponse.getValue(),
@@ -632,7 +521,6 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                        getHistoricDecisionInstanceOutputResponse.getValueInfoEntry("serializationDataFormat"));
 
         return event;
-
     }
 
     private List<DecisionDefinitionEvent> getDecisionDefinitions(GetDeploymentResponse deploymentResponse) {
