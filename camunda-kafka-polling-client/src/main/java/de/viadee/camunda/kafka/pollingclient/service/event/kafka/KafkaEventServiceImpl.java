@@ -2,6 +2,7 @@ package de.viadee.camunda.kafka.pollingclient.service.event.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.viadee.camunda.kafka.event.DecisionInstanceEvent;
 import de.viadee.camunda.kafka.event.DeploymentEvent;
 import de.viadee.camunda.kafka.event.HistoryEvent;
 import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import java.io.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -95,4 +97,5 @@ public class KafkaEventServiceImpl implements EventService {
 
         return properties.getEventTopics().getOrDefault(eventName, eventName);
     }
+
 }

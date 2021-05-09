@@ -12,6 +12,7 @@ import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.*;
 import org.camunda.bpm.engine.impl.persistence.entity.HistoricDetailVariableInstanceUpdateEntity;
 import org.camunda.bpm.engine.impl.persistence.entity.HistoricVariableInstanceEntity;
+import org.camunda.bpm.engine.repository.DecisionDefinition;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.task.Comment;
@@ -236,6 +237,71 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
                              .map(historicIdentityLinkLog -> createIdentityLinkEventFromDetails(historicIdentityLinkLog))::iterator;
     }
 
+    @Override
+    public Iterable<DecisionDefinitionEvent> pollDecisionDefinitions(Date deploymentAfter, Date deploymentBefore) {
+        // TODO check implementation
+
+        // There seems to be a slight bug in Camunda SQL queries regarding deployments.
+        // Where the other history queries regarding time boundaries are inclusive (startedBefore, startedAfter, ...),
+        // deploymentBefore and deploymentAfter are implemented exclusive.
+        // Thus we have to slightly adjust the deploymentAfter parameter by 1 millisecond to act inclusive:
+        deploymentAfter = new Date(deploymentAfter.getTime() - 1);
+
+        // query deployments
+        List<Deployment> deployments = repositoryService.createDeploymentQuery()
+                                                        .deploymentAfter(deploymentAfter)
+                                                        .deploymentBefore(deploymentBefore)
+                                                        .list();
+
+        List<DecisionDefinitionEvent> result = new ArrayList<>();
+
+        for (Deployment deployment : deployments) {
+            List<DecisionDefinition> decisionDefinitions = repositoryService.createDecisionDefinitionQuery()
+                                                                          .deploymentId(deployment.getId())
+                                                                          .list();
+
+            // query proc def
+            for (DecisionDefinition decisionDefinition : decisionDefinitions) {
+                DecisionDefinitionEvent decisionDefinitionEvent = createDecisionDefinitionEvent(deployment,
+                                                                                             decisionDefinition);
+
+                // query xml
+                try {
+                    String xml = IOUtils.toString(repositoryService.getResourceAsStream(decisionDefinition.getDeploymentId(),
+                                                                                        decisionDefinition.getResourceName()));
+                    decisionDefinitionEvent.setXml(xml);
+                } catch (IOException e) {
+                    throw new RuntimeException(
+                                               "error while reading xml for decision definition "
+                                                       + decisionDefinition.getId(),
+                                               e);
+                }
+
+                result.add(decisionDefinitionEvent);
+            }
+
+        }
+
+        return result;
+    }
+    
+
+    @Override
+    public Iterable<DecisionInstanceEvent> pollDecisionInstances(ActivityInstanceEvent activityInstanceEvent) {
+        // TODO implement
+        return null;
+    }
+
+    public Iterable<DecisionInstanceInputEvent> pollDecisionInstanceInputs(DecisionInstanceEvent decisionInstanceEvent) {
+        // TODO implement
+        return null;
+    }
+
+    public Iterable<DecisionInstanceOutputEvent> pollDecisionInstanceOutputs(DecisionInstanceEvent decisionInstanceEvent) {
+        // TODO implement
+        return null;
+    }
+
     private ProcessDefinitionEvent createProcessDefinitionEvent(Deployment d, ProcessDefinition pd) {
 
         ProcessDefinitionEvent e = new ProcessDefinitionEvent();
@@ -251,6 +317,25 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
         e.setVersionTag(pd.getVersionTag());
         e.setDeploymentId(pd.getDeploymentId());
         e.setTenantId(pd.getTenantId());
+        e.setDeploymentTime(d.getDeploymentTime());
+        e.setSource(d.getSource());
+        return e;
+
+    }
+
+    private DecisionDefinitionEvent createDecisionDefinitionEvent(Deployment d, DecisionDefinition dd) {
+
+        DecisionDefinitionEvent e = new DecisionDefinitionEvent();
+        e.setId(dd.getId());
+        e.setCategory(dd.getCategory());
+        e.setHistoryTimeToLive(dd.getHistoryTimeToLive());
+        e.setKey(dd.getKey());
+        e.setName(dd.getName());
+        e.setResource(dd.getResourceName());
+        e.setVersion(dd.getVersion());
+        e.setVersionTag(dd.getVersionTag());
+        e.setDeploymentId(dd.getDeploymentId());
+        e.setTenantId(dd.getTenantId());
         e.setDeploymentTime(d.getDeploymentTime());
         e.setSource(d.getSource());
         return e;

@@ -5,16 +5,17 @@ import de.viadee.camunda.kafka.event.*;
 import de.viadee.camunda.kafka.pollingclient.config.properties.CamundaRestPollingProperties;
 import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
 import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.*;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,8 +39,9 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     private static final String PROCESS_INSTANCE_ID = "processInstanceId";
     private static final String ACTIVITY_INSTANCE_ID = "activityInstanceId";
     private static final String PROCESS_DEFINITION_ID = "processDefinitionId";
-    private static final String DEPLOYMENT_ID = "deploymentId";
     private static final String TASK_ID = "taskId";
+    private static final String DECISION_DEFINITION_ID = "decisionDefinitionId";
+    private static final String DECISION_INSTANCE_ID = "decisionInstanceId";
 
     private final ObjectMapper objectMapper;
 
@@ -405,6 +407,184 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         }
     }
 
+    @Override
+    public Iterable<DecisionDefinitionEvent> pollDecisionDefinitions(final Date startTime,
+                                                                     final Date endTime) {
+
+        List<GetDeploymentResponse> deploymentList = getDeployments(startTime, endTime);
+
+        List<DecisionDefinitionEvent> decisionDefinitionList = new ArrayList<>();
+
+        for (GetDeploymentResponse deployment : deploymentList) {
+            decisionDefinitionList.addAll(getDecisionDefinitions(deployment));
+        }
+
+        for (DecisionDefinitionEvent decisionDefinitionEvent : decisionDefinitionList) {
+            GetDecisionDefinitionXmlResponse decisionDefinitionXML = getDecisionDefinitionXML(
+                                                                                              decisionDefinitionEvent.getId());
+            if (decisionDefinitionXML != null) {
+                decisionDefinitionEvent.setXml(decisionDefinitionXML.getDmnXml());
+            }
+        }
+
+        return decisionDefinitionList
+                                     .stream()::iterator;
+    }
+
+    @Override
+    public Iterable<DecisionInstanceEvent> pollDecisionInstances(ActivityInstanceEvent activityInstanceEvent) {
+
+        // decision inputs and outputs are nested objects within a decision instance. To be analyzed later,
+        // they must be sent separately to kafka
+        // example of such analysis: Aggregation on specific input values
+        final String url = camundaProperties.getUrl()
+                + "history/decision-instance?includeOutputs=true&includeInputs=true&activityInstanceIdIn={activityInstanceId}&disableBinaryFetching=true&disableCustomObjectDeserialization=true";
+        try {
+            final Map<String, Object> variables = new HashMap<>();
+            variables.put(ACTIVITY_INSTANCE_ID, activityInstanceEvent.getId());
+
+            LOGGER.debug("Polling decision instances from {} ({})", url, variables);
+
+            List<GetHistoricDecisionInstanceResponse> result = this.restTemplate
+                                                                                .exchange(url,
+                                                                                          HttpMethod.GET,
+                                                                                          null,
+                                                                                          new ParameterizedTypeReference<List<GetHistoricDecisionInstanceResponse>>() {
+                                                                                          },
+                                                                                          variables)
+                                                                                .getBody();
+
+            LOGGER.debug("Found {} decision instances from {} ", result.size(), url);
+
+            if (result == null) {
+                result = new ArrayList<>();
+            }
+
+            return result
+                         .stream()
+                         .map(this::createDecisionInstanceEvent)::iterator;
+
+        } catch (RestClientException e) {
+            throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for decision instances", e);
+        }
+
+    }
+
+    private DecisionInstanceEvent createDecisionInstanceEvent(GetHistoricDecisionInstanceResponse getHistoricDecisionInstanceResponse) {
+
+        final DecisionInstanceEvent e = new DecisionInstanceEvent();
+        BeanUtils.copyProperties(getHistoricDecisionInstanceResponse, e);
+        e.setTimestamp(getHistoricDecisionInstanceResponse.getEvaluationTime());
+        // extract all Inputs from response
+        List<GetHistoricDecisionInstanceInputResponse> respInputs = getHistoricDecisionInstanceResponse.getInputs();
+
+        // map response to InputEvent
+        List<DecisionInstanceInputEvent> inputs = new ArrayList<>();
+        respInputs.forEach(r -> inputs.add(createDecisionInstanceInputEvent(r)));
+        e.setInputs(inputs);
+
+
+        //extract all Outputs from response
+        List<GetHistoricDecisionInstanceOutputResponse> respOutputs = getHistoricDecisionInstanceResponse.getOutputs();
+
+        // map response to OutputEvent
+        List<DecisionInstanceOutputEvent> outputs = new ArrayList<>();
+        respOutputs.forEach(r -> outputs.add(createDecisionInstanceOutputEvent(r)));
+        e.setOutputs(outputs);
+
+        return e;
+    }
+
+    private DecisionInstanceInputEvent createDecisionInstanceInputEvent(GetHistoricDecisionInstanceInputResponse getHistoricDecisionInstanceInputResponse) {
+
+        final DecisionInstanceInputEvent event = new DecisionInstanceInputEvent();
+        BeanUtils.copyProperties(getHistoricDecisionInstanceInputResponse, event);
+        event.setTimestamp(getHistoricDecisionInstanceInputResponse.getCreateTime());
+
+        setInputValue(event,
+                      getHistoricDecisionInstanceInputResponse.getValue(),
+                      getHistoricDecisionInstanceInputResponse.getType(),
+                      getHistoricDecisionInstanceInputResponse.getValueInfoEntry("serializationDataFormat"));
+
+        return event;
+    }
+
+    private DecisionInstanceOutputEvent createDecisionInstanceOutputEvent(GetHistoricDecisionInstanceOutputResponse getHistoricDecisionInstanceOutputResponse) {
+
+        final DecisionInstanceOutputEvent event = new DecisionInstanceOutputEvent();
+        BeanUtils.copyProperties(getHistoricDecisionInstanceOutputResponse, event);
+        event.setTimestamp(getHistoricDecisionInstanceOutputResponse.getCreateTime());
+
+        setOutputValue(event,
+                       getHistoricDecisionInstanceOutputResponse.getValue(),
+                       getHistoricDecisionInstanceOutputResponse.getType(),
+                       getHistoricDecisionInstanceOutputResponse.getValueInfoEntry("serializationDataFormat"));
+
+        return event;
+    }
+
+    private List<DecisionDefinitionEvent> getDecisionDefinitions(GetDeploymentResponse deploymentResponse) {
+
+        final String url = camundaProperties.getUrl()
+                + "decision-definition?deploymentId={deploymentId}";
+
+        List<GetDecisionDefinitionResponse> decisionDefinitions = new ArrayList<>();
+        try {
+
+            final Map<String, Object> variables = new HashMap<>();
+            variables.put("deploymentId", deploymentResponse.getId());
+
+            LOGGER.debug("Polling decision definitions from {} ({})", url, variables);
+
+            decisionDefinitions = this.restTemplate
+                                                   .exchange(url,
+                                                             HttpMethod.GET,
+                                                             null,
+                                                             new ParameterizedTypeReference<List<GetDecisionDefinitionResponse>>() {
+
+                                                             },
+                                                             variables)
+                                                   .getBody();
+
+            if (decisionDefinitions == null) {
+                decisionDefinitions = new ArrayList<>();
+            }
+
+            LOGGER.debug("Found {} decision definitions from {} ({})", decisionDefinitions.size(), url, variables);
+        } catch (RestClientException e) {
+            throw new RuntimeException(
+                                       "Error requesting Camunda REST API (" + url + ") for process definitions", e);
+        }
+
+        return decisionDefinitions
+                                  .stream()
+                                  .map(response -> createDecisionDefinitionEvent(response, deploymentResponse))
+                                  .collect(Collectors.toList());
+    }
+
+    private DecisionDefinitionEvent createDecisionDefinitionEvent(GetDecisionDefinitionResponse resp,
+                                                                  final GetDeploymentResponse deploymentResponse) {
+
+        DecisionDefinitionEvent e = new DecisionDefinitionEvent();
+
+        e.setDeploymentId(resp.getDeploymentId());
+        e.setDeploymentTime(deploymentResponse.getDeploymentTime());
+
+        e.setId(resp.getId());
+        e.setName(resp.getName());
+        e.setSource(deploymentResponse.getSource());
+        e.setTenantId(resp.getTenantId());
+
+        e.setCategory(resp.getCategory());
+        e.setHistoryTimeToLive(resp.getHistoryTimeToLive());
+        e.setKey(resp.getKey());
+        e.setResource(resp.getResource());
+        e.setVersion(resp.getVersion());
+        e.setVersionTag(resp.getVersionTag());
+
+        return e;
+    }
+
     private GetProcessDefinitionXmlResponse getProcessDefinitionXML(String processDefinitionId) {
         final String url = camundaProperties.getUrl()
                 + "process-definition/{processDefinitionId}/xml";
@@ -432,6 +612,39 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         } catch (RestClientException e) {
             throw new RuntimeException(
                                        "Error requesting Camunda REST API (" + url + ") for process definition xml", e);
+        }
+
+        return resp;
+    }
+
+    private GetDecisionDefinitionXmlResponse getDecisionDefinitionXML(String decisionDefinitionId) {
+        final String url = camundaProperties.getUrl()
+                + "decision-definition/{decisionDefinitionId}/xml";
+
+        GetDecisionDefinitionXmlResponse resp;
+        try {
+            final Map<String, Object> variables = new HashMap<>();
+            variables.put(DECISION_DEFINITION_ID, decisionDefinitionId);
+
+            LOGGER.debug("Polling decision definition xml from {} ({})", url, variables);
+
+            resp = this.restTemplate
+                                    .exchange(url,
+                                              HttpMethod.GET,
+                                              null,
+                                              GetDecisionDefinitionXmlResponse.class,
+                                              variables)
+                                    .getBody();
+
+            if (resp != null) {
+                LOGGER.debug("Found decision definition xml from {} ({})", url, variables);
+            } else {
+                LOGGER.debug("No decision definition xml found from {} ({})", url, variables);
+            }
+        } catch (RestClientException e) {
+            throw new RuntimeException(
+                                       "Error requesting Camunda REST API (" + url + ") for decision definition xml",
+                                       e);
         }
 
         return resp;
@@ -631,6 +844,130 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     private void setVariableValue(VariableUpdateEvent event, Object value, String type,
                                   String serializationDataFormat) {
 
+        if (value != null) {
+            switch (StringUtils.defaultString(type)) {
+                case "Object": {
+                    if (StringUtils.equalsIgnoreCase(serializationDataFormat, "application/json")
+                            && value instanceof String) {
+                        try {
+                            final Object decodedValue = this.objectMapper.readValue((String) value, Object.class);
+
+                            if (decodedValue != null) {
+                                event.setComplexValue(decodedValue);
+                                event.setSerializerName("spin://application/json");
+                            }
+                        } catch (IOException e) {
+                            LOGGER.error("IOException found.");
+                        }
+                    }
+
+                    break;
+                }
+
+                case "String": {
+                    event.setTextValue(Objects.toString(value));
+                    event.setSerializerName(StringUtils.lowerCase(type));
+                    break;
+                }
+
+                case "Long":
+                case "Integer":
+                case "Byte":
+                case "Short": {
+                    event.setDoubleValue(((Number) value).doubleValue());
+                    event.setLongValue(((Number) value).longValue());
+                    event.setTextValue(value.toString());
+                    event.setSerializerName(StringUtils.lowerCase(type));
+                    break;
+                }
+
+                case "Double":
+                case "Float": {
+                    event.setDoubleValue(((Number) value).doubleValue());
+                    event.setSerializerName(StringUtils.lowerCase(type));
+                    break;
+                }
+
+                case "Boolean": {
+                    event.setSerializerName(StringUtils.lowerCase(type));
+                    if (Boolean.TRUE.equals(value)) {
+                        event.setLongValue(1L);
+                    } else {
+                        event.setLongValue(0L);
+                    }
+                    break;
+                }
+                default: {
+                    LOGGER.warn("Data type does not exist.");
+                }
+            }
+        }
+    }
+
+    private void setInputValue(DecisionInstanceInputEvent event, Object value, String type,
+                               String serializationDataFormat) {
+        if (value != null) {
+            switch (StringUtils.defaultString(type)) {
+                case "Object": {
+                    if (StringUtils.equalsIgnoreCase(serializationDataFormat, "application/json")
+                            && value instanceof String) {
+                        try {
+                            final Object decodedValue = this.objectMapper.readValue((String) value, Object.class);
+
+                            if (decodedValue != null) {
+                                event.setComplexValue(decodedValue);
+                                event.setSerializerName("spin://application/json");
+                            }
+                        } catch (IOException e) {
+                            LOGGER.error("IOException found.");
+                        }
+                    }
+
+                    break;
+                }
+
+                case "String": {
+                    event.setTextValue(Objects.toString(value));
+                    event.setSerializerName(StringUtils.lowerCase(type));
+                    break;
+                }
+
+                case "Long":
+                case "Integer":
+                case "Byte":
+                case "Short": {
+                    event.setDoubleValue(((Number) value).doubleValue());
+                    event.setLongValue(((Number) value).longValue());
+                    event.setTextValue(value.toString());
+                    event.setSerializerName(StringUtils.lowerCase(type));
+                    break;
+                }
+
+                case "Double":
+                case "Float": {
+                    event.setDoubleValue(((Number) value).doubleValue());
+                    event.setSerializerName(StringUtils.lowerCase(type));
+                    break;
+                }
+
+                case "Boolean": {
+                    event.setSerializerName(StringUtils.lowerCase(type));
+                    if (Boolean.TRUE.equals(value)) {
+                        event.setLongValue(1L);
+                    } else {
+                        event.setLongValue(0L);
+                    }
+                    break;
+                }
+                default: {
+                    LOGGER.warn("Data type does not exist.");
+                }
+            }
+        }
+    }
+
+    private void setOutputValue(DecisionInstanceOutputEvent event, Object value, String type,
+                                String serializationDataFormat) {
         if (value != null) {
             switch (StringUtils.defaultString(type)) {
                 case "Object": {

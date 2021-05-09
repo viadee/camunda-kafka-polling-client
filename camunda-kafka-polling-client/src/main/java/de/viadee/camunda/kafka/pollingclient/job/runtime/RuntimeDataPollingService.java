@@ -86,12 +86,13 @@ public class RuntimeDataPollingService implements Runnable {
                 // limit event to the polling cycle where the process has been started.
                 if (isProcessInstanceStartedBetween(processInstanceEvent, pollingTimeslice.getStartTime(),
                                                     pollingTimeslice.getEndTime())) {
-                    // Send process event only once if started during polling intervall
+                    // Send process event only once if started during polling interval
                     eventService.sendEvent(processInstanceEvent);
-                }
 
+                }
                 pollUnfinishedActivities(processInstanceEvent.getProcessInstanceId(), pollingTimeslice);
                 pollFinishedActivities(processInstanceEvent.getProcessInstanceId(), pollingTimeslice);
+
             }
         }
     }
@@ -151,6 +152,13 @@ public class RuntimeDataPollingService implements Runnable {
                         && activityInstanceEvent.getActivityType().equals("userTask")) {
                     pollIdentityLinks(activityInstanceEvent);
                 }
+
+                // poll decision instances by activity "businessRuleTask"
+                if (properties.getPollingEvents()
+                              .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE)
+                        && activityInstanceEvent.getActivityType().equals("businessRuleTask")) {
+                    pollDecisionInstances(activityInstanceEvent);
+                }
             }
         }
     }
@@ -184,6 +192,14 @@ public class RuntimeDataPollingService implements Runnable {
                         && activityInstanceEvent.getActivityType().equals("userTask")) {
                     pollIdentityLinks(activityInstanceEvent);
                 }
+
+                // poll decision instances by activity "businessRuleTask"
+                if (properties.getPollingEvents()
+                              .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE)
+                        && activityInstanceEvent.getActivityType().equals("businessRuleTask")) {
+                    pollDecisionInstances(activityInstanceEvent);
+
+                }
             }
         }
     }
@@ -213,6 +229,39 @@ public class RuntimeDataPollingService implements Runnable {
         for (final IdentityLinkEvent identityLinkEvent : pollingService
                                                                        .pollIdentityLinks(activityInstanceEvent)) {
             eventService.sendEvent(identityLinkEvent);
+        }
+    }
+
+    private void pollDecisionInstances(final ActivityInstanceEvent activityInstanceEvent) {
+
+        if (properties.getPollingEvents()
+                      .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE)) {
+
+            // Select all decision instances, based on received activityInstanceEvent.
+            for (final DecisionInstanceEvent decisionInstanceEvent : pollingService.pollDecisionInstances(activityInstanceEvent)) {
+
+                eventService.sendEvent(decisionInstanceEvent);
+
+                // decision instances, inputs and outputs are sent separately to provide kafka with unnested objects
+                // this is necessary to allow analyzes like aggregations on all inputs
+                if (properties.getPollingEvents()
+                              .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_INPUTS)) {
+
+                    for (final DecisionInstanceInputEvent decisionInstanceInputEvent : decisionInstanceEvent.getInputs()) {
+                        eventService.sendEvent(decisionInstanceInputEvent);
+                    }
+                }
+
+                if (properties.getPollingEvents()
+                              .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE_OUTPUTS)) {
+
+                    for (final DecisionInstanceOutputEvent decisionInstanceOutputEvent : decisionInstanceEvent.getOutputs()) {
+                        eventService.sendEvent(decisionInstanceOutputEvent);
+                    }
+                }
+
+            }
+
         }
     }
 

@@ -2,6 +2,7 @@ package de.viadee.camunda.kafka.pollingclient.job.runtime;
 
 import de.viadee.camunda.kafka.event.ActivityInstanceEvent;
 import de.viadee.camunda.kafka.event.CommentEvent;
+import de.viadee.camunda.kafka.event.DecisionInstanceEvent;
 import de.viadee.camunda.kafka.event.IdentityLinkEvent;
 import de.viadee.camunda.kafka.event.HistoryEvent;
 import de.viadee.camunda.kafka.event.ProcessInstanceEvent;
@@ -208,7 +209,7 @@ public class RuntimeDataPollingServiceTest {
         );
 		// @formatter:on
     }
-
+    
     @ParameterizedTest(name = "{index}: process started {0} with activity started {1} and finished {2} => should be polled={3}")
     @MethodSource
     @DisplayName("Polling finished activities of unfinished process")

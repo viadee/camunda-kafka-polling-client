@@ -1,5 +1,6 @@
 package de.viadee.camunda.kafka.pollingclient.job.repository;
 
+import de.viadee.camunda.kafka.event.DecisionDefinitionEvent;
 import de.viadee.camunda.kafka.event.ProcessDefinitionEvent;
 import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties;
 import de.viadee.camunda.kafka.pollingclient.service.event.EventService;
@@ -141,6 +142,48 @@ public class RepositoryDataPollingServiceTest {
     }
 
     static Stream<Arguments> pollProcessDefinitions() {
+        // @formatter:off
+        return Stream.of(
+                //        Process start          Should be polled?
+                arguments(BEFORE_CUTOFF,         false),
+                arguments(CUTOFF_TIME,           false),
+                arguments(WITHIN_PAST_TIMESLICE, false),
+                arguments(START_TIME,            true),
+                arguments(WITHIN_TIMESLICE,      true),
+                arguments(END_TIME,              false),
+                arguments(AFTER_TIMESLICE,       false)
+        );
+        // @formatter:on
+    }
+    
+    @ParameterizedTest(name = "{index}: deployment time {0} => should be polled={1}")
+    @MethodSource
+    @DisplayName("Polling of decision definitions")
+    public void pollDecisionDefinitions(PointOfTime deploymentTime, boolean shouldBePolled) {
+
+        // create testdata
+        setCurrentTime(deploymentTime);
+        final Deployment deployment = processEngine.getRepositoryService()
+                                                   .createDeployment()
+                                                   .addClasspathResource("bpmn/simpleProcess.bpmn")
+                                                   .deploy();
+
+        // define polling cycle
+        when(lastPolledService.getPollingTimeslice())
+                                                     .thenReturn(new PollingTimeslice(CUTOFF_TIME.date, START_TIME.date,
+                                                                                      END_TIME.date));
+
+        // perform polling
+        pollingService.run();
+
+        // Verify process instance event
+        final ArgumentCaptor<DecisionDefinitionEvent> decisionDefinitionEventCaptor = ArgumentCaptor.forClass(
+                                                                                                            DecisionDefinitionEvent.class);
+        verify(eventSendService, times(shouldBePolled ? 1 : 0))
+                                                               .sendEvent(decisionDefinitionEventCaptor.capture());
+    }
+
+    static Stream<Arguments> pollDecisionDefinitions() {
         // @formatter:off
         return Stream.of(
                 //        Process start          Should be polled?
