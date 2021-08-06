@@ -2,7 +2,7 @@
 # This workflow builds and tests docker image and pushes it to AWS ECR for camunda-kafka-polling-client.
 ##
 
-name: Build release and push to AWS ECR
+name: Build_release_and_push_to_AWS_ECR
 
 # Triggered by a published release (pre-release).
 on:
