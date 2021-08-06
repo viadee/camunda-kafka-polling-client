@@ -10,7 +10,9 @@ The Polling Client is a useful tool for the extraction of Camunda process data a
 Two different polling modes are supported: Polling via JDBC access from a Camunda database using an embedded Camunda engine and polling via the Camunda engines own REST API from an existing Camunda instance.
 
 ## Configuration
-We provide a pre-configured [docker image on docker hub](https://hub.docker.com/r/viadee/camunda-kafka-polling-client).
+We provide a pre-configured docker image on
+* [Amazon Elastic Container Registry (ECR)](https://gallery.ecr.aws/viadee/camunda-kafka-polling-client) and
+* [docker hub](https://hub.docker.com/r/viadee/camunda-kafka-polling-client) _(will soon no longer be available)_.
 
 The polling mode selection is done by using Spring profiles.
 The polling client can be configured on several levels, i.e. directly via the applications properties files or by setting environment variables.
@@ -58,7 +60,7 @@ bin/kafka-configs.sh --bootstrap-server localhost:9092 --entity-type brokers --e
 Further configurations can be made via the application.properties file, e.g. setting the polling interval (default: every 30000 ms).
 
 ## Docker Tags
-There are several tags available on [docker hub](https://hub.docker.com/r/viadee/camunda-kafka-polling-client):
+There are several tags available on [Amazon Elastic Container Registry (ECR)](https://gallery.ecr.aws/viadee/camunda-kafka-polling-client) and [docker hub](https://hub.docker.com/r/viadee/camunda-kafka-polling-client):
 
 * Version tags (e.g. 1.0.2) are build from corresponding release tags and reflect the release version which is also available from [maven central](https://search.maven.org/search?q=g:de.viadee.camunda%20a:camunda-kafka-polling-client-parent).
 * `latest` is build from `master` branch. Thus, the tag normally reflects the latest release version.
