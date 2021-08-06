@@ -1,8 +1,6 @@
 # The Camunda-Kafka Polling Client
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![Status](https://travis-ci.org/viadee/camunda-kafka-polling-client.svg?branch=master)](https://travis-ci.org/viadee/camunda-kafka-polling-client/branches "See test builds")
-[![Sonarcloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=de.viadee.camunda:camunda-kafka-polling-client-parent&metric=coverage)](https://sonarcloud.io/dashboard?id=de.viadee.camunda:camunda-kafka-polling-client-parent)
-![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/viadee/camunda-kafka-polling-client.svg)
+![CI Build](https://github.com/viadee/camunda-kafka-polling-client/actions/workflows/ci_build.yml/badge.svg)
 [![Maven Central](https://img.shields.io/maven-central/v/de.viadee.camunda/camunda-kafka-polling-client-parent.svg)](https://search.maven.org/search?q=g:de.viadee.camunda%20a:camunda-kafka-polling-client-parent)
 
 The Polling Client is a useful tool for the extraction of Camunda process data and their permanent storage in Apache Kafka. As such it is used in the projects [bpmn.ai](https://github.com/viadee/bpmn.ai) or [vPW](https://www.viadee.de/business-process-management/process-warehouse), that aim to open up standard process data for data mining and exploration.
