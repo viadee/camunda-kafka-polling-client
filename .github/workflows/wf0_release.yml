@@ -59,7 +59,6 @@ jobs:
           images: public.ecr.aws/viadee/camunda-kafka-polling-client
           tags: |
             type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
           flavor: latest=true
 
       - name: Build and push Docker image
