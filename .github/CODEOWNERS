@@ -1,0 +1,3 @@
+# Protect .github for workflow hardening:
+# Changes to files within the default branch (develop) need pull request approval by one of the given owners.
+/.github/ @viadee/admin-team @viadee/bpm-team @viadee/bpmn-ai
