@@ -1,4 +1,4 @@
-FROM openjdk:8-alpine
+FROM openjdk:11-alpine
 
 RUN addgroup -g 1000 -S appuser && \
     adduser -u 1000 -S appuser -G appuser && \
