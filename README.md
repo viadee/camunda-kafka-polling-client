@@ -61,8 +61,7 @@ Further configurations can be made via the application.properties file, e.g. set
 There are several tags available on [Amazon Elastic Container Registry (ECR)](https://gallery.ecr.aws/viadee/camunda-kafka-polling-client) and [docker hub](https://hub.docker.com/r/viadee/camunda-kafka-polling-client):
 
 * Version tags (e.g. 1.0.2) are build from corresponding release tags and reflect the release version which is also available from [maven central](https://search.maven.org/search?q=g:de.viadee.camunda%20a:camunda-kafka-polling-client-parent).
-* `latest` is build from `master` branch. Thus, the tag normally reflects the latest release version.
-* `snapshot` is build from `develop` branch and provides the current development version for development and testing use.
+* `latest` refers the latest version.
 
 ## Extending Docker Image
 All data is stored in `/data`. This is also the working directory and the only directory with write permissions.

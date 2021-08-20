@@ -1,7 +1,7 @@
-FROM openjdk:11-alpine
+FROM openjdk:11-jre
 
-RUN addgroup -g 1000 -S appuser && \
-    adduser -u 1000 -S appuser -G appuser && \
+RUN addgroup --system --gid 1000 appuser && \
+    adduser --system --no-create-home --disabled-login --uid 1000 --ingroup appuser appuser && \
     mkdir -p /app && \
     mkdir -p /data
 
@@ -21,4 +21,4 @@ VOLUME /data
 USER appuser
 
 WORKDIR /data
-ENTRYPOINT ["/usr/bin/java", "-cp", "/app/bin:/app/lib/*", "de.viadee.camunda.kafka.pollingclient.PollingClientApplication"]
+ENTRYPOINT ["java", "-cp", "/app/bin:/app/lib/*", "de.viadee.camunda.kafka.pollingclient.PollingClientApplication"]
