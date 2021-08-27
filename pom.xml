@@ -28,7 +28,7 @@
         <jackson.version>2.12.4</jackson.version>
         <postgresql.version>42.2.23</postgresql.version>
         <junit.version>5.7.2</junit.version>
-        <mockito.version>3.12.1</mockito.version>
+        <mockito.version>3.12.4</mockito.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-io.version>2.11.0</commons-io.version>
     </properties>
