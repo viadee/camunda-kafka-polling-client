@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-environment-config
+  labels:
+  {{- include "vpw-polling-client-chart.labels" . | nindent 4 }}
+data:
+  CAMUNDA_REST_USERNAME: {{ .Values.environment.configMap.camundaRestUsername | quote }}
+  SERVER_PORT: {{ .Values.environment.configMap.serverPort | quote }}
+  TZ:  {{ .Values.environment.configMap.timeZone | quote }}
+  polling_runtime-data_interval-in-ms: {{ .Values.environment.configMap.pollingRuntimeDataIntervalInMs | quote }}
+  polling_runtime-data_last-polled-file: {{ .Values.environment.configMap.pollingRuntimeDataLastPolledFile | quote }}
+  polling_runtime-data_initial-timestamp: {{ .Values.environment.configMap.pollingRuntimeDataInitialTimestamp | quote }}
+  polling_repository-data_initial-timestamp: {{ .Values.environment.configMap.pollingRepositoryDataInitialTimestamp | quote }}
+  polling_repository-data_interval-in-ms: {{ .Values.environment.configMap.pollingRepositoryDataIntervalInMs | quote }}
+  polling_repository-data_last-polled-file: {{ .Values.environment.configMap.pollingRepositoryDataLastPolledFile | quote }}
+  KAFKA_BOOTSTRAP_SERVERS: {{ .Values.environment.configMap.kafkaBootstrapServers | quote }}
+  CAMUNDA_REST_URL: {{ .Values.environment.configMap.camundaRestUrl | quote }}
+  LOGGING_LEVEL_DE_VIADEE_CAMUNDA_KAFKA_POLLINGCLIENT: {{ .Values.environment.configMap.logLevel | quote }}
+  LOGGING_LEVEL_ROOT: {{ .Values.environment.configMap.logLevel | quote }}
+{{- range .Values.environment.env }}
+  {{ .name }}: {{ .value | quote}}
+{{- end }}
