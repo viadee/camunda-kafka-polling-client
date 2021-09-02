@@ -21,7 +21,7 @@ jobs:
       - name: Checkout viadee/vPW repository
         uses: actions/checkout@v2
         with:
-          path: vpw
+          path: polling-client
 
       - name: Checkout viadee/charts repository
         uses: actions/checkout@v2
@@ -36,7 +36,7 @@ jobs:
 
       - name: Apply changes to viadee/charts repository - polling client
         run: |
-          cp -r ./vpw/vpw-backend-parent/deployment/helm/vpw-polling-client-chart ./charts/charts/
+          cp -r ./polling-client/camunda-kafka-polling-client/deployment/helm/vpw-polling-client-chart ./charts/charts/
 
       - name: Extract chart versions - polling client
         run: |
