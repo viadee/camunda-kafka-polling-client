@@ -36,7 +36,8 @@ jobs:
 
       - name: Apply changes to viadee/charts repository - polling client
         run: |
-          cp -r ./polling-client/camunda-kafka-polling-client/deployment/helm/vpw-polling-client-chart ./charts/charts/
+          rm -rfv ./charts/charts/vpw-polling-client-chart
+          cp -rv ./polling-client/camunda-kafka-polling-client/deployment/helm/vpw-polling-client-chart ./charts/charts/
 
       - name: Extract chart versions - polling client
         run: |
