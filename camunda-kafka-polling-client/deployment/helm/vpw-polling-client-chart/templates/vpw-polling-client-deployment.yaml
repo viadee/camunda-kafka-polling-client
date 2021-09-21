@@ -65,8 +65,12 @@ spec:
             - name: CAMUNDA_REST_PASSWORD
               valueFrom:
                 secretKeyRef:
+{{- if not .Values.environment.secret.externalCamundaSecret }}
                   name: {{ .Chart.Name }}-environment-secret
                   key: CAMUNDA_REST_PASSWORD
+{{- else -}}
+{{- toYaml .Values.environment.secret.externalCamundaSecretData | nindent 18 }}
+{{- end}}
           volumeMounts:
             - mountPath: /data
               name: data
