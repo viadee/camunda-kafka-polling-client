@@ -124,7 +124,7 @@ environment:
     externalCamundaSecretData:
       name: name
       key: key
-    # Camunda password to set directly here
+    # Camunda password to set directly here if no externalCamundaSecret is specified
     camundaPassword: "password"
   configMap:
     # Camunda rest url to connect to camunda rest engine
