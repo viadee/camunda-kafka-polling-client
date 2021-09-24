@@ -26,7 +26,7 @@
         <kafka.version>2.8.0</kafka.version>
         <jackson-databind.version>2.12.5</jackson-databind.version>
         <jackson.version>2.12.5</jackson.version>
-        <postgresql.version>42.2.23</postgresql.version>
+        <postgresql.version>42.2.24</postgresql.version>
         <junit.version>5.8.0</junit.version>
         <mockito.version>3.12.4</mockito.version>
         <commons-collections4.version>4.4</commons-collections4.version>
