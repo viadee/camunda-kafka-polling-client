@@ -1,0 +1,164 @@
+#
+## viadee Unternehmensberatung AG
+#
+
+# Default values for vpw-polling-client of the viadee Process Warehouse.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: "public.ecr.aws/viadee/camunda-kafka-polling-client"
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "2.0.0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Specify labels
+labels: {}
+
+selectorLabels:
+  # Name of whole application: viadee Process Warehouse (vpw)
+  app: vpw
+  # Analyzer as part of the viadee Process Warehouse (vpw)
+  component: polling-client
+  # Release name of deployment
+  release: showcase
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+   fsGroup: 1000 # Write access for volume for appuser
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# Polling Client containers' liveness probe.
+livenessProbe:
+  httpGet:
+    path: /actuator/health
+    port: http
+  initialDelaySeconds: 30
+  timeoutSeconds: 2
+  periodSeconds: 15
+  failureThreshold: 3
+
+# Polling Client containers' readiness probe.
+readinessProbe:
+  httpGet:
+    path: /actuator/health
+    port: http
+  initialDelaySeconds: 10
+  timeoutSeconds: 2
+  periodSeconds: 10
+  failureThreshold: 5
+
+service:
+  enabled: false
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Volumes
+persistence:
+  enabled: true
+  storageClass: standard
+  size: 1Gi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+environment:
+  secret:
+    # Camunda password to set for authentication from external secret
+    externalCamundaSecret: false
+    externalCamundaSecretData:
+      name: name
+      key: key
+    # Camunda password to set directly here if no externalCamundaSecret is specified
+    camundaPassword: "password"
+  configMap:
+    # Camunda rest url to connect to camunda rest engine
+    camundaRestUrl: http://camunda-webapp-camunda-bpm-platform:8080/engine-rest/
+    # Camunda username for authentication
+    camundaRestUsername: username
+    # Application (Tomcat) server port
+    serverPort: 8081
+    # Time zone used for formatting timestamps provided to camunda rest api (Default: System timezone)
+    timeZone: CEST
+    # Kafka bootstrap server url to connect to kafka broker
+    kafkaBootstrapServers: vpw-kafka-0.vpw-kafka-brokers.default.svc:9092
+    # Intervals of data polling
+    pollingRuntimeDataIntervalInMs: 30000
+    # Last polled file
+    pollingRuntimeDataLastPolledFile: /data/lastPolled-runtime.properties
+    # Last polled repo
+    pollingRepositoryDataLastPolledFile: data/lastPolled-repository.properties
+    # Initial start time the polling of runtime data (only relevant for initial polling); format: "yyyy-MM-dd HH:mm:ss". Default is the current time.
+    pollingRuntimeDataInitialTimestamp: "2000-01-01 00:00:00"
+    # Initial start time the polling of repository data (only relevant for initial polling); format: "yyyy-MM-dd HH:mm:ss. Default is the current time."
+    pollingRepositoryDataInitialTimestamp: "2000-01-01 00:00:00"
+    # Intervals of repository polling
+    pollingRepositoryDataIntervalInMs: 30000
+    # Log level
+    logLevel: INFO
+  #Add name-value pairs here to inject them dynamically into the configmap.
+  env:
+    # Activate spring profile "rest"
+    - name: SPRING_PROFILES_ACTIVE
+      value: rest
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
