@@ -135,8 +135,8 @@ environment:
     serverPort: 8081
     # Time zone used for formatting timestamps provided to camunda rest api (Default: System timezone)
     timeZone: CEST
-    # Kafka bootstrap server url to connect to kafka broker
-    kafkaBootstrapServers: vpw-kafka-0.vpw-kafka-brokers.default.svc:9092
+    # Kafka bootstrap server url to connect to kafka broker (namespace vpw here)
+    kafkaBootstrapServers: vpw-kafka-0.vpw-kafka-brokers.default.vpw:9092
     # Intervals of data polling
     pollingRuntimeDataIntervalInMs: 30000
     # Last polled file
