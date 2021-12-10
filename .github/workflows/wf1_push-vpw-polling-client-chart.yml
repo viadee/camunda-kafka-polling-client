@@ -26,7 +26,7 @@ jobs:
       - name: Checkout viadee/charts repository
         uses: actions/checkout@v2
         with:
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          token: ${{ secrets.PAT_VIADEE_GITHUB_VPW }}
           repository: viadee/charts
           path: charts
 
@@ -50,7 +50,7 @@ jobs:
         id: cpr-polling-client
         uses: peter-evans/create-pull-request@v3
         with:
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          token: ${{ secrets.PAT_VIADEE_GITHUB_VPW }}
           path: ./charts
           base: main
           committer: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
