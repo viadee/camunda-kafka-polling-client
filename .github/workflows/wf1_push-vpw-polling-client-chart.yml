@@ -7,7 +7,6 @@ name: Push vpw-polling-client-chart to viadee/charts repository
 on:
   push:
     branches:
-      - helm-charts
       - develop
       - master
     paths:
@@ -68,3 +67,133 @@ jobs:
         run: |
           echo "Pull Request Number - ${{ steps.cpr-polling-client.outputs.pull-request-number }}"
           echo "Pull Request URL - ${{ steps.cpr-polling-client.outputs.pull-request-url }}"
+
+  update-umbrella-subcharts:
+    runs-on: ubuntu-latest
+    name: "Copy values.yaml to umbrella vpw-chart values.yaml and update versions of subcharts from umbrella vpw-chart"
+    needs: update-chart-create-pr
+
+    steps:
+
+      # Checkout vpw
+      - name: Checkout viadee/vPW repository
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.PAT_VIADEE_GITHUB_VPW }}
+          path: vpw
+
+      # Checkout frontend
+      - name: Checkout viadee/vPW repository
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.PAT_VIADEE_GITHUB_VPW }}
+          repository: viadee/vPW-Frontend
+          path: frontend
+
+      # checkout polling-client
+      - name: Checkout viadee/vPW repository
+        uses: actions/checkout@v2
+        with:
+          repository: viadee/camunda-kafka-polling-client
+          path: polling-client
+          ref: develop  #Temporary until develop is merged into master
+
+      ##
+      #  Override umbrella vpw-chart values.yaml with all subcharts values.yaml
+      ##
+
+      - name: Collect values.yaml of all vpw-components
+        run: |
+          cp -v ./vpw/deployment/helm/vpw-analyzer-chart/values.yaml ./analyzer-values.yaml
+          cp -v ./vpw/deployment/helm/vpw-pipeline-chart/values.yaml ./pipeline-values.yaml
+          cp -v ./frontend/deployment/helm/vpw-frontend-chart/values.yaml ./frontend-values.yaml
+          cp -v ./polling-client/camunda-kafka-polling-client/deployment/helm/vpw-polling-client-chart/values.yaml ./polling-client-values.yaml
+          ls -all
+
+      - name: Create and prepare file vpw-chart-values.yaml
+        id: yq-1
+        uses: mikefarah/yq@master
+        with:
+          cmd: |
+            touch vpw-chart-values.yaml
+            yq eval -i '.vpw-analyzer.AnalzyerValuesFile="./analyzer-values.yaml"' vpw-chart-values.yaml
+            yq eval -i '.vpw-pipeline.PipelineValuesFile="./pipeline-values.yaml"' vpw-chart-values.yaml
+            yq eval -i '.vpw-frontend.FrontendValuesFile="./frontend-values.yaml"' vpw-chart-values.yaml
+            yq eval -i '.vpw-polling-client.PollingClientValuesFile="./polling-client-values.yaml"' vpw-chart-values.yaml
+
+      - name: Manual Check-up (DEBUG) I
+        run: |
+          cat vpw-chart-values.yaml
+
+      - name: Load all subcharts values in vpw-chart-values.yaml
+        id: yq-2
+        uses: mikefarah/yq@master
+        with:
+          cmd: |
+            yq eval -i '.vpw-analyzer |= load(.AnalzyerValuesFile)' vpw-chart-values.yaml
+            yq eval -i '.vpw-pipeline |= load(.PipelineValuesFile)' vpw-chart-values.yaml
+            yq eval -i '.vpw-frontend |= load(.FrontendValuesFile)' vpw-chart-values.yaml
+            yq eval -i '.vpw-polling-client |= load(.PollingClientValuesFile)' vpw-chart-values.yaml
+
+      - name: Manual Check-up (DEBUG) II
+        run: |
+          cat vpw-chart-values.yaml
+
+      - name: Overwrite umbrella vpw-chart values with new vpw-chart-values.yaml
+        run: |
+          cp -v vpw-chart-values.yaml ./vpw/deployment/helm-umbrella/vpw-chart/values.yaml
+
+      ##
+      #  Set new subcharts versions in umbrella vpw-chart Chart.yaml
+      ##
+
+      - name: Extract analyzer, pipeline, frontend and polling client version
+        id: yq-3
+        uses: mikefarah/yq@master
+        with:
+          cmd: |
+            echo "CHART_VERSION_ANALYZER=$(yq eval ".version" ./vpw/deployment/helm/vpw-analyzer-chart/Chart.yaml)" >> $GITHUB_ENV
+            echo "CHART_VERSION_PIPELINE=$(yq eval ".version" ./vpw/deployment/helm/vpw-pipeline-chart/Chart.yaml)" >> $GITHUB_ENV
+            echo "CHART_VERSION_FRONTEND=$(yq eval ".version" ./frontend/deployment/helm/vpw-frontend-chart/Chart.yaml)" >> $GITHUB_ENV
+            echo "CHART_VERSION_POLLING_CLIENT=$(yq eval ".version" ./polling-client/camunda-kafka-polling-client/deployment/helm/vpw-polling-client-chart/Chart.yaml)" >> $GITHUB_ENV
+
+      - name: Echo analyzer, pipline, frontend and polling client version
+        run: |
+          echo "Analzyer: $CHART_VERSION_ANALYZER"
+          echo "Pipeline: $CHART_VERSION_PIPELINE"
+          echo "Frontend: $CHART_VERSION_FRONTEND"
+          echo "Polling Client: $CHART_VERSION_POLLING_CLIENT"
+
+
+      - name: Update subchart versions of analyzer, pipeline, frontend and polling client in Chart.yaml of umbrella vpw-chartid
+        id: yq-4
+        uses: mikefarah/yq@master
+        with:
+          cmd: |
+            CHART_VERSION_ANALYZER=$CHART_VERSION_ANALYZER             yq e -i ".dependencies[0].version=strenv(CHART_VERSION_ANALYZER)"        ./vpw/deployment/helm-umbrella/vpw-chart/Chart.yaml
+            CHART_VERSION_PIPELINE=$CHART_VERSION_PIPELINE             yq e -i ".dependencies[1].version=strenv(CHART_VERSION_PIPELINE)"        ./vpw/deployment/helm-umbrella/vpw-chart/Chart.yaml
+            CHART_VERSION_FRONTEND=$CHART_VERSION_FRONTEND             yq e -i ".dependencies[2].version=strenv(CHART_VERSION_FRONTEND)"        ./vpw/deployment/helm-umbrella/vpw-chart/Chart.yaml
+            CHART_VERSION_POLLING_CLIENT=$CHART_VERSION_POLLING_CLIENT yq e -i ".dependencies[3].version=strenv(CHART_VERSION_POLLING_CLIENT)"  ./vpw/deployment/helm-umbrella/vpw-chart/Chart.yaml
+
+      - name: Echo helm-umbrella/vpw-chart/Chart.yaml
+        run: |
+          cat ./vpw/deployment/helm-umbrella/vpw-chart/Chart.yaml
+
+      ##
+      #  PUSH in vpw repo to trigger wf4_push-vpw-chart.yaml
+      ##
+
+      - name: Push new/updated vpw-chart
+        run: |
+          cd ./vpw
+          git config --global user.name 'viadee-github-vpw'
+          git config --global user.email 'no-reply-github-actions@viadee.de'
+          git status
+          git branch
+          git add deployment/helm-umbrella/**
+          git commit -m"auto-update of subchart version of umbrella vpw-chart"
+          git status
+          git push https://$TOKEN_NAME:$TOKEN@github.com/viadee/vPW2.git
+        env:
+          TOKEN: ${{ secrets.PAT_VIADEE_GITHUB_VPW }}
+          TOKEN_NAME: PAT_VIADEE_GITHUB_VPW
