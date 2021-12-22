@@ -125,18 +125,18 @@ environment:
       name: name
       key: key
     # Camunda password to set directly here if no externalCamundaSecret is specified
-    camundaPassword: "password"
+    camundaPassword: "demo"
   configMap:
     # Camunda rest url to connect to camunda rest engine
     camundaRestUrl: http://camunda-webapp-camunda-bpm-platform:8080/engine-rest/
     # Camunda username for authentication
-    camundaRestUsername: username
+    camundaRestUsername: demo
     # Application (Tomcat) server port
     serverPort: 8081
     # Time zone used for formatting timestamps provided to camunda rest api (Default: System timezone)
     timeZone: CEST
     # Kafka bootstrap server url to connect to kafka broker (namespace vpw here)
-    kafkaBootstrapServers: vpw-kafka-0.vpw-kafka-brokers.default.vpw:9092
+    kafkaBootstrapServers: vpw-kafka-0.vpw-kafka-brokers.vpw.svc:9092
     # Intervals of data polling
     pollingRuntimeDataIntervalInMs: 30000
     # Last polled file
@@ -158,7 +158,5 @@ environment:
       value: rest
 
 nodeSelector: {}
-
 tolerations: []
-
 affinity: {}
