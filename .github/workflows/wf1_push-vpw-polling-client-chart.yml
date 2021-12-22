@@ -78,6 +78,7 @@ jobs:
       - name: Checkout viadee/vPW repository
         uses: actions/checkout@v2
         with:
+          repository: viadee/vPW
           token: ${{ secrets.PAT_VIADEE_GITHUB_VPW }}
           path: vpw
 
