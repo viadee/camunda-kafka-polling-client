@@ -74,7 +74,6 @@ jobs:
     needs: update-chart-create-pr
 
     steps:
-
       # Checkout vpw
       - name: Checkout viadee/vPW repository
         uses: actions/checkout@v2
@@ -164,7 +163,6 @@ jobs:
           echo "Frontend: $CHART_VERSION_FRONTEND"
           echo "Polling Client: $CHART_VERSION_POLLING_CLIENT"
 
-
       - name: Update subchart versions of analyzer, pipeline, frontend and polling client in Chart.yaml of umbrella vpw-chartid
         id: yq-4
         uses: mikefarah/yq@master
@@ -174,6 +172,32 @@ jobs:
             CHART_VERSION_PIPELINE=$CHART_VERSION_PIPELINE             yq e -i ".dependencies[1].version=strenv(CHART_VERSION_PIPELINE)"        ./vpw/deployment/helm-umbrella/vpw-chart/Chart.yaml
             CHART_VERSION_FRONTEND=$CHART_VERSION_FRONTEND             yq e -i ".dependencies[2].version=strenv(CHART_VERSION_FRONTEND)"        ./vpw/deployment/helm-umbrella/vpw-chart/Chart.yaml
             CHART_VERSION_POLLING_CLIENT=$CHART_VERSION_POLLING_CLIENT yq e -i ".dependencies[3].version=strenv(CHART_VERSION_POLLING_CLIENT)"  ./vpw/deployment/helm-umbrella/vpw-chart/Chart.yaml
+
+      - name: Extract umbrella vpw-chart version and save as github_env
+        id: yq-5
+        uses: mikefarah/yq@master
+        with:
+          cmd: |
+            echo "VPW_CHART_VERSION=$(yq eval ".version" ./vpw/deployment/helm-umbrella/vpw-chart/Chart.yaml)" >> $GITHUB_ENV
+
+      # This steps splits the version into an array: version=1.2.33 -> a=[1,2,33]
+      # The last cell of the version a[2] will be increased by one.
+      # You can change the behavior by changing the indices to increase version as a major a[0]++ or minor a[1]++
+      - name: Increase umbrella vpw-chart version and override github_env with increased version
+        run: |
+          version=$VPW_CHART_VERSION
+          echo $version
+          a=(${version//./ })
+          ((a[2]++))
+          version="${a[0]}.${a[1]}.${a[2]}"
+          echo "VPW_CHART_VERSION=$version" >> $GITHUB_ENV
+
+      - name: Update Chart.yaml of umbrella vpw-chart with increased version
+        id: yq-6
+        uses: mikefarah/yq@master
+        with:
+          cmd: |
+            VERSION=$VPW_CHART_VERSION yq eval -i ".version=strenv(VERSION)" ./vpw/deployment/helm-umbrella/vpw-chart/Chart.yaml
 
       - name: Echo helm-umbrella/vpw-chart/Chart.yaml
         run: |
@@ -193,7 +217,7 @@ jobs:
           git add deployment/helm-umbrella/**
           git commit -m"auto-update of subchart version of umbrella vpw-chart"
           git status
-          git push https://$TOKEN_NAME:$TOKEN@github.com/viadee/vPW2.git
+          git push https://$TOKEN_NAME:$TOKEN@github.com/viadee/vPW.git
         env:
           TOKEN: ${{ secrets.PAT_VIADEE_GITHUB_VPW }}
           TOKEN_NAME: PAT_VIADEE_GITHUB_VPW
