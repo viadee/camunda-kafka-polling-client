@@ -16,6 +16,9 @@ jobs:
   update-chart-create-pr:
     runs-on: ubuntu-latest
 
+    outputs:
+      pr_operation: ${{ steps.step1.outputs.pr_operation }}
+
     steps:
       - name: Checkout viadee/vPW repository
         uses: actions/checkout@v2
@@ -67,6 +70,15 @@ jobs:
         run: |
           echo "Pull Request Number - ${{ steps.cpr-polling-client.outputs.pull-request-number }}"
           echo "Pull Request URL - ${{ steps.cpr-polling-client.outputs.pull-request-url }}"
+          echo "Pull Request Operation - ${{ steps.cpr-polling-client.outputs.pull-request-operation }}"
+
+      # Extract PR_OPERATION
+      - name: Save pull request operation as GitHub Env variable
+        run: |
+          echo "PR_OPERATION=${{ steps.cpr-polling-client.outputs.pull-request-operation }}" >> $GITHUB_ENV
+
+      - id: step1
+        run: echo "::set-output name=pr_operation::$PR_OPERATION"
 
   update-umbrella-subcharts:
     runs-on: ubuntu-latest
@@ -74,6 +86,10 @@ jobs:
     needs: update-chart-create-pr
 
     steps:
+      - name: Pull request operation used in previous job 'update-chart-create-pr'
+        run: |
+          echo echo"pr_operation=${{needs.update-chart-create-pr.outputs.pr_operation}}" >> $GITHUB_ENV
+
       # Checkout vpw
       - name: Checkout viadee/vPW repository
         uses: actions/checkout@v2
@@ -175,6 +191,7 @@ jobs:
             CHART_VERSION_POLLING_CLIENT=$CHART_VERSION_POLLING_CLIENT yq e -i ".dependencies[3].version=strenv(CHART_VERSION_POLLING_CLIENT)"  ./vpw/deployment/helm-umbrella/vpw-chart/Chart.yaml
 
       - name: Extract umbrella vpw-chart version and save as github_env
+        if: ${{ 'created' == env.pr_operation }}
         id: yq-5
         uses: mikefarah/yq@master
         with:
@@ -185,6 +202,7 @@ jobs:
       # The last cell of the version a[2] will be increased by one.
       # You can change the behavior by changing the indices to increase version as a major a[0]++ or minor a[1]++
       - name: Increase umbrella vpw-chart version and override github_env with increased version
+        if: ${{ 'created' == env.pr_operation }}
         run: |
           version=$VPW_CHART_VERSION
           echo $version
@@ -194,6 +212,7 @@ jobs:
           echo "VPW_CHART_VERSION=$version" >> $GITHUB_ENV
 
       - name: Update Chart.yaml of umbrella vpw-chart with increased version
+        if: ${{ 'created' == env.pr_operation }}
         id: yq-6
         uses: mikefarah/yq@master
         with:
@@ -216,7 +235,7 @@ jobs:
           git status
           git branch
           git add deployment/helm-umbrella/**
-          git commit -m"auto-update of subchart version of umbrella vpw-chart"
+          git diff --quiet && git diff --staged --quiet || git commit -m"auto-update of subchart version of umbrella vpw-chart"
           git status
           git push https://$TOKEN_NAME:$TOKEN@github.com/viadee/vPW.git
         env:
