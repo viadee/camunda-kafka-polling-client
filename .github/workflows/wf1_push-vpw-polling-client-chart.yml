@@ -72,24 +72,12 @@ jobs:
           echo "Pull Request URL - ${{ steps.cpr-polling-client.outputs.pull-request-url }}"
           echo "Pull Request Operation - ${{ steps.cpr-polling-client.outputs.pull-request-operation }}"
 
-      # Extract PR_OPERATION
-      - name: Save pull request operation as GitHub Env variable
-        run: |
-          echo "PR_OPERATION=${{ steps.cpr-polling-client.outputs.pull-request-operation }}" >> $GITHUB_ENV
-
-      - id: step1
-        run: echo "::set-output name=pr_operation::$PR_OPERATION"
-
   update-umbrella-subcharts:
     runs-on: ubuntu-latest
     name: "Copy values.yaml to umbrella vpw-chart values.yaml and update versions of subcharts from umbrella vpw-chart"
     needs: update-chart-create-pr
 
     steps:
-      - name: Pull request operation used in previous job 'update-chart-create-pr'
-        run: |
-          echo echo"pr_operation=${{needs.update-chart-create-pr.outputs.pr_operation}}" >> $GITHUB_ENV
-
       # Checkout vpw
       - name: Checkout viadee/vPW repository
         uses: actions/checkout@v2
@@ -99,15 +87,15 @@ jobs:
           path: vpw
 
       # Checkout frontend
-      - name: Checkout viadee/vPW repository
+      - name: Checkout viadee/vPW-Frontend repository
         uses: actions/checkout@v2
         with:
           token: ${{ secrets.PAT_VIADEE_GITHUB_VPW }}
           repository: viadee/vPW-Frontend
           path: frontend
 
-      # checkout polling-client
-      - name: Checkout viadee/vPW repository
+      # Checkout polling-client
+      - name: Checkout viadee/camunda-kafka-polling-client repository
         uses: actions/checkout@v2
         with:
           repository: viadee/camunda-kafka-polling-client
@@ -191,28 +179,37 @@ jobs:
             CHART_VERSION_POLLING_CLIENT=$CHART_VERSION_POLLING_CLIENT yq e -i ".dependencies[3].version=strenv(CHART_VERSION_POLLING_CLIENT)"  ./vpw/deployment/helm-umbrella/vpw-chart/Chart.yaml
 
       - name: Extract umbrella vpw-chart version and save as github_env
-        if: ${{ 'created' == env.pr_operation }}
         id: yq-5
         uses: mikefarah/yq@master
         with:
           cmd: |
             echo "VPW_CHART_VERSION=$(yq eval ".version" ./vpw/deployment/helm-umbrella/vpw-chart/Chart.yaml)" >> $GITHUB_ENV
 
+      #  https://api.github.com/search/issues?q=is:pr+is:open+repo:viadee/charts+head:vpw-chart-$VPW_CHART_VERSION+vpw-chart-$VPW_CHART_VERSION+in:title
+      #  GitHub Api -> search request ON issues WITH query = is open pull request for repo viadee/charts with target branch and title "vpw-chart-$VPW_CHART_VERSION"
+      - name: Request list of open pull requests for vpw-chart and save as json file
+        run: |
+          curl -X GET https://api.github.com/search/issues?q=is:pr+is:open+repo:viadee/charts+head:vpw-chart-$VPW_CHART_VERSION+vpw-chart-$VPW_CHART_VERSION+in:title > res_pr_list.json
+
+      - name: Extract total_count [of pull requests saved as json file in previous step] as GitHubEnv to know if pull request for vpw-chart already exists
+        run: |
+          echo "PR_TOTAL_COUNT=$(jq '.total_count' ./res_pr_list.json)" >> $GITHUB_ENV
+
       # This steps splits the version into an array: version=1.2.33 -> a=[1,2,33]
       # The last cell of the version a[2] will be increased by one.
       # You can change the behavior by changing the indices to increase version as a major a[0]++ or minor a[1]++
-      - name: Increase umbrella vpw-chart version and override github_env with increased version
-        if: ${{ 'created' == env.pr_operation }}
+      - name: Increase umbrella vpw-chart version and override github_env with increased version [if total_count==0, so vpw-chart PR does not exist]
+        if: ${{ 0 == env.PR_TOTAL_COUNT  }}
         run: |
           version=$VPW_CHART_VERSION
           echo $version
           a=(${version//./ })
-          ((a[2]++))
+          a[2]=$((a[2]+1))
           version="${a[0]}.${a[1]}.${a[2]}"
           echo "VPW_CHART_VERSION=$version" >> $GITHUB_ENV
 
-      - name: Update Chart.yaml of umbrella vpw-chart with increased version
-        if: ${{ 'created' == env.pr_operation }}
+      - name: Update Chart.yaml of umbrella vpw-chart with increased version [if total_count==0, so vpw-chart PR does not exist]
+        if: ${{ 0 == env.PR_TOTAL_COUNT  }}
         id: yq-6
         uses: mikefarah/yq@master
         with:
