@@ -21,7 +21,7 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
 
-        <spring-boot.version>2.6.2</spring-boot.version>
+        <spring-boot.version>2.6.3</spring-boot.version>
         <camunda.version>7.16.0</camunda.version>
         <kafka.version>3.0.0</kafka.version>
         <jackson-databind.version>2.13.1</jackson-databind.version>
