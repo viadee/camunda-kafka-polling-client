@@ -7,7 +7,6 @@ name: Push vpw-polling-client-chart to viadee/charts repository
 on:
   push:
     branches:
-      - develop
       - master
     paths:
       - 'camunda-kafka-polling-client/deployment/helm/vpw-polling-client-chart/**'
@@ -228,6 +227,8 @@ jobs:
           cd ./vpw
           git config --global user.name 'viadee-github-vpw'
           git config --global user.email 'no-reply-github-actions@viadee.de'
+          git fetch origin
+          git pull
           git status
           git branch
           git add deployment/helm-umbrella/**
