@@ -330,7 +330,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @param activityInstanceEvent
      */
     @Override

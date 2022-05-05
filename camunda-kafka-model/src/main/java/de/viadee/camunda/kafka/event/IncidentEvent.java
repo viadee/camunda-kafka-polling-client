@@ -8,10 +8,10 @@ import java.util.Date;
  * IncidentEvent class.
  * </p>
  *
- * 
- * 
+ *
+ *
  * @author viadee
- * 
+ *
  * @version $Id: $Id
  */
 public class IncidentEvent extends HistoryEvent {

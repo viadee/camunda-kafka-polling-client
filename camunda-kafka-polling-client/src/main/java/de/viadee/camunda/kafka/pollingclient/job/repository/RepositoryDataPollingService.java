@@ -1,6 +1,7 @@
 package de.viadee.camunda.kafka.pollingclient.job.repository;
 
 import de.viadee.camunda.kafka.event.ProcessDefinitionEvent;
+import de.viadee.camunda.kafka.event.ProcessInstanceEvent;
 import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties;
 import de.viadee.camunda.kafka.pollingclient.service.event.EventService;
 import de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledService;
@@ -8,6 +9,10 @@ import de.viadee.camunda.kafka.pollingclient.service.lastpolled.PollingTimeslice
 import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Implementation of polling repository data

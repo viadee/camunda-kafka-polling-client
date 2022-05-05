@@ -237,6 +237,18 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>de.viadee.camunda</groupId>
+            <artifactId>camunda-kafka-model</artifactId>
+            <version>2.1.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.viadee.camunda</groupId>
+            <artifactId>camunda-kafka-model</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>

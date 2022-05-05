@@ -9,6 +9,8 @@ import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Date;
 
 /**

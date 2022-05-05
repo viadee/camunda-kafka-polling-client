@@ -6,16 +6,18 @@ import de.viadee.camunda.kafka.event.DeploymentEvent;
 import de.viadee.camunda.kafka.event.HistoryEvent;
 import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties;
 import de.viadee.camunda.kafka.pollingclient.service.event.EventService;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import java.io.*;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static org.apache.commons.lang3.StringUtils.removeEnd;
-import static org.apache.commons.lang3.StringUtils.uncapitalize;
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * <p>
@@ -95,4 +97,6 @@ public class KafkaEventServiceImpl implements EventService {
 
         return properties.getEventTopics().getOrDefault(eventName, eventName);
     }
+
+
 }

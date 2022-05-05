@@ -8,10 +8,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * HistoryEvent class.
  * </p>
  *
- * 
- * 
+ *
+ *
  * @author viadee
- * 
+ *
  * @version $Id: $Id
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

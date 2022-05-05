@@ -8,10 +8,10 @@ import java.util.Date;
  * ScopeInstanceEvent class.
  * </p>
  *
- * 
- * 
+ *
+ *
  * @author viadee
- * 
+ *
  * @version $Id: $Id
  */
 public class ScopeInstanceEvent extends HistoryEvent {
