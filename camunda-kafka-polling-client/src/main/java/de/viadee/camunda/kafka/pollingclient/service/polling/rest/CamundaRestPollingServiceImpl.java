@@ -40,6 +40,8 @@ public class CamundaRestPollingServiceImpl implements PollingService {
     private static final String PROCESS_DEFINITION_ID = "processDefinitionId";
     private static final String DEPLOYMENT_ID = "deploymentId";
     private static final String TASK_ID = "taskId";
+    private static final String DECISION_DEFINITION_ID = "decisionDefinitionId";
+
 
     private final ObjectMapper objectMapper;
 
@@ -403,6 +405,85 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         } catch (RestClientException e) {
             throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for identity-link-log", e);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Iterable<DecisionDefinitionEvent> pollDecisionDefinitions(final Date startTime, final Date endTime) {
+
+        List<GetDeploymentResponse> deploymentList = getDeployments(startTime, endTime);
+        List<DecisionDefinitionEvent> decisionDefinitionList = new ArrayList<>();
+
+        for (GetDeploymentResponse deployment : deploymentList) {
+            decisionDefinitionList.addAll(getDecisionDefinitions(deployment));
+        }
+
+        for (DecisionDefinitionEvent decisionDefinitionEvent : decisionDefinitionList) {
+            GetDecisionDefinitionXmlResponse decisionDefinitionXML = getDecisionDefinitionXml(decisionDefinitionEvent.getId());
+
+            if (decisionDefinitionXML != null) {
+                decisionDefinitionEvent.setXml(decisionDefinitionXML.getDmnXml());
+            }
+        }
+
+        return decisionDefinitionList.stream()::iterator;
+    }
+
+    private List<DecisionDefinitionEvent> getDecisionDefinitions(GetDeploymentResponse deploymentResponse) {
+        final String url = camundaProperties.getUrl() + "decision-definition?deploymentId={deploymentId}";
+
+        List<GetDecisionDefinitionResponse> decisionDefinitions = new ArrayList<>();
+        try {
+            final Map<String, Object> variables = new HashMap<>();
+            variables.put("deploymentId", deploymentResponse.getId());
+            LOGGER.debug("Polling decision definitions from {} ({})", url, variables);
+
+            decisionDefinitions = this.restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<List<GetDecisionDefinitionResponse>>() {
+            }, variables).getBody();
+
+            if (decisionDefinitions == null) {
+                decisionDefinitions = new ArrayList<>();
+            }
+
+            LOGGER.debug("Found {} decision definitions from {} ({})", decisionDefinitions.size(), url, variables);
+        } catch (RestClientException e) {
+            throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for decision definitions", e);
+        }
+
+        return decisionDefinitions.stream().map(response -> createDecisionDefinitionEvent(response, deploymentResponse)).collect(Collectors.toList());
+    }
+
+    private DecisionDefinitionEvent createDecisionDefinitionEvent(GetDecisionDefinitionResponse resp, final GetDeploymentResponse deploymentResponse) {
+        final DecisionDefinitionEvent event = new DecisionDefinitionEvent();
+        BeanUtils.copyProperties(deploymentResponse, event);
+        BeanUtils.copyProperties(resp, event);
+        return event;
+    }
+
+    private GetDecisionDefinitionXmlResponse getDecisionDefinitionXml(String decisionDefinitionId) {
+        final String url = camundaProperties.getUrl() + "decision-definition/{decisionDefinitionId}/xml";
+
+        GetDecisionDefinitionXmlResponse resp;
+        try {
+            final Map<String, Object> variables = new HashMap<>();
+            variables.put(DECISION_DEFINITION_ID, decisionDefinitionId);
+
+            LOGGER.debug("Polling decision definition xml from {} ({})", url, variables);
+
+            resp = this.restTemplate.exchange(url, HttpMethod.GET, null, GetDecisionDefinitionXmlResponse.class, variables).getBody();
+
+            if (resp != null) {
+                LOGGER.debug("Found decision definition xml from {} ({})", url, variables);
+            } else {
+                LOGGER.debug("No decision definition xml found from {} ({})", url, variables);
+            }
+        } catch (RestClientException e) {
+            throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for decision definition xml", e);
+        }
+
+        return resp;
     }
 
     private GetProcessDefinitionXmlResponse getProcessDefinitionXML(String processDefinitionId) {
