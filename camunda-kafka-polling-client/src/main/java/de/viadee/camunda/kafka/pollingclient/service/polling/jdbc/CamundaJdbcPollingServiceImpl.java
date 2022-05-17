@@ -12,6 +12,7 @@ import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.*;
 import org.camunda.bpm.engine.impl.persistence.entity.HistoricDetailVariableInstanceUpdateEntity;
 import org.camunda.bpm.engine.impl.persistence.entity.HistoricVariableInstanceEntity;
+import org.camunda.bpm.engine.repository.DecisionDefinition;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.task.Comment;
@@ -234,6 +235,45 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
                              .list()
                              .stream()
                              .map(historicIdentityLinkLog -> createIdentityLinkEventFromDetails(historicIdentityLinkLog))::iterator;
+    }
+
+    @Override
+    public Iterable<DecisionDefinitionEvent> pollDecisionDefinitions(Date deploymentAfter, Date deploymentBefore) {
+        deploymentAfter = new Date(deploymentAfter.getTime() - 1);
+
+        //query deployments
+        List<Deployment> deployments = repositoryService.createDeploymentQuery()
+                .deploymentAfter(deploymentAfter)
+                .deploymentBefore(deploymentBefore)
+                .list();
+
+        List<DecisionDefinitionEvent> result = new ArrayList<>();
+
+        for (Deployment deployment : deployments) {
+            List<DecisionDefinition> decisionDefinitions = repositoryService.createDecisionDefinitionQuery().deploymentId(deployment.getId()).list();
+
+            //query decision definitions
+            for (DecisionDefinition decisionDefinition : decisionDefinitions) {
+                DecisionDefinitionEvent decisionDefinitionEvent = createDecisionDefinitionEvent(deployment, decisionDefinition);
+
+                //query xml
+                try {
+                    String xml = IOUtils.toString(repositoryService.getResourceAsStream(decisionDefinition.getDeploymentId(),decisionDefinition.getResourceName()));
+                    decisionDefinitionEvent.setXml(xml);
+                } catch (IOException e) {
+                    throw new RuntimeException("error while reading xml for decision definition" + decisionDefinition.getId(),e);
+                }
+                result.add(decisionDefinitionEvent);
+            }
+        }
+        return result;
+    }
+
+    private DecisionDefinitionEvent createDecisionDefinitionEvent(Deployment d, DecisionDefinition dd) {
+        DecisionDefinitionEvent event = new DecisionDefinitionEvent();
+        BeanUtils.copyProperties(d, event);
+        BeanUtils.copyProperties(dd, event);
+        return event;
     }
 
     private ProcessDefinitionEvent createProcessDefinitionEvent(Deployment d, ProcessDefinition pd) {
