@@ -98,5 +98,4 @@ public class KafkaEventServiceImpl implements EventService {
         return properties.getEventTopics().getOrDefault(eventName, eventName);
     }
 
-
 }

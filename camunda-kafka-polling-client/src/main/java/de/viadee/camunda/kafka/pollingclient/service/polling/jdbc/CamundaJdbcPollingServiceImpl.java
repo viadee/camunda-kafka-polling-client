@@ -241,27 +241,32 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
     public Iterable<DecisionDefinitionEvent> pollDecisionDefinitions(Date deploymentAfter, Date deploymentBefore) {
         deploymentAfter = new Date(deploymentAfter.getTime() - 1);
 
-        //query deployments
+        // query deployments
         List<Deployment> deployments = repositoryService.createDeploymentQuery()
-                .deploymentAfter(deploymentAfter)
-                .deploymentBefore(deploymentBefore)
-                .list();
+                                                        .deploymentAfter(deploymentAfter)
+                                                        .deploymentBefore(deploymentBefore)
+                                                        .list();
 
         List<DecisionDefinitionEvent> result = new ArrayList<>();
 
         for (Deployment deployment : deployments) {
-            List<DecisionDefinition> decisionDefinitions = repositoryService.createDecisionDefinitionQuery().deploymentId(deployment.getId()).list();
+            List<DecisionDefinition> decisionDefinitions = repositoryService.createDecisionDefinitionQuery()
+                                                                            .deploymentId(deployment.getId())
+                                                                            .list();
 
-            //query decision definitions
+            // query decision definitions
             for (DecisionDefinition decisionDefinition : decisionDefinitions) {
-                DecisionDefinitionEvent decisionDefinitionEvent = createDecisionDefinitionEvent(deployment, decisionDefinition);
+                DecisionDefinitionEvent decisionDefinitionEvent = createDecisionDefinitionEvent(deployment,
+                                                                                                decisionDefinition);
 
-                //query xml
+                // query xml
                 try {
-                    String xml = IOUtils.toString(repositoryService.getResourceAsStream(decisionDefinition.getDeploymentId(),decisionDefinition.getResourceName()));
+                    String xml = IOUtils.toString(repositoryService.getResourceAsStream(decisionDefinition.getDeploymentId(),
+                                                                                        decisionDefinition.getResourceName()));
                     decisionDefinitionEvent.setXml(xml);
                 } catch (IOException e) {
-                    throw new RuntimeException("error while reading xml for decision definition" + decisionDefinition.getId(),e);
+                    throw new RuntimeException("error while reading xml for decision definition"
+                            + decisionDefinition.getId(), e);
                 }
                 result.add(decisionDefinitionEvent);
             }

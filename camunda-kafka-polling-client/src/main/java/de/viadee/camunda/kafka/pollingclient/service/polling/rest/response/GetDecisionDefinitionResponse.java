@@ -3,7 +3,7 @@ package de.viadee.camunda.kafka.pollingclient.service.polling.rest.response;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
- *  Response structure of Camunda REST API <code>GET /decision-definition</code>
+ * Response structure of Camunda REST API <code>GET /decision-definition</code>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GetDecisionDefinitionResponse {
