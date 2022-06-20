@@ -21,9 +21,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -272,6 +275,72 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
             }
         }
         return result;
+    }
+
+    @Override
+    public Iterable<DecisionInstanceEvent> pollDecisionInstances(String activityInstanceId) {
+        return historyService.createHistoricDecisionInstanceQuery()
+                .activityInstanceIdIn(activityInstanceId)
+                .includeInputs()
+                .includeOutputs()
+                //.disableCustomObjectDeserialization()
+                .list()
+                .stream()
+                // selected as <= by
+                // Camunda - thus add
+                // filter
+                .map(this::createDecisionInstanceEvent)::iterator;
+    }
+
+    private DecisionInstanceEvent createDecisionInstanceEvent(HistoricDecisionInstance historicDecisionInstance) {
+
+        DecisionInstanceEvent event = new DecisionInstanceEvent();
+        BeanUtils.copyProperties(historicDecisionInstance, event);
+
+        event.setInputs(historicDecisionInstance.getInputs()
+                .stream()
+                .map(this::createDecisionInstanceInputEvent)
+                .collect(Collectors.toList()));
+
+        event.setOutputs(historicDecisionInstance.getOutputs()
+                .stream()
+                .map(this::createDecisionInstanceOutputEvent)
+                .collect(Collectors.toList()));
+
+        return event;
+    }
+
+    private DecisionInstanceInputEvent createDecisionInstanceInputEvent(HistoricDecisionInputInstance historicDecisionInputInstance) {
+
+        DecisionInstanceInputEvent event = new DecisionInstanceInputEvent();
+        BeanUtils.copyProperties(historicDecisionInputInstance, event);
+        event.setType(formatString(historicDecisionInputInstance.getTypeName()));
+        event.setValue(String.valueOf(historicDecisionInputInstance.getTypedValue().getValue()));
+        event.setCreateTime(formatDate(historicDecisionInputInstance.getCreateTime()));
+
+        return event;
+    }
+
+    String formatDate(Date date) {
+
+        SimpleDateFormat apiDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        return apiDateFormat.format(date);
+
+    }
+
+    String formatString(String string) {
+        return string.substring(0,1).toUpperCase() + string.substring(1);
+    }
+
+    private DecisionInstanceOutputEvent createDecisionInstanceOutputEvent(HistoricDecisionOutputInstance historicDecisionOutputInstance) {
+
+        DecisionInstanceOutputEvent event = new DecisionInstanceOutputEvent();
+        BeanUtils.copyProperties(historicDecisionOutputInstance, event);
+        event.setType(formatString(historicDecisionOutputInstance.getTypeName()));
+        event.setValue(String.valueOf(historicDecisionOutputInstance.getTypedValue().getValue()));
+        event.setCreateTime(formatDate(historicDecisionOutputInstance.getCreateTime()));
+
+        return event;
     }
 
     private DecisionDefinitionEvent createDecisionDefinitionEvent(Deployment d, DecisionDefinition dd) {
