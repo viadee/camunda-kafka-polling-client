@@ -76,7 +76,8 @@ public class ApplicationProperties {
         TASK_COMMENTS,
         IDENTITY_LINKS_UNFINISHED_ACTIVITIES,
         IDENTITY_LINKS_FINISHED_ACTIVITIES,
-        DECISION_DEFINITION
+        DECISION_DEFINITION,
+        DECISION_INSTANCE
     }
 
     public long getKafkaSendTimeoutInSeconds() {
