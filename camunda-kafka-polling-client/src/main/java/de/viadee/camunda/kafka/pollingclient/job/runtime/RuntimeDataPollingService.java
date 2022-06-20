@@ -186,7 +186,20 @@ public class RuntimeDataPollingService implements Runnable {
                         && activityInstanceEvent.getActivityType().equals("userTask")) {
                     pollIdentityLinks(activityInstanceEvent);
                 }
+
+                if (properties.getPollingEvents()
+                        .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE)
+                        && activityInstanceEvent.getActivityType().equals("businessRuleTask")) {
+                    pollDecisionInstances(activityInstanceEvent.getActivityInstanceId());
+                }
             }
+        }
+    }
+
+    private void pollDecisionInstances(final String activityInstanceId) {
+        for (final DecisionInstanceEvent decisionInstanceEvent : pollingService
+                                                                            .pollDecisionInstances(activityInstanceId)) {
+            eventService.sendEvent(decisionInstanceEvent);
         }
     }
 
