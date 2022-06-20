@@ -233,6 +233,41 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         }
     }
 
+    @Override
+    public Iterable<DecisionInstanceEvent> pollDecisionInstances(String activityInstanceId) {
+
+        final String url = camundaProperties.getUrl()
+                + "history/decision-instance?disableCustomObjectDeserialization=true&includeInputs=true&includeOutputs=true&activityInstanceIdIn={activityInstanceId}";
+        try {
+            final Map<String, Object> variables = new HashMap<>();
+            variables.put(ACTIVITY_INSTANCE_ID, activityInstanceId);
+
+            LOGGER.debug("Polling decision instances from {} ({})", url, variables);
+
+            List<GetHistoricDecisionInstanceResponse> result = this.restTemplate
+                    .exchange(url,
+                            HttpMethod.GET,
+                            null,
+                            new ParameterizedTypeReference<List<GetHistoricDecisionInstanceResponse>>() {
+
+                            },
+                            variables)
+                    .getBody();
+
+            if (result == null) {
+                return new ArrayList<>();
+            }
+
+            LOGGER.debug("Found {} decision instances from {} ({})", result.size(), url, variables);
+
+            return result
+                    .stream()
+                    .map(this::createDecisionInstanceEvent)::iterator;
+        } catch (RestClientException e) {
+            throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for decision Instances", e);
+        }
+    }
+
     /** {@inheritDoc} */
     @Override
     public Iterable<VariableUpdateEvent> pollCurrentVariables(String activityInstanceId) {
@@ -621,6 +656,40 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         BeanUtils.copyProperties(getHistoricActivityInstanceRespone, event);
 
         event.setActivityInstanceId(getHistoricActivityInstanceRespone.getId());
+
+        return event;
+    }
+
+    private DecisionInstanceEvent createDecisionInstanceEvent(GetHistoricDecisionInstanceResponse getHistoricDecisionInstanceResponse) {
+
+        final DecisionInstanceEvent event = new DecisionInstanceEvent();
+        BeanUtils.copyProperties(getHistoricDecisionInstanceResponse, event);
+
+        event.setInputs(getHistoricDecisionInstanceResponse.getInputs()
+                .stream()
+                .map(this::createDecisionInstanceInputEvent)
+                .collect(Collectors.toList()));
+
+        event.setOutputs(getHistoricDecisionInstanceResponse.getOutputs()
+                .stream()
+                .map(this::createDecisionInstanceOutputEvent)
+                .collect(Collectors.toList()));
+
+        return event;
+    }
+
+    private DecisionInstanceInputEvent createDecisionInstanceInputEvent(GetHistoricDecisionInstanceInputResponse getHistoricDecisionInstanceInputResponse) {
+
+        final DecisionInstanceInputEvent event = new DecisionInstanceInputEvent();
+        BeanUtils.copyProperties(getHistoricDecisionInstanceInputResponse, event);
+
+        return event;
+    }
+
+    private DecisionInstanceOutputEvent createDecisionInstanceOutputEvent(GetHistoricDecisionInstanceOutputResponse getHistoricDecisionInstanceOutputResponse) {
+
+        final DecisionInstanceOutputEvent event = new DecisionInstanceOutputEvent();
+        BeanUtils.copyProperties(getHistoricDecisionInstanceOutputResponse, event);
 
         return event;
     }
