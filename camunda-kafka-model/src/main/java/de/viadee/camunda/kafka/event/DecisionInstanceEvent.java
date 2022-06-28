@@ -161,6 +161,4 @@ public class DecisionInstanceEvent extends HistoryEvent {
         this.outputs = outputs;
     }
 
-
-
 }
