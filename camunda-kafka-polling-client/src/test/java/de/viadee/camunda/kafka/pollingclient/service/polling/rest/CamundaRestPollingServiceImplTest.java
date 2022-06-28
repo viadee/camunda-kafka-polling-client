@@ -93,7 +93,6 @@ class CamundaRestPollingServiceImplTest {
         assertFalse(iter.hasNext());
     }
 
-
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
     void pollDecisionInstances() {
@@ -134,7 +133,7 @@ class CamundaRestPollingServiceImplTest {
         ResponseEntity mockedResponseEntity = mock(ResponseEntity.class);
         when(mockedResponseEntity.getBody()).thenReturn(decisionInstanceList);
         when(mockedRestTemplate.exchange(any(), any(), any(), (ParameterizedTypeReference) any(),
-                (Map<String, Object>) any())).thenReturn(mockedResponseEntity);
+                                         (Map<String, Object>) any())).thenReturn(mockedResponseEntity);
 
         // call functions
         CamundaRestPollingServiceImpl c = new CamundaRestPollingServiceImpl(prop, mockedRestTemplate);

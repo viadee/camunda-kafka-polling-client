@@ -246,14 +246,14 @@ public class CamundaRestPollingServiceImpl implements PollingService {
             LOGGER.debug("Polling decision instances from {} ({})", url, variables);
 
             List<GetHistoricDecisionInstanceResponse> result = this.restTemplate
-                    .exchange(url,
-                            HttpMethod.GET,
-                            null,
-                            new ParameterizedTypeReference<List<GetHistoricDecisionInstanceResponse>>() {
+                                                                                .exchange(url,
+                                                                                          HttpMethod.GET,
+                                                                                          null,
+                                                                                          new ParameterizedTypeReference<List<GetHistoricDecisionInstanceResponse>>() {
 
-                            },
-                            variables)
-                    .getBody();
+                                                                                          },
+                                                                                          variables)
+                                                                                .getBody();
 
             if (result == null) {
                 return new ArrayList<>();
@@ -262,8 +262,8 @@ public class CamundaRestPollingServiceImpl implements PollingService {
             LOGGER.debug("Found {} decision instances from {} ({})", result.size(), url, variables);
 
             return result
-                    .stream()
-                    .map(this::createDecisionInstanceEvent)::iterator;
+                         .stream()
+                         .map(this::createDecisionInstanceEvent)::iterator;
         } catch (RestClientException e) {
             throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for decision Instances", e);
         }
@@ -659,14 +659,14 @@ public class CamundaRestPollingServiceImpl implements PollingService {
         BeanUtils.copyProperties(getHistoricDecisionInstanceResponse, event);
 
         event.setInputs(getHistoricDecisionInstanceResponse.getInputs()
-                .stream()
-                .map(this::createDecisionInstanceInputEvent)
-                .collect(Collectors.toList()));
+                                                           .stream()
+                                                           .map(this::createDecisionInstanceInputEvent)
+                                                           .collect(Collectors.toList()));
 
         event.setOutputs(getHistoricDecisionInstanceResponse.getOutputs()
-                .stream()
-                .map(this::createDecisionInstanceOutputEvent)
-                .collect(Collectors.toList()));
+                                                            .stream()
+                                                            .map(this::createDecisionInstanceOutputEvent)
+                                                            .collect(Collectors.toList()));
 
         return event;
     }

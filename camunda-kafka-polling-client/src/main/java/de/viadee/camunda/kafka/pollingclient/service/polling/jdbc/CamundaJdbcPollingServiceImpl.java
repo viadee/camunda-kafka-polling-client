@@ -275,16 +275,16 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
     @Override
     public Iterable<DecisionInstanceEvent> pollDecisionInstances(String activityInstanceId) {
         return historyService.createHistoricDecisionInstanceQuery()
-                .activityInstanceIdIn(activityInstanceId)
-                .includeInputs()
-                .includeOutputs()
-                //.disableCustomObjectDeserialization()
-                .list()
-                .stream()
-                // selected as <= by
-                // Camunda - thus add
-                // filter
-                .map(this::createDecisionInstanceEvent)::iterator;
+                             .activityInstanceIdIn(activityInstanceId)
+                             .includeInputs()
+                             .includeOutputs()
+                             // .disableCustomObjectDeserialization()
+                             .list()
+                             .stream()
+                             // selected as <= by
+                             // Camunda - thus add
+                             // filter
+                             .map(this::createDecisionInstanceEvent)::iterator;
     }
 
     private DecisionInstanceEvent createDecisionInstanceEvent(HistoricDecisionInstance historicDecisionInstance) {
@@ -293,14 +293,14 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
         BeanUtils.copyProperties(historicDecisionInstance, event);
 
         event.setInputs(historicDecisionInstance.getInputs()
-                .stream()
-                .map(this::createDecisionInstanceInputEvent)
-                .collect(Collectors.toList()));
+                                                .stream()
+                                                .map(this::createDecisionInstanceInputEvent)
+                                                .collect(Collectors.toList()));
 
         event.setOutputs(historicDecisionInstance.getOutputs()
-                .stream()
-                .map(this::createDecisionInstanceOutputEvent)
-                .collect(Collectors.toList()));
+                                                 .stream()
+                                                 .map(this::createDecisionInstanceOutputEvent)
+                                                 .collect(Collectors.toList()));
 
         return event;
     }
@@ -324,7 +324,7 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
     }
 
     String formatString(String string) {
-        return string.substring(0,1).toUpperCase() + string.substring(1);
+        return string.substring(0, 1).toUpperCase() + string.substring(1);
     }
 
     private DecisionInstanceOutputEvent createDecisionInstanceOutputEvent(HistoricDecisionOutputInstance historicDecisionOutputInstance) {

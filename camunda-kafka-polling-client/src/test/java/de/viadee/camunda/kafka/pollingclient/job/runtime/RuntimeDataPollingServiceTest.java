@@ -82,8 +82,6 @@ public class RuntimeDataPollingServiceTest {
     private DmnEngine dmnEngine;
     private DmnEngineConfiguration dmnEngineConfiguration;
 
-
-
     @BeforeEach
     void setup() {
         LogFactory.useSlf4jLogging();
@@ -107,7 +105,6 @@ public class RuntimeDataPollingServiceTest {
 
         pollingService = new RuntimeDataPollingService(pollingApiService, lastPolledService, eventSendService,
                                                        applicationProperties);
-
 
     }
 
@@ -619,40 +616,39 @@ public class RuntimeDataPollingServiceTest {
         // @formatter:on
     }
 
-
     @DisplayName("Polling of decision Instances")
     @Test
     void pollDecisionInstances() {
 
-        //initiate process
+        // initiate process
         setCurrentTime(BEFORE_CUTOFF);
         processEngine.getRepositoryService()
-                .createDeployment()
-                .addClasspathResource("dmn/dmnTest.bpmn")
-                .addClasspathResource("dmn/dmnTest.dmn")
-                .deploy();
+                     .createDeployment()
+                     .addClasspathResource("dmn/dmnTest.bpmn")
+                     .addClasspathResource("dmn/dmnTest.dmn")
+                     .deploy();
 
-        //create input
+        // create input
         VariableMap variables = Variables.createVariables()
-                .putValue("input", "100");
+                                         .putValue("input", "100");
 
         // expected output
         DmnDecisionTableResult result = processEngine.getDecisionService()
-                .evaluateDecisionTableByKey("simple-dmn")
-                .variables(variables)
-                .evaluate();
+                                                     .evaluateDecisionTableByKey("simple-dmn")
+                                                     .variables(variables)
+                                                     .evaluate();
 
         Boolean expectedOutput = result.getSingleEntry();
 
-        //start process instance with dmn table
+        // start process instance with dmn table
         setCurrentTime(START_TIME);
         final ProcessInstance processInstance = processEngine.getRuntimeService()
-                .startProcessInstanceByKey("simpleDmn", variables);
+                                                             .startProcessInstanceByKey("simpleDmn", variables);
 
         // retrieve results (start polling)
         when(lastPolledService.getPollingTimeslice())
-                .thenReturn(new PollingTimeslice(CUTOFF_TIME.date, START_TIME.date,
-                        END_TIME.date));
+                                                     .thenReturn(new PollingTimeslice(CUTOFF_TIME.date, START_TIME.date,
+                                                                                      END_TIME.date));
 
         // perform polling
         pollingService.run();
@@ -662,16 +658,16 @@ public class RuntimeDataPollingServiceTest {
         verify(eventSendService, atLeastOnce()).sendEvent(decisionInstanceEventCaptor.capture());
 
         final Optional<List<DecisionInstanceOutputEvent>> polledOutput = decisionInstanceEventCaptor.getAllValues()
-                .stream()
-                .filter(event -> event instanceof DecisionInstanceEvent)
-                .map(event -> ((DecisionInstanceEvent) event).getOutputs())
-                .findFirst();
+                                                                                                    .stream()
+                                                                                                    .filter(event -> event instanceof DecisionInstanceEvent)
+                                                                                                    .map(event -> ((DecisionInstanceEvent) event).getOutputs())
+                                                                                                    .findFirst();
 
         assertEquals(expectedOutput, Boolean.valueOf(polledOutput.get().get(0).getValue()));
 
     }
 
-       private static void setCurrentTime(PointOfTime time) {
+    private static void setCurrentTime(PointOfTime time) {
         ClockUtil.setCurrentTime(time.date);
     }
 
