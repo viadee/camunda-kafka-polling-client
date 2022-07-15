@@ -24,7 +24,7 @@
         <spring-boot.version>2.6.4</spring-boot.version>
         <camunda.version>7.16.0</camunda.version>
         <kafka.version>3.1.0</kafka.version>
-        <jackson-databind.version>2.13.2</jackson-databind.version>
+        <jackson-databind.version>2.13.3</jackson-databind.version>
         <jackson.version>2.13.2</jackson.version>
         <postgresql.version>42.3.3</postgresql.version>
         <junit.version>5.8.2</junit.version>
@@ -260,7 +260,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
-                    <version>3.1.0</version>
+                    <version>3.2.0</version>
                 </plugin>
 
                 <plugin>
@@ -290,7 +290,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.11.0</version>
+                    <version>3.12.0</version>
                 </plugin>
 
                 <plugin>
