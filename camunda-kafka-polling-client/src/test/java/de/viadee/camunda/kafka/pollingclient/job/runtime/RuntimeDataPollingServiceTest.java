@@ -1,36 +1,44 @@
 package de.viadee.camunda.kafka.pollingclient.job.runtime;
 
-import de.viadee.camunda.kafka.event.ActivityInstanceEvent;
-import de.viadee.camunda.kafka.event.CommentEvent;
-import de.viadee.camunda.kafka.event.IdentityLinkEvent;
-import de.viadee.camunda.kafka.event.HistoryEvent;
-import de.viadee.camunda.kafka.event.ProcessInstanceEvent;
+import de.viadee.camunda.kafka.event.*;
 import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties;
 import de.viadee.camunda.kafka.pollingclient.service.event.EventService;
 import de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledService;
 import de.viadee.camunda.kafka.pollingclient.service.lastpolled.PollingTimeslice;
 import de.viadee.camunda.kafka.pollingclient.service.polling.jdbc.CamundaJdbcPollingServiceImpl;
 import org.apache.ibatis.logging.LogFactory;
-import org.camunda.bpm.engine.HistoryService;
-import org.camunda.bpm.engine.ProcessEngine;
-import org.camunda.bpm.engine.ProcessEngineConfiguration;
-import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.dmn.engine.DmnDecision;
+import org.camunda.bpm.dmn.engine.DmnDecisionTableResult;
+import org.camunda.bpm.dmn.engine.DmnEngine;
+import org.camunda.bpm.dmn.engine.DmnEngineConfiguration;
+import org.camunda.bpm.engine.*;
+import org.camunda.bpm.engine.history.HistoricDecisionInstance;
 import org.camunda.bpm.engine.history.HistoricIdentityLinkLog;
 import org.camunda.bpm.engine.impl.util.ClockUtil;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Comment;
 import org.camunda.bpm.engine.task.Task;
+import org.camunda.bpm.engine.test.Deployment;
+import org.camunda.bpm.engine.variable.VariableMap;
+import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.camunda.commons.utils.IoUtil;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
+import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static de.viadee.camunda.kafka.pollingclient.job.runtime.RuntimeDataPollingServiceTest.PointOfTime.*;
@@ -71,6 +79,10 @@ public class RuntimeDataPollingServiceTest {
     private EventService eventSendService;
     private ApplicationProperties applicationProperties;
     private ProcessEngine processEngine;
+    private DmnEngine dmnEngine;
+    private DmnEngineConfiguration dmnEngineConfiguration;
+
+
 
     @BeforeEach
     void setup() {
@@ -95,6 +107,8 @@ public class RuntimeDataPollingServiceTest {
 
         pollingService = new RuntimeDataPollingService(pollingApiService, lastPolledService, eventSendService,
                                                        applicationProperties);
+
+
     }
 
     @AfterEach
@@ -605,7 +619,59 @@ public class RuntimeDataPollingServiceTest {
         // @formatter:on
     }
 
-    private static void setCurrentTime(PointOfTime time) {
+
+    @DisplayName("Polling of decision Instances")
+    @Test
+    void pollDecisionInstances() {
+
+        //initiate process
+        setCurrentTime(BEFORE_CUTOFF);
+        processEngine.getRepositoryService()
+                .createDeployment()
+                .addClasspathResource("dmn/dmnTest.bpmn")
+                .addClasspathResource("dmn/dmnTest.dmn")
+                .deploy();
+
+        //create input
+        VariableMap variables = Variables.createVariables()
+                .putValue("input", "100");
+
+        // expected output
+        DmnDecisionTableResult result = processEngine.getDecisionService()
+                .evaluateDecisionTableByKey("simple-dmn")
+                .variables(variables)
+                .evaluate();
+
+        Boolean expectedOutput = result.getSingleEntry();
+
+        //start process instance with dmn table
+        setCurrentTime(START_TIME);
+        final ProcessInstance processInstance = processEngine.getRuntimeService()
+                .startProcessInstanceByKey("simpleDmn", variables);
+
+        // retrieve results (start polling)
+        when(lastPolledService.getPollingTimeslice())
+                .thenReturn(new PollingTimeslice(CUTOFF_TIME.date, START_TIME.date,
+                        END_TIME.date));
+
+        // perform polling
+        pollingService.run();
+
+        // Verify decision instance event
+        final ArgumentCaptor<HistoryEvent> decisionInstanceEventCaptor = ArgumentCaptor.forClass(HistoryEvent.class);
+        verify(eventSendService, atLeastOnce()).sendEvent(decisionInstanceEventCaptor.capture());
+
+        final Optional<List<DecisionInstanceOutputEvent>> polledOutput = decisionInstanceEventCaptor.getAllValues()
+                .stream()
+                .filter(event -> event instanceof DecisionInstanceEvent)
+                .map(event -> ((DecisionInstanceEvent) event).getOutputs())
+                .findFirst();
+
+        assertEquals(expectedOutput, Boolean.valueOf(polledOutput.get().get(0).getValue()));
+
+    }
+
+       private static void setCurrentTime(PointOfTime time) {
         ClockUtil.setCurrentTime(time.date);
     }
 
