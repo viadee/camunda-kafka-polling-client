@@ -14,7 +14,6 @@ public class DecisionInstanceInputEvent {
     private String removalTime;
     private String rootProcessInstanceId;
     private String value;
-
     private Map<String, Object> valueInfo;
 
     public String getId() {

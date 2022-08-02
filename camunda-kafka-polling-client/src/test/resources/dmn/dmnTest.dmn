@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:camunda="http://camunda.org/schema/1.0/dmn" id="Definitions_1iv27mc" name="Check the reqest" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="5.0.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1iv27mc" name="Check the reqest" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="5.0.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
   <decision id="simple-dmn" name="DMN Test">
     <decisionTable id="DecisionTable_181fq00">
-      <input id="Input_1" camunda:inputVariable="input">
-        <inputExpression id="InputExpression_1" typeRef="double">
-          <text>input</text>
+      <input id="Input_1" label="Value">
+        <inputExpression id="InputExpression_1" typeRef="integer" expressionLanguage="feel">
+          <text>car.value</text>
         </inputExpression>
       </input>
-      <output id="Output_1" name="output" typeRef="boolean" />
+      <output id="Output_1" label="Output" name="output" typeRef="boolean" />
       <rule id="DecisionRule_1qft8x5">
         <inputEntry id="UnaryTests_0ueysym">
           <text>[0..100[</text>

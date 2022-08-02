@@ -29,7 +29,6 @@ public class DecisionInstanceEvent extends HistoryEvent {
     private String decisionRequirementsDefinitionId;
     private String decisionRequirementsDefinitionKey;
     private Double collectResultValue;
-
     private List<DecisionInstanceInputEvent> inputs;
     private List<DecisionInstanceOutputEvent> outputs;
 

@@ -474,10 +474,8 @@ public class CamundaRestPollingServiceImpl implements PollingService {
             variables.put("deploymentId", deploymentResponse.getId());
             LOGGER.debug("Polling decision definitions from {} ({})", url, variables);
 
-            decisionDefinitions = this.restTemplate.exchange(url, HttpMethod.GET, null,
-                                                             new ParameterizedTypeReference<List<GetDecisionDefinitionResponse>>() {
-                                                             }, variables)
-                                                   .getBody();
+            decisionDefinitions = this.restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<List<GetDecisionDefinitionResponse>>() {
+            }, variables).getBody();
 
             if (decisionDefinitions == null) {
                 decisionDefinitions = new ArrayList<>();
@@ -488,13 +486,10 @@ public class CamundaRestPollingServiceImpl implements PollingService {
             throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for decision definitions", e);
         }
 
-        return decisionDefinitions.stream()
-                                  .map(response -> createDecisionDefinitionEvent(response, deploymentResponse))
-                                  .collect(Collectors.toList());
+        return decisionDefinitions.stream().map(response -> createDecisionDefinitionEvent(response, deploymentResponse)).collect(Collectors.toList());
     }
 
-    private DecisionDefinitionEvent createDecisionDefinitionEvent(GetDecisionDefinitionResponse resp,
-                                                                  final GetDeploymentResponse deploymentResponse) {
+    private DecisionDefinitionEvent createDecisionDefinitionEvent(GetDecisionDefinitionResponse resp, final GetDeploymentResponse deploymentResponse) {
         final DecisionDefinitionEvent event = new DecisionDefinitionEvent();
         BeanUtils.copyProperties(deploymentResponse, event);
         BeanUtils.copyProperties(resp, event);
@@ -511,9 +506,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
 
             LOGGER.debug("Polling decision definition xml from {} ({})", url, variables);
 
-            resp = this.restTemplate.exchange(url, HttpMethod.GET, null, GetDecisionDefinitionXmlResponse.class,
-                                              variables)
-                                    .getBody();
+            resp = this.restTemplate.exchange(url, HttpMethod.GET, null, GetDecisionDefinitionXmlResponse.class, variables).getBody();
 
             if (resp != null) {
                 LOGGER.debug("Found decision definition xml from {} ({})", url, variables);
@@ -521,8 +514,7 @@ public class CamundaRestPollingServiceImpl implements PollingService {
                 LOGGER.debug("No decision definition xml found from {} ({})", url, variables);
             }
         } catch (RestClientException e) {
-            throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for decision definition xml",
-                                       e);
+            throw new RuntimeException("Error requesting Camunda REST API (" + url + ") for decision definition xml", e);
         }
 
         return resp;

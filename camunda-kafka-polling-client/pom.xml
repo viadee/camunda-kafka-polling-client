@@ -170,6 +170,11 @@
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.camunda.bpm.dmn</groupId>
+            <artifactId>camunda-engine-dmn</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- Required to use Spin dataformat support -->
         <dependency>

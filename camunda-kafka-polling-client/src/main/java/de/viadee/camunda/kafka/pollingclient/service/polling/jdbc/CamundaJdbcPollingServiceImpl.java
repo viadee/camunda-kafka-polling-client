@@ -244,32 +244,27 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
     public Iterable<DecisionDefinitionEvent> pollDecisionDefinitions(Date deploymentAfter, Date deploymentBefore) {
         deploymentAfter = new Date(deploymentAfter.getTime() - 1);
 
-        // query deployments
+        //query deployments
         List<Deployment> deployments = repositoryService.createDeploymentQuery()
-                                                        .deploymentAfter(deploymentAfter)
-                                                        .deploymentBefore(deploymentBefore)
-                                                        .list();
+                .deploymentAfter(deploymentAfter)
+                .deploymentBefore(deploymentBefore)
+                .list();
 
         List<DecisionDefinitionEvent> result = new ArrayList<>();
 
         for (Deployment deployment : deployments) {
-            List<DecisionDefinition> decisionDefinitions = repositoryService.createDecisionDefinitionQuery()
-                                                                            .deploymentId(deployment.getId())
-                                                                            .list();
+            List<DecisionDefinition> decisionDefinitions = repositoryService.createDecisionDefinitionQuery().deploymentId(deployment.getId()).list();
 
-            // query decision definitions
+            //query decision definitions
             for (DecisionDefinition decisionDefinition : decisionDefinitions) {
-                DecisionDefinitionEvent decisionDefinitionEvent = createDecisionDefinitionEvent(deployment,
-                                                                                                decisionDefinition);
+                DecisionDefinitionEvent decisionDefinitionEvent = createDecisionDefinitionEvent(deployment, decisionDefinition);
 
-                // query xml
+                //query xml
                 try {
-                    String xml = IOUtils.toString(repositoryService.getResourceAsStream(decisionDefinition.getDeploymentId(),
-                                                                                        decisionDefinition.getResourceName()));
+                    String xml = IOUtils.toString(repositoryService.getResourceAsStream(decisionDefinition.getDeploymentId(),decisionDefinition.getResourceName()));
                     decisionDefinitionEvent.setXml(xml);
                 } catch (IOException e) {
-                    throw new RuntimeException("error while reading xml for decision definition"
-                            + decisionDefinition.getId(), e);
+                    throw new RuntimeException("error while reading xml for decision definition" + decisionDefinition.getId(),e);
                 }
                 result.add(decisionDefinitionEvent);
             }
@@ -283,12 +278,9 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
                              .activityInstanceIdIn(activityInstanceId)
                              .includeInputs()
                              .includeOutputs()
-                             // .disableCustomObjectDeserialization()
+                             .disableCustomObjectDeserialization()
                              .list()
                              .stream()
-                             // selected as <= by
-                             // Camunda - thus add
-                             // filter
                              .map(this::createDecisionInstanceEvent)::iterator;
     }
 
@@ -314,6 +306,8 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
 
         DecisionInstanceInputEvent event = new DecisionInstanceInputEvent();
         BeanUtils.copyProperties(historicDecisionInputInstance, event);
+        // Since camunda returns strings in lowercase for this attribute, the type string is formatted to match
+        // the REST responses
         event.setType(formatString(historicDecisionInputInstance.getTypeName()));
         event.setValue(String.valueOf(historicDecisionInputInstance.getTypedValue().getValue()));
         event.setCreateTime(formatDate(historicDecisionInputInstance.getCreateTime()));
@@ -321,26 +315,28 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
         return event;
     }
 
-    String formatDate(Date date) {
+    private DecisionInstanceOutputEvent createDecisionInstanceOutputEvent(HistoricDecisionOutputInstance historicDecisionOutputInstance) {
+
+        DecisionInstanceOutputEvent event = new DecisionInstanceOutputEvent();
+        BeanUtils.copyProperties(historicDecisionOutputInstance, event);
+        // Since camunda returns strings in lowercase for this attribute, the type string is formatted to match
+        // the REST responses
+        event.setType(formatString(historicDecisionOutputInstance.getTypeName()));
+        event.setValue(String.valueOf(historicDecisionOutputInstance.getTypedValue().getValue()));
+        event.setCreateTime(formatDate(historicDecisionOutputInstance.getCreateTime()));
+
+        return event;
+    }
+
+    private String formatDate(Date date) {
 
         SimpleDateFormat apiDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         return apiDateFormat.format(date);
 
     }
 
-    String formatString(String string) {
+    private String formatString(String string) {
         return string.substring(0, 1).toUpperCase() + string.substring(1);
-    }
-
-    private DecisionInstanceOutputEvent createDecisionInstanceOutputEvent(HistoricDecisionOutputInstance historicDecisionOutputInstance) {
-
-        DecisionInstanceOutputEvent event = new DecisionInstanceOutputEvent();
-        BeanUtils.copyProperties(historicDecisionOutputInstance, event);
-        event.setType(formatString(historicDecisionOutputInstance.getTypeName()));
-        event.setValue(String.valueOf(historicDecisionOutputInstance.getTypedValue().getValue()));
-        event.setCreateTime(formatDate(historicDecisionOutputInstance.getCreateTime()));
-
-        return event;
     }
 
     private DecisionDefinitionEvent createDecisionDefinitionEvent(Deployment d, DecisionDefinition dd) {
