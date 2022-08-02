@@ -103,7 +103,8 @@ public class RuntimeDataPollingServiceTest {
 
     @AfterEach
     void cleanup() {
-        ProcessEngines.destroy(); //closes all process engines. This method should be called when the server shuts down.
+        // closes all process engines
+        ProcessEngines.destroy();
         ClockUtil.reset();
     }
 
@@ -622,28 +623,31 @@ public class RuntimeDataPollingServiceTest {
                      .deploy();
 
         // create object
-        Car car = new Car("Twingo",200);
+        Car car = new Car("Twingo", 200);
 
         // create input
         VariableMap variables = Variables.createVariables()
-                .putValue("car", car);
+                                         .putValue("car", car);
 
         // start process instance with dmn table
         setCurrentTime(START_TIME);
         processEngine.getRuntimeService()
-                                                             .startProcessInstanceByKey("simpleDmn", variables);
+                     .startProcessInstanceByKey("simpleDmn", variables);
 
         // expected result
         HistoryService historyService = processEngine.getHistoryService();
         List<HistoricDecisionInstance> expectedDecisionInstances = historyService
-                                                           .createHistoricDecisionInstanceQuery()
-                                                           .includeOutputs()
-                                                           .includeInputs()
-                                                           .disableCustomObjectDeserialization()
-                                                           .list();
+                                                                                 .createHistoricDecisionInstanceQuery()
+                                                                                 .includeOutputs()
+                                                                                 .includeInputs()
+                                                                                 .disableCustomObjectDeserialization()
+                                                                                 .list();
 
-        HistoricDecisionInputInstance expectedDecisionInputInstance = expectedDecisionInstances.get(0).getInputs().get(0);
-        HistoricDecisionOutputInstance expectedDecisionOutputInstance = expectedDecisionInstances.get(0).getOutputs()
+        HistoricDecisionInputInstance expectedDecisionInputInstance = expectedDecisionInstances.get(0)
+                                                                                               .getInputs()
+                                                                                               .get(0);
+        HistoricDecisionOutputInstance expectedDecisionOutputInstance = expectedDecisionInstances.get(0)
+                                                                                                 .getOutputs()
                                                                                                  .get(0);
 
         // retrieve results (start polling)
@@ -675,7 +679,8 @@ public class RuntimeDataPollingServiceTest {
         assert Character.isUpperCase(polledDecisionInputInstance.getType().charAt(0));
 
         // assert polling
-        assertEquals(expectedDecisionOutputInstance.getValue(), Boolean.valueOf(polledDecisionOutputInstance.getValue()));
+        assertEquals(expectedDecisionOutputInstance.getValue(),
+                     Boolean.valueOf(polledDecisionOutputInstance.getValue()));
     }
 
     private static void setCurrentTime(PointOfTime time) {

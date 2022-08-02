@@ -66,7 +66,8 @@ public class RepositoryDataPollingService implements Runnable {
 
     private void pollDecisionDefinitions(PollingTimeslice pollingTimeslice) {
         if (properties.getPollingEvents().contains(ApplicationProperties.PollingEvents.DECISION_DEFINITION)) {
-            for (final DecisionDefinitionEvent decisionDefinitionEvent : pollingService.pollDecisionDefinitions(pollingTimeslice.getStartTime(),pollingTimeslice.getEndTime())) {
+            for (final DecisionDefinitionEvent decisionDefinitionEvent : pollingService.pollDecisionDefinitions(pollingTimeslice.getStartTime(),
+                                                                                                                pollingTimeslice.getEndTime())) {
                 eventService.sendEvent(decisionDefinitionEvent);
             }
         }

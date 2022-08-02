@@ -170,11 +170,6 @@
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>org.camunda.bpm.dmn</groupId>
-            <artifactId>camunda-engine-dmn</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <!-- Required to use Spin dataformat support -->
         <dependency>
@@ -240,24 +235,6 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>de.viadee.camunda</groupId>
-            <artifactId>camunda-kafka-model</artifactId>
-            <version>2.1.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>de.viadee.camunda</groupId>
-            <artifactId>camunda-kafka-model</artifactId>
-            <version>2.1.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.camunda.bpm.dmn</groupId>
-            <artifactId>camunda-engine-dmn</artifactId>
-            <version>${camunda.version}</version>
             <scope>test</scope>
         </dependency>
 
