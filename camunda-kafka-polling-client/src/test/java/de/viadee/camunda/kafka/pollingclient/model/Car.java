@@ -1,8 +1,8 @@
 package de.viadee.camunda.kafka.pollingclient.model;
 
-import java.util.Calendar;
+import java.io.Serializable;
 
-public class Car {
+public class Car implements Serializable {
 
     private String model;
     private int value;
