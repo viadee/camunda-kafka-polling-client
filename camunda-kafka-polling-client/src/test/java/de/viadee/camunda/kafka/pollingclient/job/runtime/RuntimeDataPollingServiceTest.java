@@ -17,12 +17,15 @@ import de.viadee.camunda.kafka.pollingclient.service.polling.jdbc.CamundaJdbcPol
 import org.apache.ibatis.logging.LogFactory;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.ProcessEngine;
+import org.camunda.bpm.engine.ProcessEngineConfiguration;
 import org.camunda.bpm.engine.ProcessEngines;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.HistoricDecisionInputInstance;
 import org.camunda.bpm.engine.history.HistoricDecisionInstance;
 import org.camunda.bpm.engine.history.HistoricDecisionOutputInstance;
 import org.camunda.bpm.engine.history.HistoricIdentityLinkLog;
+import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
 import org.camunda.bpm.engine.impl.util.ClockUtil;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Comment;
@@ -31,6 +34,7 @@ import org.camunda.bpm.engine.variable.VariableMap;
 import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.camunda.spin.plugin.impl.SpinProcessEnginePlugin;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -84,7 +88,19 @@ public class RuntimeDataPollingServiceTest {
     @BeforeEach
     void setup() {
         LogFactory.useSlf4jLogging();
-        processEngine = ProcessEngines.getDefaultProcessEngine();
+        SpinProcessEnginePlugin spinProcessEnginePlugin = new SpinProcessEnginePlugin();
+
+        ProcessEngineConfiguration configuration = ProcessEngineConfiguration.createStandaloneInMemProcessEngineConfiguration()
+                                                                             .setJobExecutorActivate(false)
+                                                                             .setHistory(ProcessEngineConfiguration.HISTORY_FULL)
+                                                                             .setDatabaseSchemaUpdate(
+                                                                                     ProcessEngineConfiguration.DB_SCHEMA_UPDATE_CREATE_DROP);
+
+        spinProcessEnginePlugin.preInit((ProcessEngineConfigurationImpl) configuration);
+
+        processEngine = configuration.buildProcessEngine();
+
+        spinProcessEnginePlugin.postInit((ProcessEngineConfigurationImpl) configuration);
 
         lastPolledService = mock(LastPolledService.class);
         eventSendService = mock(EventService.class);
@@ -103,8 +119,7 @@ public class RuntimeDataPollingServiceTest {
 
     @AfterEach
     void cleanup() {
-        // closes all process engines
-        ProcessEngines.destroy();
+        processEngine.close();
         ClockUtil.reset();
     }
 
