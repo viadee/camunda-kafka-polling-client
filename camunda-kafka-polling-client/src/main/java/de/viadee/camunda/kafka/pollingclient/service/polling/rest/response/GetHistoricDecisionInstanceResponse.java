@@ -16,8 +16,8 @@ public class GetHistoricDecisionInstanceResponse {
     private String decisionDefinitionId;
     private String decisionDefinitionKey;
     private String decisionDefinitionName;
-    private String evaluationTime;
-    private String removalTime;
+    private Date evaluationTime;
+    private Date removalTime;
     private String processDefinitionId;
     private String processDefinitionKey;
     private String processInstanceId;
@@ -68,19 +68,19 @@ public class GetHistoricDecisionInstanceResponse {
         this.decisionDefinitionName = decisionDefinitionName;
     }
 
-    public String getEvaluationTime() {
+    public Date getEvaluationTime() {
         return evaluationTime;
     }
 
-    public void setEvaluationTime(String evaluationTime) {
+    public void setEvaluationTime(Date evaluationTime) {
         this.evaluationTime = evaluationTime;
     }
 
-    public String getRemovalTime() {
+    public Date getRemovalTime() {
         return removalTime;
     }
 
-    public void setRemovalTime(String removalTime) {
+    public void setRemovalTime(Date removalTime) {
         this.removalTime = removalTime;
     }
 

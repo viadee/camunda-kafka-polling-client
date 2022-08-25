@@ -3,6 +3,7 @@ package de.viadee.camunda.kafka.pollingclient.service.polling.rest.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -20,8 +21,8 @@ public class GetHistoricDecisionInstanceOutputResponse {
     private String errorMessage;
     private String variableName;
     private String type;
-    private String createTime;
-    private String removalTime;
+    private Date createTime;
+    private Date removalTime;
     private String rootProcessInstanceId;
     private String value;
 
@@ -99,19 +100,19 @@ public class GetHistoricDecisionInstanceOutputResponse {
         this.type = type;
     }
 
-    public String getCreateTime() {
+    public Date getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(String createTime) {
+    public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
 
-    public String getRemovalTime() {
+    public Date getRemovalTime() {
         return removalTime;
     }
 
-    public void setRemovalTime(String removalTime) {
+    public void setRemovalTime(Date removalTime) {
         this.removalTime = removalTime;
     }
 

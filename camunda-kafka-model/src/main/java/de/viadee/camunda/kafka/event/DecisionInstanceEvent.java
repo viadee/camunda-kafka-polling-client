@@ -1,5 +1,6 @@
 package de.viadee.camunda.kafka.event;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,8 +19,8 @@ public class DecisionInstanceEvent extends HistoryEvent {
     private String decisionDefinitionId;
     private String decisionDefinitionKey;
     private String decisionDefinitionName;
-    private String evaluationTime;
-    private String removalTime;
+    private Date evaluationTime;
+    private Date removalTime;
     private String activityId;
     private String activityInstanceId;
     private String tenantId;
@@ -56,19 +57,19 @@ public class DecisionInstanceEvent extends HistoryEvent {
         this.decisionDefinitionName = decisionDefinitionName;
     }
 
-    public String getEvaluationTime() {
+    public Date getEvaluationTime() {
         return evaluationTime;
     }
 
-    public void setEvaluationTime(String evaluationTime) {
+    public void setEvaluationTime(Date evaluationTime) {
         this.evaluationTime = evaluationTime;
     }
 
-    public String getRemovalTime() {
+    public Date getRemovalTime() {
         return removalTime;
     }
 
-    public void setRemovalTime(String removalTime) {
+    public void setRemovalTime(Date removalTime) {
         this.removalTime = removalTime;
     }
 

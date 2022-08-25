@@ -314,7 +314,6 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
         // the REST responses
         event.setType(formatString(historicDecisionInputInstance.getTypeName()));
         event.setValue(String.valueOf(historicDecisionInputInstance.getTypedValue().getValue()));
-        event.setCreateTime(formatDate(historicDecisionInputInstance.getCreateTime()));
 
         return event;
     }
@@ -327,16 +326,8 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
         // the REST responses
         event.setType(formatString(historicDecisionOutputInstance.getTypeName()));
         event.setValue(String.valueOf(historicDecisionOutputInstance.getTypedValue().getValue()));
-        event.setCreateTime(formatDate(historicDecisionOutputInstance.getCreateTime()));
 
         return event;
-    }
-
-    private String formatDate(Date date) {
-
-        SimpleDateFormat apiDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-        return apiDateFormat.format(date);
-
     }
 
     private String formatString(String string) {
