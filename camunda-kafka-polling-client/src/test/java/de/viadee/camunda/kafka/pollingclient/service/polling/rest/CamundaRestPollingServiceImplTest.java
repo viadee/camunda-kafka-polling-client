@@ -1,8 +1,9 @@
 package de.viadee.camunda.kafka.pollingclient.service.polling.rest;
 
+import de.viadee.camunda.kafka.event.DecisionInstanceEvent;
 import de.viadee.camunda.kafka.event.ProcessInstanceEvent;
 import de.viadee.camunda.kafka.pollingclient.config.properties.CamundaRestPollingProperties;
-import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.GetHistoricProcessInstanceResponse;
+import de.viadee.camunda.kafka.pollingclient.service.polling.rest.response.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
@@ -90,6 +91,59 @@ class CamundaRestPollingServiceImplTest {
 
         assertEquals("123", iter.next().getId());
         assertFalse(iter.hasNext());
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Test
+    void pollDecisionInstances() {
+
+        // create CamundaRestPollingProperties
+        CamundaRestPollingProperties prop = new CamundaRestPollingProperties();
+        prop.setPassword("XY");
+        prop.setUrl("XY");
+        prop.setUsername("XY");
+
+        Date startTime = parseDate("2009-11-02T09:45:00.000UTC+00:00");
+
+        GetHistoricActivityInstanceRespone a = new GetHistoricActivityInstanceRespone();
+        a.setActivityId("1");
+        a.setStartTime(startTime);
+
+        List<GetHistoricDecisionInstanceInputResponse> inputList = new ArrayList<>();
+        GetHistoricDecisionInstanceInputResponse i = new GetHistoricDecisionInstanceInputResponse();
+        i.setId("1");
+        i.setValue("100");
+        inputList.add(i);
+
+        List<GetHistoricDecisionInstanceOutputResponse> outputList = new ArrayList<>();
+        GetHistoricDecisionInstanceOutputResponse o = new GetHistoricDecisionInstanceOutputResponse();
+        o.setId("1");
+        o.setValue("true");
+        outputList.add(o);
+
+        List<GetHistoricDecisionInstanceResponse> decisionInstanceList = new ArrayList();
+        GetHistoricDecisionInstanceResponse d = new GetHistoricDecisionInstanceResponse();
+        d.setId("123");
+        d.setActivityId(a.getActivityId());
+        d.setInputs(inputList);
+        d.setOutputs(outputList);
+        decisionInstanceList.add(d);
+
+        // mocking
+        ResponseEntity mockedResponseEntity = mock(ResponseEntity.class);
+        when(mockedResponseEntity.getBody()).thenReturn(decisionInstanceList);
+        when(mockedRestTemplate.exchange(any(), any(), any(), (ParameterizedTypeReference) any(),
+                                         (Map<String, Object>) any())).thenReturn(mockedResponseEntity);
+
+        // call functions
+        CamundaRestPollingServiceImpl c = new CamundaRestPollingServiceImpl(prop, mockedRestTemplate);
+        Iterable<DecisionInstanceEvent> pieIterator = c.pollDecisionInstances(a.getActivityId());
+
+        Iterator<DecisionInstanceEvent> iter = pieIterator.iterator();
+
+        assertEquals("123", iter.next().getId());
+        assertFalse(iter.hasNext());
+
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })

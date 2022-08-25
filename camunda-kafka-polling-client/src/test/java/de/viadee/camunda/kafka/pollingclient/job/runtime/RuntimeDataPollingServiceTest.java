@@ -2,10 +2,14 @@ package de.viadee.camunda.kafka.pollingclient.job.runtime;
 
 import de.viadee.camunda.kafka.event.ActivityInstanceEvent;
 import de.viadee.camunda.kafka.event.CommentEvent;
-import de.viadee.camunda.kafka.event.IdentityLinkEvent;
+import de.viadee.camunda.kafka.event.DecisionInstanceEvent;
+import de.viadee.camunda.kafka.event.DecisionInstanceInputEvent;
+import de.viadee.camunda.kafka.event.DecisionInstanceOutputEvent;
 import de.viadee.camunda.kafka.event.HistoryEvent;
+import de.viadee.camunda.kafka.event.IdentityLinkEvent;
 import de.viadee.camunda.kafka.event.ProcessInstanceEvent;
 import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties;
+import de.viadee.camunda.kafka.pollingclient.model.Car;
 import de.viadee.camunda.kafka.pollingclient.service.event.EventService;
 import de.viadee.camunda.kafka.pollingclient.service.lastpolled.LastPolledService;
 import de.viadee.camunda.kafka.pollingclient.service.lastpolled.PollingTimeslice;
@@ -14,14 +18,23 @@ import org.apache.ibatis.logging.LogFactory;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.ProcessEngineConfiguration;
+import org.camunda.bpm.engine.ProcessEngines;
 import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.history.HistoricDecisionInputInstance;
+import org.camunda.bpm.engine.history.HistoricDecisionInstance;
+import org.camunda.bpm.engine.history.HistoricDecisionOutputInstance;
 import org.camunda.bpm.engine.history.HistoricIdentityLinkLog;
+import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
 import org.camunda.bpm.engine.impl.util.ClockUtil;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Comment;
 import org.camunda.bpm.engine.task.Task;
+import org.camunda.bpm.engine.variable.VariableMap;
+import org.camunda.bpm.engine.variable.Variables;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.camunda.spin.plugin.impl.SpinProcessEnginePlugin;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -75,12 +88,19 @@ public class RuntimeDataPollingServiceTest {
     @BeforeEach
     void setup() {
         LogFactory.useSlf4jLogging();
-        processEngine = ProcessEngineConfiguration.createStandaloneInMemProcessEngineConfiguration()
-                                                  .setJobExecutorActivate(false)
-                                                  .setHistory(ProcessEngineConfiguration.HISTORY_FULL)
-                                                  .setDatabaseSchemaUpdate(
-                                                                           ProcessEngineConfiguration.DB_SCHEMA_UPDATE_CREATE_DROP)
-                                                  .buildProcessEngine();
+        SpinProcessEnginePlugin spinProcessEnginePlugin = new SpinProcessEnginePlugin();
+
+        ProcessEngineConfiguration configuration = ProcessEngineConfiguration.createStandaloneInMemProcessEngineConfiguration()
+                                                                             .setJobExecutorActivate(false)
+                                                                             .setHistory(ProcessEngineConfiguration.HISTORY_FULL)
+                                                                             .setDatabaseSchemaUpdate(
+                                                                                     ProcessEngineConfiguration.DB_SCHEMA_UPDATE_CREATE_DROP);
+
+        spinProcessEnginePlugin.preInit((ProcessEngineConfigurationImpl) configuration);
+
+        processEngine = configuration.buildProcessEngine();
+
+        spinProcessEnginePlugin.postInit((ProcessEngineConfigurationImpl) configuration);
 
         lastPolledService = mock(LastPolledService.class);
         eventSendService = mock(EventService.class);
@@ -603,6 +623,79 @@ public class RuntimeDataPollingServiceTest {
                 arguments(AFTER_TIMESLICE,          false)
         );
         // @formatter:on
+    }
+
+    @DisplayName("Polling of decision instances")
+    @Test
+    void pollDecisionInstances() {
+
+        // initiate process
+        setCurrentTime(BEFORE_CUTOFF);
+        processEngine.getRepositoryService()
+                     .createDeployment()
+                     .addClasspathResource("dmn/dmnTest.bpmn")
+                     .addClasspathResource("dmn/dmnTest.dmn")
+                     .deploy();
+
+        // create object
+        Car car = new Car("Twingo", 200);
+
+        // create input
+        VariableMap variables = Variables.createVariables()
+                                         .putValue("car", car);
+
+        // start process instance with dmn table
+        setCurrentTime(START_TIME);
+        processEngine.getRuntimeService()
+                     .startProcessInstanceByKey("simpleDmn", variables);
+
+        // expected result
+        HistoryService historyService = processEngine.getHistoryService();
+        List<HistoricDecisionInstance> expectedDecisionInstances = historyService
+                                                                                 .createHistoricDecisionInstanceQuery()
+                                                                                 .includeOutputs()
+                                                                                 .includeInputs()
+                                                                                 .disableCustomObjectDeserialization()
+                                                                                 .list();
+
+        HistoricDecisionInputInstance expectedDecisionInputInstance = expectedDecisionInstances.get(0)
+                                                                                               .getInputs()
+                                                                                               .get(0);
+        HistoricDecisionOutputInstance expectedDecisionOutputInstance = expectedDecisionInstances.get(0)
+                                                                                                 .getOutputs()
+                                                                                                 .get(0);
+
+        // retrieve results (start polling)
+        when(lastPolledService.getPollingTimeslice())
+                                                     .thenReturn(new PollingTimeslice(CUTOFF_TIME.date, START_TIME.date,
+                                                                                      END_TIME.date));
+
+        // perform polling
+        pollingService.run();
+
+        // Verify decision instance event
+        final ArgumentCaptor<HistoryEvent> decisionInstanceEventCaptor = ArgumentCaptor.forClass(HistoryEvent.class);
+        verify(eventSendService, atLeastOnce()).sendEvent(decisionInstanceEventCaptor.capture());
+
+        final List<DecisionInstanceEvent> polledDecisionInstances = decisionInstanceEventCaptor.getAllValues()
+                                                                                               .stream()
+                                                                                               .filter(event -> event instanceof DecisionInstanceEvent)
+                                                                                               .map(event -> ((DecisionInstanceEvent) event))
+                                                                                               .collect(toList());
+
+        DecisionInstanceEvent polledDecisionInstance = polledDecisionInstances.get(0);
+        DecisionInstanceInputEvent polledDecisionInputInstance = polledDecisionInstance.getInputs().get(0);
+        DecisionInstanceOutputEvent polledDecisionOutputInstance = polledDecisionInstance.getOutputs().get(0);
+
+        // assert formatting
+        assert Character.isLowerCase(expectedDecisionOutputInstance.getTypeName().charAt(0));
+        assert Character.isUpperCase(polledDecisionOutputInstance.getType().charAt(0));
+        assert Character.isLowerCase(expectedDecisionInputInstance.getTypeName().charAt(0));
+        assert Character.isUpperCase(polledDecisionInputInstance.getType().charAt(0));
+
+        // assert polling
+        assertEquals(expectedDecisionOutputInstance.getValue(),
+                     Boolean.valueOf(polledDecisionOutputInstance.getValue()));
     }
 
     private static void setCurrentTime(PointOfTime time) {

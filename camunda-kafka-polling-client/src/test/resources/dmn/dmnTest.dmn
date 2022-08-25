@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1iv27mc" name="Check the reqest" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="5.0.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.17.0">
+  <decision id="simple-dmn" name="DMN Test">
+    <decisionTable id="DecisionTable_181fq00">
+      <input id="Input_1" label="Value">
+        <inputExpression id="InputExpression_1" typeRef="integer" expressionLanguage="feel">
+          <text>car.value</text>
+        </inputExpression>
+      </input>
+      <output id="Output_1" label="Output" name="output" typeRef="boolean" />
+      <rule id="DecisionRule_1qft8x5">
+        <inputEntry id="UnaryTests_0ueysym">
+          <text>[0..100[</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0vmzwhg">
+          <text>true</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0rhqy8p">
+        <inputEntry id="UnaryTests_0vce1lw">
+          <text>[100..200[</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1wmqefz">
+          <text>true</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1n2su7e">
+        <inputEntry id="UnaryTests_1kyx3lj">
+          <text>[200..300[</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1nelu78">
+          <text>true</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0jxuwcc">
+        <inputEntry id="UnaryTests_0gvoqru">
+          <text>[400..500[</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0mhyaa1">
+          <text>false</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_070xgmg">
+        <inputEntry id="UnaryTests_16i7fjj">
+          <text>[600..700[</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0chps7j">
+          <text>false</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0e1jrhh">
+        <inputEntry id="UnaryTests_02qm13v">
+          <text>&gt; 700</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0i4vgy6">
+          <text>false</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_0kjacfp">
+      <dmndi:DMNShape id="DMNShape_1bsl9m3" dmnElementRef="simple-dmn">
+        <dc:Bounds height="80" width="180" x="150" y="80" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

@@ -1,5 +1,6 @@
 package de.viadee.camunda.kafka.pollingclient.job.repository;
 
+import de.viadee.camunda.kafka.event.DecisionDefinitionEvent;
 import de.viadee.camunda.kafka.event.ProcessDefinitionEvent;
 import de.viadee.camunda.kafka.pollingclient.config.properties.ApplicationProperties;
 import de.viadee.camunda.kafka.pollingclient.service.event.EventService;
@@ -61,6 +62,15 @@ public class RepositoryDataPollingService implements Runnable {
         lastPolledService.updatePollingTimeslice(pollingTimeslice);
 
         LOGGER.info("Finished polling repository data: {}", pollingTimeslice);
+    }
+
+    private void pollDecisionDefinitions(PollingTimeslice pollingTimeslice) {
+        if (properties.getPollingEvents().contains(ApplicationProperties.PollingEvents.DECISION_DEFINITION)) {
+            for (final DecisionDefinitionEvent decisionDefinitionEvent : pollingService.pollDecisionDefinitions(pollingTimeslice.getStartTime(),
+                                                                                                                pollingTimeslice.getEndTime())) {
+                eventService.sendEvent(decisionDefinitionEvent);
+            }
+        }
     }
 
     private void pollProcessDefinitions(final PollingTimeslice pollingTimeslice) {

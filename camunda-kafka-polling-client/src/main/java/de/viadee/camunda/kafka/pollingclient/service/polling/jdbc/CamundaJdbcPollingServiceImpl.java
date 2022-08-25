@@ -12,6 +12,7 @@ import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.*;
 import org.camunda.bpm.engine.impl.persistence.entity.HistoricDetailVariableInstanceUpdateEntity;
 import org.camunda.bpm.engine.impl.persistence.entity.HistoricVariableInstanceEntity;
+import org.camunda.bpm.engine.repository.DecisionDefinition;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.task.Comment;
@@ -20,9 +21,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -234,6 +237,108 @@ public class CamundaJdbcPollingServiceImpl implements PollingService {
                              .list()
                              .stream()
                              .map(historicIdentityLinkLog -> createIdentityLinkEventFromDetails(historicIdentityLinkLog))::iterator;
+    }
+
+    @Override
+    public Iterable<DecisionDefinitionEvent> pollDecisionDefinitions(Date deploymentAfter, Date deploymentBefore) {
+        deploymentAfter = new Date(deploymentAfter.getTime() - 1);
+
+        // query deployments
+        List<Deployment> deployments = repositoryService.createDeploymentQuery()
+                                                        .deploymentAfter(deploymentAfter)
+                                                        .deploymentBefore(deploymentBefore)
+                                                        .list();
+
+        List<DecisionDefinitionEvent> result = new ArrayList<>();
+
+        for (Deployment deployment : deployments) {
+            List<DecisionDefinition> decisionDefinitions = repositoryService.createDecisionDefinitionQuery()
+                                                                            .deploymentId(deployment.getId())
+                                                                            .list();
+
+            // query decision definitions
+            for (DecisionDefinition decisionDefinition : decisionDefinitions) {
+                DecisionDefinitionEvent decisionDefinitionEvent = createDecisionDefinitionEvent(deployment,
+                                                                                                decisionDefinition);
+
+                // query xml
+                try {
+                    String xml = IOUtils.toString(repositoryService.getResourceAsStream(decisionDefinition.getDeploymentId(),
+                                                                                        decisionDefinition.getResourceName()));
+                    decisionDefinitionEvent.setXml(xml);
+                } catch (IOException e) {
+                    throw new RuntimeException("error while reading xml for decision definition"
+                            + decisionDefinition.getId(), e);
+                }
+                result.add(decisionDefinitionEvent);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public Iterable<DecisionInstanceEvent> pollDecisionInstances(String activityInstanceId) {
+        return historyService.createHistoricDecisionInstanceQuery()
+                             .activityInstanceIdIn(activityInstanceId)
+                             .includeInputs()
+                             .includeOutputs()
+                             .disableCustomObjectDeserialization()
+                             .list()
+                             .stream()
+                             .map(this::createDecisionInstanceEvent)::iterator;
+    }
+
+    private DecisionInstanceEvent createDecisionInstanceEvent(HistoricDecisionInstance historicDecisionInstance) {
+
+        DecisionInstanceEvent event = new DecisionInstanceEvent();
+        BeanUtils.copyProperties(historicDecisionInstance, event);
+
+        event.setInputs(historicDecisionInstance.getInputs()
+                                                .stream()
+                                                .map(this::createDecisionInstanceInputEvent)
+                                                .collect(Collectors.toList()));
+
+        event.setOutputs(historicDecisionInstance.getOutputs()
+                                                 .stream()
+                                                 .map(this::createDecisionInstanceOutputEvent)
+                                                 .collect(Collectors.toList()));
+
+        return event;
+    }
+
+    private DecisionInstanceInputEvent createDecisionInstanceInputEvent(HistoricDecisionInputInstance historicDecisionInputInstance) {
+
+        DecisionInstanceInputEvent event = new DecisionInstanceInputEvent();
+        BeanUtils.copyProperties(historicDecisionInputInstance, event);
+        // Since camunda returns strings in lowercase for this attribute, the type string is formatted to match
+        // the REST responses
+        event.setType(formatString(historicDecisionInputInstance.getTypeName()));
+        event.setValue(String.valueOf(historicDecisionInputInstance.getTypedValue().getValue()));
+
+        return event;
+    }
+
+    private DecisionInstanceOutputEvent createDecisionInstanceOutputEvent(HistoricDecisionOutputInstance historicDecisionOutputInstance) {
+
+        DecisionInstanceOutputEvent event = new DecisionInstanceOutputEvent();
+        BeanUtils.copyProperties(historicDecisionOutputInstance, event);
+        // Since camunda returns strings in lowercase for this attribute, the type string is formatted to match
+        // the REST responses
+        event.setType(formatString(historicDecisionOutputInstance.getTypeName()));
+        event.setValue(String.valueOf(historicDecisionOutputInstance.getTypedValue().getValue()));
+
+        return event;
+    }
+
+    private String formatString(String string) {
+        return string.substring(0, 1).toUpperCase() + string.substring(1);
+    }
+
+    private DecisionDefinitionEvent createDecisionDefinitionEvent(Deployment d, DecisionDefinition dd) {
+        DecisionDefinitionEvent event = new DecisionDefinitionEvent();
+        BeanUtils.copyProperties(d, event);
+        BeanUtils.copyProperties(dd, event);
+        return event;
     }
 
     private ProcessDefinitionEvent createProcessDefinitionEvent(Deployment d, ProcessDefinition pd) {

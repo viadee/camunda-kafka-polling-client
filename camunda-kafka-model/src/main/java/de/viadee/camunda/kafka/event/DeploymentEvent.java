@@ -8,10 +8,10 @@ import java.util.Date;
  * DeploymentEvent class.
  * </p>
  *
- * 
- * 
+ *
+ *
  * @author viadee
- * 
+ *
  * @version $Id: $Id
  */
 public class DeploymentEvent {

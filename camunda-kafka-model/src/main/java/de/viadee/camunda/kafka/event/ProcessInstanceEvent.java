@@ -6,10 +6,10 @@ package de.viadee.camunda.kafka.event;
  * ProcessInstanceEvent class.
  * </p>
  *
- * 
- * 
+ *
+ *
  * @author viadee
- * 
+ *
  * @version $Id: $Id
  */
 public class ProcessInstanceEvent extends ScopeInstanceEvent {

@@ -9,6 +9,8 @@ import de.viadee.camunda.kafka.pollingclient.service.polling.PollingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Date;
 
 /**
@@ -184,7 +186,20 @@ public class RuntimeDataPollingService implements Runnable {
                         && activityInstanceEvent.getActivityType().equals("userTask")) {
                     pollIdentityLinks(activityInstanceEvent);
                 }
+
+                if (properties.getPollingEvents()
+                              .contains(ApplicationProperties.PollingEvents.DECISION_INSTANCE)
+                        && activityInstanceEvent.getActivityType().equals("businessRuleTask")) {
+                    pollDecisionInstances(activityInstanceEvent.getActivityInstanceId());
+                }
             }
+        }
+    }
+
+    private void pollDecisionInstances(final String activityInstanceId) {
+        for (final DecisionInstanceEvent decisionInstanceEvent : pollingService
+                                                                               .pollDecisionInstances(activityInstanceId)) {
+            eventService.sendEvent(decisionInstanceEvent);
         }
     }
 
